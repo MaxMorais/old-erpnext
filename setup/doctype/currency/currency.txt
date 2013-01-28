@@ -1,8 +1,8 @@
 [
  {
-  "creation": "2013-01-19 11:14:50", 
+  "creation": "2013-01-28 10:06:02", 
   "docstatus": 0, 
-  "modified": "2013-01-22 15:07:36", 
+  "modified": "2013-01-28 10:37:18", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -56,28 +56,33 @@
   "label": "Enabled"
  }, 
  {
+  "description": "Sub-currency. For e.g. \"Cent\"", 
   "doctype": "DocField", 
   "fieldname": "fraction", 
   "fieldtype": "Data", 
   "label": "Fraction"
  }, 
  {
+  "description": "1 Currency = [?] Fraction\nFor e.g. 1 USD = 100 Cent", 
   "doctype": "DocField", 
   "fieldname": "fraction_units", 
   "fieldtype": "Int", 
   "label": "Fraction Units"
  }, 
  {
+  "description": "A symbol for this currency. For e.g. $", 
   "doctype": "DocField", 
   "fieldname": "symbol", 
   "fieldtype": "Data", 
   "label": "Symbol"
  }, 
  {
+  "description": "How should this currency be formatted? If not set, will use system defaults", 
   "doctype": "DocField", 
   "fieldname": "number_format", 
-  "fieldtype": "Data", 
-  "label": "Number Format"
+  "fieldtype": "Select", 
+  "label": "Number Format", 
+  "options": "\n#,###.##\n#.###,##\n# ###.##\n#,##,###.##\n#.###\n#,###"
  }, 
  {
   "cancel": 1, 

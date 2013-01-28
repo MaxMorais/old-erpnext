@@ -79,6 +79,7 @@ erpnext.StockAgeing = erpnext.StockGridReport.extend({
 		var me = this;
 		this._super();
 		this.trigger_refresh_on_change(["warehouse", "plot_by", "brand"]);
+		this.show_zero_check();
 	},
 	init_filter_values: function() {
 		this._super();
@@ -103,6 +104,11 @@ erpnext.StockAgeing = erpnext.StockGridReport.extend({
 		// filter out brand
 		this.data = $.map(this.data, function(d) {
 			return me.apply_filter(d, "brand") ? d : null;
+		});
+		
+		// filter out rows with zero values
+		this.data = $.map(this.data, function(d) {
+			return me.apply_zero_filter(null, d, null, me) ? d : null;
 		});
 	},
 	prepare_balances: function() {

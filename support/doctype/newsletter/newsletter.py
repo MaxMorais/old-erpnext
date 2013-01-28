@@ -78,7 +78,6 @@ class DocType():
 			
 			self.send(email_list, "Lead")
 		
-		webnotes.conn.set(self.doc, "email_sent", 1)
 		webnotes.msgprint("""Scheduled to send to %s""" % \
 			", ".join(["%d %s(s)" % (self.send_count[s], s) for s in self.send_count]))
 			
@@ -119,6 +118,8 @@ class DocType():
 			subject = self.doc.subject, message = self.doc.message,
 			doctype = doctype, email_field = args["email_field"])
 
+		webnotes.conn.set(self.doc, "email_sent", 1)
+
 	def validate_send(self):
 		if self.doc.fields.get("__islocal"):
 			webnotes.msgprint(_("""Please save the Newsletter before sending."""),
@@ -138,7 +139,7 @@ def create_lead(email_id):
 	lead.fields["__islocal"] = 1
 	lead.lead_name = real_name or email_id
 	lead.email_id = email_id
-	lead.status = "Open"
+	lead.status = "Contacted"
 	lead.naming_series = lead_naming_series or get_lead_naming_series()
 	lead.company = webnotes.conn.get_default("company")
 	lead.source = "Email"

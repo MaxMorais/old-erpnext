@@ -25,10 +25,13 @@ lang_names = {
 	"español": "es",
 	"français": "fr",
 	"português": "pt",
+	"nederlands": "nl",
+	"српски":"sr",
+	"தமிழ்": "ta",
 	"العربية":"ar"
 }
 
-lang_list = ["ar", "en", "hi", "es", "fr", "pt"]
+lang_list = ["ar", "en", "hi", "es", "fr", "pt", "nl"]
 
 product_name = "ERPNext"
 profile_defaults = {
