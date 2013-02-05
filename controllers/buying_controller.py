@@ -22,9 +22,10 @@ from webnotes.utils import flt
 from buying.utils import get_item_details
 from setup.utils import get_company_currency
 
-from utilities.transaction_base import TransactionBase
-class BuyingController(TransactionBase):
-	def validate(self):
+from controllers.accounts_controller import AccountsController
+
+class BuyingController(AccountsController):
+	def validate(self):		
 		if self.meta.get_field("currency"):
 			self.company_currency = get_company_currency(self.doc.company)
 			self.validate_conversion_rate("currency", "conversion_rate")

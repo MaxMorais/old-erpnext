@@ -19,8 +19,7 @@ import webnotes
 
 from webnotes.utils import cstr, get_defaults
 from webnotes.model.doc import Document, make_autoname
-from webnotes.model.code import get_obj
-from webnotes import msgprint
+from webnotes import msgprint, _
 
 sql = webnotes.conn.sql
 
@@ -37,17 +36,9 @@ class DocType(TransactionBase):
 	def autoname(self):
 		cust_master_name = get_defaults().get('cust_master_name')
 		if cust_master_name == 'Customer Name':
-			# filter out bad characters in name
-			#cust = self.doc.customer_name.replace('&','and').replace('.','').replace("'",'').replace('"','').replace(',','').replace('`','')
-			cust = self.doc.customer_name
-
-			supp = sql("select name from `tabSupplier` where name = %s", (cust))
-			supp = supp and supp[0][0] or ''
-			if supp:
-				msgprint("You already have a Supplier with same name")
-				raise Exception("You already have a Supplier with same name")
-			else:
-				self.doc.name = cust
+			if webnotes.conn.exists("Supplier", self.doc.customer_name):
+				msgprint(_("A Supplier exists with same name"), raise_exception=1)
+			self.doc.name = self.doc.customer_name
 		else:
 			self.doc.name = make_autoname(self.doc.naming_series+'.#####')
 
@@ -63,7 +54,6 @@ class DocType(TransactionBase):
 		return g
 	
 	def validate_values(self):
-		# Master name by naming series -> Series field mandatory
 		if get_defaults().get('cust_master_name') == 'Naming Series' and not self.doc.naming_series:
 			msgprint("Series is Mandatory.")
 			raise Exception
@@ -121,13 +111,21 @@ class DocType(TransactionBase):
 	def create_account_head(self):
 		if self.doc.company :
 			abbr = self.get_company_abbr()
-			if not sql("select name from tabAccount where name=%s", (self.doc.name + " - " + abbr)):
+			if not webnotes.conn.exists("Account", (self.doc.name + " - " + abbr)):
 				parent_account = self.get_receivables_group()
-				arg = {'account_name':self.doc.name,'parent_account': parent_account, 'group_or_ledger':'Ledger', 'company':self.doc.company,'account_type':'','tax_rate':'0','master_type':'Customer','master_name':self.doc.name}
 				# create
-				
-				ac = get_obj('GL Control').add_ac(cstr(arg))
-				msgprint("Account Head created for "+ac)
+				from accounts.utils import add_ac
+				ac = add_ac({
+					'account_name':self.doc.name,
+					'parent_account': parent_account, 
+					'group_or_ledger':'Ledger',
+					'company':self.doc.company, 
+					'account_type':'', 
+					'tax_rate':'0', 
+					'master_type':'Customer', 
+					'master_name':self.doc.name
+				})
+				msgprint("Account Head: %s created" % ac)
 		else :
 			msgprint("Please Select Company under which you want to create account head")
 
