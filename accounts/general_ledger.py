@@ -24,11 +24,11 @@ def make_gl_entries(gl_map, cancel=False, adv_adj=False, merge_entries=True,
 	if merge_entries:
 		gl_map = merge_similar_entries(gl_map)
 	
-	check_budget(gl_map, cancel)
-	save_entries(gl_map, cancel, adv_adj, update_outstanding)
-
 	if cancel:
 		set_as_cancel(gl_map[0]["voucher_type"], gl_map[0]["voucher_no"])
+
+	check_budget(gl_map, cancel)
+	save_entries(gl_map, cancel, adv_adj, update_outstanding)
 		
 def merge_similar_entries(gl_map):
 	merged_gl_map = []
@@ -69,6 +69,10 @@ def save_entries(gl_map, cancel, adv_adj, update_outstanding):
 			
 	for entry in gl_map:
 		gle = Document('GL Entry', fielddata=entry)
+		
+		# round off upto 2 decimal
+		gle.debit = flt(gle.debit, 2)
+		gle.credit = flt(gle.credit, 2)
 		
 		# toggle debit, credit if negative entry
 		if flt(gle.debit) < 0 or flt(gle.credit) < 0:

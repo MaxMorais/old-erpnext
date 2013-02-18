@@ -1,9 +1,18 @@
 erpnext.updates = [
+	["15th February, 2013", [
+		"Calendar: Added new FullCalendar, and Calendar Views",
+		"Leave Application: Added email notifications on Leave Application",
+	]],
+	["13th February, 2013", [
+		"Employee: If Employee is linked to a Profile, copy Full Name, Date of Birth, \
+			Image and Gender to Profile",
+		"Leave Application: Select Leave Approver by their Full Name",
+	]],
 	["6th February, 2013", [
 		"Bookmarks: Add bookmarks via toolbar by clicking on the <i class='icon-star'></i> sign.",
 	]],
 	["5th February, 2013", [
-		"Holiday Block List: Block users from taking leave on certain days.",
+		"Leave Block List: Block users from taking leave on certain days.",
 	]],
 	["2nd February, 2013", [
 		"Warehouse: Added table Warehouse User to restrict Warehouse Entry per user.",

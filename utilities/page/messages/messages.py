@@ -66,12 +66,14 @@ def get_active_users(arg=None):
 def post(arg=None):
 	import webnotes
 	"""post message"""
-	if arg:
-		import json
-		arg = json.loads(arg)
-	else:
+	if not arg:
 		arg = {}
 		arg.update(webnotes.form_dict)
+	
+	if isinstance(arg, basestring):
+		import json
+		arg = json.loads(arg)
+
 	from webnotes.model.doc import Document
 	d = Document('Comment')
 	d.parenttype = arg.get("parenttype")
@@ -90,14 +92,13 @@ def delete(arg=None):
 		webnotes.form_dict['name']);
 
 def notify(arg=None):
-	from webnotes.utils import cstr
-	fn = webnotes.conn.sql('select first_name, last_name from tabProfile where name=%s', webnotes.user.name)[0]
-	if fn[0] or f[1]:
-		fn = cstr(fn[0]) + (fn[0] and ' ' or '') + cstr(fn[1])
-	else:
-		fn = webnotes.user.name
-
+	from webnotes.utils import cstr, get_fullname
+	from startup import get_url
+	
+	fn = get_fullname(webnotes.user.name) or webnotes.user.name
+	
 	url = get_url()
+	
 	message = '''You have a message from <b>%s</b>:
 	
 	%s
@@ -106,18 +107,11 @@ def notify(arg=None):
 	<a href=\"%s\" target='_blank'>%s</a>
 	''' % (fn, arg['txt'], url, url)
 	
-	sender = webnotes.user.name!='Administrator' and webnotes.user.name or 'support+admin_post@erpnext.com'
+	sender = webnotes.conn.get_value("Profile", webnotes.user.name, "email") \
+		or webnotes.user.name
+	recipient = [webnotes.conn.get_value("Profile", arg["contact"], "email") \
+		or arg["contact"]]
 	
 	from webnotes.utils.email_lib import sendmail
-	sendmail([arg['contact']], sender, message, "You have a message from %s" % (fn,))
+	sendmail(recipient, sender, message, arg.get("subject") or "You have a message from %s" % (fn,))
 	
-def get_url():
-	from webnotes.utils import get_request_site_address
-	url = get_request_site_address()
-	if not url or "localhost" in url:
-		subdomain = webnotes.conn.get_value("Website Settings", "Website Settings",
-			"subdomain")
-		if subdomain:
-			if "http" not in subdomain:
-				url = "http://" + subdomain
-	return url
