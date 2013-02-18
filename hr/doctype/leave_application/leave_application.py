@@ -18,9 +18,8 @@ from __future__ import unicode_literals
 import webnotes
 from webnotes import _
 
-from webnotes.utils import cint, cstr, date_diff, flt, formatdate, getdate, get_url_to_form, get_fullname
+from webnotes.utils import cint, cstr, date_diff, flt, formatdate, getdate, get_url_to_form
 from webnotes import msgprint
-from webnotes.utils.email_lib import sendmail
 
 class LeaveDayBlockedError(Exception): pass
 	
@@ -33,7 +32,6 @@ class DocType(DocListController):
 			self.previous_doc = None
 		
 	def validate(self):
-		# if self.doc.leave_approver == self.doc.owner:
 		self.validate_to_date()
 		self.validate_balance_leaves()
 		self.validate_leave_overlap()
@@ -41,8 +39,8 @@ class DocType(DocListController):
 		self.validate_block_days()
 		
 	def on_update(self):
-		if (not self.previous_doc and self.doc.leave_approver) or (self.doc.status == "Open" \
-				and self.previous_doc.leave_approver != self.doc.leave_approver):
+		if (not self.previous_doc and self.doc.leave_approver) or (self.previous_doc and \
+				self.doc.status == "Open" and self.previous_doc.leave_approver != self.doc.leave_approver):
 			# notify leave approver about creation
 			self.notify_leave_approver()
 		elif self.previous_doc and \
@@ -165,7 +163,7 @@ class DocType(DocListController):
 		
 		def _get_message(url=False):
 			name = self.doc.name
-			employee_name = get_fullname(employee.user_id)
+			employee_name = cstr(employee.employee_name)
 			if url:
 				name = get_url_to_form(self.doc.doctype, self.doc.name)
 				employee_name = get_url_to_form("Employee", self.doc.employee, label=employee_name)
@@ -252,7 +250,7 @@ def add_department_leaves(events, start, end, employee, company):
 				"from_date": d.from_date,
 				"to_date": d.to_date,
 				"status": d.status,
-				"title": _("Leave by") + " " +  d.employee_name + \
+				"title": _("Leave by") + " " +  cstr(d.employee_name) + \
 					(d.half_day and _(" (Half Day)") or "")
 			})
 	
