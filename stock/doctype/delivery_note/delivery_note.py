@@ -18,7 +18,7 @@ from __future__ import unicode_literals
 import webnotes
 
 from webnotes.utils import cstr, flt, getdate
-from webnotes.model.wrapper import getlist
+from webnotes.model.bean import getlist
 from webnotes.model.code import get_obj
 from webnotes import msgprint
 
@@ -312,16 +312,16 @@ class DocType(SellingController):
 			""", self.doc.name)
 
 		if res and res[0][1]>0:
-			from webnotes.model.wrapper import ModelWrapper
+			from webnotes.model.bean import Bean
 			for r in res:
-				ps = ModelWrapper(dt='Packing Slip', dn=r[0])
+				ps = Bean(dt='Packing Slip', dn=r[0])
 				ps.cancel()
 			webnotes.msgprint("%s Packing Slip(s) Cancelled" % res[0][1])
 
 
-	def update_stock_ledger(self, update_stock, is_stopped = 0):
+	def update_stock_ledger(self, update_stock):
 		self.values = []
-		for d in self.get_item_list(is_stopped):
+		for d in self.get_item_list():
 			if webnotes.conn.get_value("Item", d['item_code'], "is_stock_item") == "Yes":
 				if not d['warehouse']:
 					msgprint("Please enter Warehouse for item %s as it is stock item"
@@ -344,8 +344,8 @@ class DocType(SellingController):
 		get_obj('Stock Ledger', 'Stock Ledger').update_stock(self.values)
 
 
-	def get_item_list(self, is_stopped):
-	 return get_obj('Sales Common').get_item_list(self, is_stopped)
+	def get_item_list(self):
+	 return get_obj('Sales Common').get_item_list(self)
 
 
 	def make_sl_entry(self, d, wh, qty, in_value, update_stock):

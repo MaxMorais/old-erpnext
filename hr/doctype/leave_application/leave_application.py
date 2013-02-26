@@ -36,6 +36,7 @@ class DocType(DocListController):
 		self.validate_balance_leaves()
 		self.validate_leave_overlap()
 		self.validate_max_days()
+		self.show_block_day_warning()
 		self.validate_block_days()
 		
 	def on_update(self):
@@ -60,6 +61,17 @@ class DocType(DocListController):
 		# notify leave applier about cancellation
 		self.notify_employee("cancelled")
 
+	def show_block_day_warning(self):
+		from hr.doctype.leave_block_list.leave_block_list import get_applicable_block_dates		
+
+		block_dates = get_applicable_block_dates(self.doc.from_date, self.doc.to_date, 
+			self.doc.employee, self.doc.company, all_lists=True)
+			
+		if block_dates:
+			webnotes.msgprint(_("Warning: Leave application contains following block dates") + ":")
+			for d in block_dates:
+				webnotes.msgprint(formatdate(d.block_date) + ": " + d.reason)
+
 	def validate_block_days(self):
 		from hr.doctype.leave_block_list.leave_block_list import get_applicable_block_dates
 
@@ -67,11 +79,8 @@ class DocType(DocListController):
 			self.doc.employee, self.doc.company)
 			
 		if block_dates:
-			webnotes.msgprint(_("Following dates are blocked for Leave") + ":")
-			for d in block_dates:
-				webnotes.msgprint(formatdate(d.block_date) + ": " + d.reason)
-				
 			if self.doc.status == "Approved":
+				webnotes.msgprint(_("Cannot approve leave as you are not authorized to approve leaves on Block Dates."))
 				raise LeaveDayBlockedError
 			
 	def get_holidays(self):
@@ -156,7 +165,6 @@ class DocType(DocListController):
 			# for post in messages
 			"message": _get_message(url=True),
 			"message_to": employee.user_id,
-			
 			"subject": _get_message(),
 		})
 		
@@ -199,7 +207,7 @@ def get_leave_balance(employee, leave_type, fiscal_year):
 	leave_app = webnotes.conn.sql("""select SUM(total_leave_days) 
 		from `tabLeave Application` 
 		where employee = %s and leave_type = %s and fiscal_year = %s
-		and docstatus = 1""", (employee, leave_type, fiscal_year))
+		and status="Approved" and docstatus = 1""", (employee, leave_type, fiscal_year))
 	leave_app = leave_app and flt(leave_app[0][0]) or 0
 	
 	ret = {'leave_balance': leave_all - leave_app}
@@ -225,7 +233,7 @@ def get_events(start, end):
 	company = webnotes.conn.get_default("company", webnotes.session.user)
 	
 	from webnotes.widgets.reportview import build_match_conditions
-	match_conditions = build_match_conditions({"doctype": "Leave Application"})
+	match_conditions = build_match_conditions("Leave Application")
 	
 	# show department leaves for employee
 	show_department_leaves = match_conditions and \

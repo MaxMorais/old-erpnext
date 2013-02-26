@@ -40,7 +40,7 @@ erpnext.StockLevel = erpnext.StockGridReport.extend({
 			parent: $(wrapper).find('.layout-main'),
 			appframe: wrapper.appframe,
 			doctypes: ["Item", "Warehouse", "Stock Ledger Entry", "Production Order", 
-				"Purchase Request Item", "Purchase Order Item", "Sales Order Item", "Brand"],
+				"Material Request Item", "Purchase Order Item", "Sales Order Item", "Brand"],
 		});
 		
 		this.wrapper.bind("make", function() {
@@ -69,8 +69,15 @@ erpnext.StockLevel = erpnext.StockGridReport.extend({
 					open_btn: true,
 					doctype: '"Item"',
 				}},
+			{id: "item_name", name: "Item Name", field: "item_name", width: 100,
+				formatter: this.text_formatter},
+			{id: "description", name: "Description", field: "description", width: 200, 
+				formatter: this.text_formatter},
+			{id: "brand", name: "Brand", field: "brand", width: 100,
+				link_formatter: {filter_input: "brand"}},
 			{id: "warehouse", name: "Warehouse", field: "warehouse", width: 100,
 				link_formatter: {filter_input: "warehouse"}},
+			{id: "uom", name: "UOM", field: "uom", width: 60},
 			{id: "actual_qty", name: "Actual Qty", 
 				field: "actual_qty", width: 80, formatter: this.currency_formatter},
 			{id: "planned_qty", name: "Planned Qty", 
@@ -87,13 +94,6 @@ erpnext.StockLevel = erpnext.StockGridReport.extend({
 				field: "re_order_level", width: 80, formatter: this.currency_formatter},
 			{id: "re_order_qty", name: "Re-Order Qty", 
 				field: "re_order_qty", width: 80, formatter: this.currency_formatter},
-			{id: "uom", name: "UOM", field: "uom", width: 60},
-			{id: "brand", name: "Brand", field: "brand", width: 100,
-				link_formatter: {filter_input: "brand"}},
-			{id: "item_name", name: "Item Name", field: "item_name", width: 100,
-				formatter: this.text_formatter},
-			{id: "description", name: "Description", field: "description", width: 200, 
-				formatter: this.text_formatter},
 		];
 	},
 	
@@ -164,7 +164,7 @@ erpnext.StockLevel = erpnext.StockGridReport.extend({
 		$.each([
 			["Stock Ledger Entry", "actual_qty"], 
 			["Production Order", "planned_qty"], 
-			["Purchase Request Item", "requested_qty"],
+			["Material Request Item", "requested_qty"],
 			["Purchase Order Item", "ordered_qty"],
 			["Sales Order Item", "reserved_qty"]], 
 			function(i, v) {
