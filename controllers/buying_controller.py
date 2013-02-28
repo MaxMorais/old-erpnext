@@ -250,7 +250,9 @@ class BuyingController(AccountsController):
 		if self.doc.doctype == "Purchase Invoice" and self.doc.docstatus == 0:
 			self.doc.total_advance = flt(self.doc.total_advance,
 				self.precision.main.total_advance)
-			self.doc.outstanding_amount = flt(self.doc.grand_total - self.doc.total_advance,
+			self.doc.total_amount_to_pay = flt(self.doc.grand_total - flt(self.doc.write_off_amount,
+				self.precision.main.write_off_amount), self.precision.main.total_amount_to_pay)
+			self.doc.outstanding_amount = flt(self.doc.total_amount_to_pay - self.doc.total_advance,
 				self.precision.main.outstanding_amount)
 			
 	def _cleanup(self):
@@ -325,6 +327,16 @@ class BuyingController(AccountsController):
 				item.item_code in self.stock_items:
 			item.item_tax_amount += flt(current_tax_amount,
 				self.precision.item.item_tax_amount)
+				
+	# update valuation rate
+	def update_valuation_rate(self, parentfield):
+		for d in self.doclist.get({"parentfield": parentfield}):
+			if d.qty:
+				d.valuation_rate = (flt(d.purchase_rate or d.rate)
+					+ (flt(d.item_tax_amount) + flt(d.rm_supp_cost)) / flt(d.qty)
+					) / flt(d.conversion_factor)
+			else:
+				d.valuation_rate = 0.0
 	
 	@property
 	def precision(self):
