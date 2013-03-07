@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 import webnotes
+from webnotes import _
 from webnotes.utils import flt, comma_and
+import webnotes.defaults
 
 @webnotes.whitelist()
 def get_template():
@@ -34,7 +36,7 @@ def get_template():
 %(columns)s
 ''' % {
 		"template_type": template_type,
-		"user_fmt": webnotes.conn.get_value('Control Panel', None, 'date_format'),
+		"user_fmt": webnotes.defaults.get_global_default('date_format'),
 		"default_company": webnotes.conn.get_default("company"),
 		"naming_options": naming_options.replace("\n", ", "),
 		"voucher_type": voucher_type.replace("\n", ", "),
@@ -244,7 +246,10 @@ def get_data(rows, company_abbr):
 				accounts = [c for c in rows[i+1] if c.endswith(" - " + company_abbr)]
 				
 				if accounts and (len(columns) != rows[i+1].index(accounts[0])):
-					raise Exception, """All account columns should be after standard columns and \
-						on the right. Please rectify it in the file and try again."""
+					raise Exception, _("""All account columns should be after \
+						standard columns and on the right.
+						If you entered it properly, next probable reason \
+						could be wrong account name.
+						Please rectify it in the file and try again.""")
 				
 	return data, start_row_idx
