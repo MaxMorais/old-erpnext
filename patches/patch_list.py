@@ -18,6 +18,7 @@ from __future__ import unicode_literals
 patch_list = [
 	"execute:webnotes.reload_doc('core', 'doctype', 'docfield')",
 	"execute:webnotes.reload_doc('core', 'doctype', 'report')",
+	"execute:webnotes.reload_doc('core', 'doctype', 'doctype')",
 	"patches.mar_2012.so_rv_mapper_fix", 
 	"patches.mar_2012.clean_property_setter", 
 	"patches.april_2012.naming_series_patch", 
@@ -188,7 +189,6 @@ patch_list = [
 	"execute:webnotes.delete_doc('DocType', 'Service Order Detail')",
 	"execute:webnotes.delete_doc('DocType', 'Service Quotation Detail')",
 	"patches.february_2013.p06_material_request_mappers",
-	"patches.february_2013.p07_clear_web_cache",
 	"execute:webnotes.delete_doc('Page', 'Query Report')",
 	"execute:webnotes.delete_doc('Search Criteria', 'employeewise_balance_leave_report')",
 	"execute:webnotes.delete_doc('Search Criteria', 'employee_leave_balance_report')",
@@ -212,4 +212,5 @@ patch_list = [
 	"patches.march_2013.p02_get_global_default",
 	"execute:webnotes.bean('Style Settings', 'Style Settings').save()",
 	"patches.march_2013.p03_rename_blog_to_blog_post",
+	"execute:webnotes.reload_doc('hr', 'search_criteria', 'monthly_attendance_details')",
 ]
