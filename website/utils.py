@@ -46,6 +46,8 @@ page_settings_map = {
 	"writers": "website.helpers.blog.get_writers_args"
 }
 
+no_cache = "message"
+
 def render(page_name):
 	"""render html page"""
 	try:
@@ -68,10 +70,12 @@ def get_html(page_name):
 	
 	# load from cache, if auto cache clear is falsy
 	if not (hasattr(conf, 'auto_cache_clear') and conf.auto_cache_clear or 0):
-		html = webnotes.cache().get_value("page:" + page_name)
-		from_cache = True
+		if not page_name in no_cache:
+			html = webnotes.cache().get_value("page:" + page_name)
+			from_cache = True
 
 	if not html:
+		webnotes.connect()
 		html = load_into_cache(page_name)
 		from_cache = False
 	
@@ -303,3 +307,26 @@ def url_for_website(url):
 		return "files/" + url
 	else:
 		return url
+		
+def get_hex_shade(color, percent):
+	# switch dark and light shades
+	if int(color, 16) > int("808080", 16):
+		percent = -percent
+		
+	# stronger diff for darker shades
+	if int(color, 16) < int("333333", 16):
+		percent = percent * 2
+	
+	def p(c):
+		v = int(c, 16) + int(int('ff', 16) * (float(percent)/100))
+		if v < 0: 
+			v=0
+		if v > 255: 
+			v=255
+		h = hex(v)[2:]
+		if len(h) < 2:
+			h = "0" + h
+		return h
+		
+	r, g, b = color[0:2], color[2:4], color[4:6]
+	return p(r) + p(g) + p(b)
