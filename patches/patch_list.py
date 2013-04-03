@@ -158,6 +158,7 @@ patch_list = [
 	"patches.january_2013.enable_currencies",
 	"patches.january_2013.remove_unwanted_permission",
 	"patches.january_2013.remove_landed_cost_master",
+	"execute:webnotes.reload_doc('core', 'doctype', 'print_format')",
 	"patches.january_2013.reload_print_format",
 	"patches.january_2013.rebuild_tree",
 	"execute:webnotes.reload_doc('core','doctype','docfield') #2013-01-28",
@@ -228,4 +229,11 @@ patch_list = [
 	"patches.march_2013.p11_update_attach_files",
 	"patches.march_2013.p12_set_item_tax_rate_in_json",
 	"patches.april_2013.p01_update_serial_no_valuation_rate",
+	"patches.april_2013.p02_add_country_and_currency",
+	"patches.april_2013.p03_fixes_for_lead_in_quotation",
+	'execute:webnotes.reload_doc("selling", "Print Format", "Quotation Classic") # 2013-04-02',
+	'execute:webnotes.reload_doc("selling", "Print Format", "Quotation Modern") # 2013-04-02',
+	'execute:webnotes.reload_doc("selling", "Print Format", "Quotation Spartan") # 2013-04-02',
+	"execute:webnotes.delete_doc('Search Criteria', 'time_log_summary')"
+	
 ]
