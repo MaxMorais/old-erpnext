@@ -1,0 +1,413 @@
+[
+ {
+  "creation": "2013-02-27 14:03:43", 
+  "docstatus": 0, 
+  "modified": "2013-06-11 15:19:42", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "allow_attach": 1, 
+  "autoname": "naming_series", 
+  "custom": 1, 
+  "description": "Registration Data Personal Financial", 
+  "doctype": "DocType", 
+  "in_dialog": 0, 
+  "is_submittable": 1, 
+  "max_attachments": 5, 
+  "module": "Accounts", 
+  "name": "__common__", 
+  "read_only_onload": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Registration Data Personal Financial", 
+  "parentfield": "fields", 
+  "parenttype": "DocType"
+ }, 
+ {
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "name": "__common__", 
+  "parent": "Registration Data Personal Financial", 
+  "parentfield": "permissions", 
+  "parenttype": "DocType", 
+  "permlevel": 0, 
+  "read": 1, 
+  "submit": 1, 
+  "write": 1
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Registration Data Personal Financial"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sb01_column_left", 
+  "fieldtype": "Column Break", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "naming_series", 
+  "fieldtype": "Select", 
+  "label": "Series", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "customer", 
+  "fieldtype": "Link", 
+  "label": "Customer", 
+  "options": "Customer", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "maritial_status", 
+  "fieldtype": "Select", 
+  "label": "Maritial Status", 
+  "options": "\nSolteiro(a)\nCasado(a)\nSeparado(a)\nDivorciado(a)\nVi\u00favo(a)", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sb01_column_right", 
+  "fieldtype": "Column Break", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "residential_address", 
+  "fieldtype": "Link", 
+  "label": "Residential Address", 
+  "options": "Address", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "mother_name", 
+  "fieldtype": "Data", 
+  "label": "Mother Name", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "father_name", 
+  "fieldtype": "Data", 
+  "label": "Father Name", 
+  "permlevel": 0, 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "section_break_02", 
+  "fieldtype": "Section Break", 
+  "label": "Employer Data", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sb02_column_left", 
+  "fieldtype": "Column Break", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "employer", 
+  "fieldtype": "Data", 
+  "label": "Employer", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "description": "Se a empresa for pr\u00f3pria", 
+  "doctype": "DocField", 
+  "fieldname": "employer_cnpj", 
+  "fieldtype": "Data", 
+  "label": "Employer CNPJ", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sb02_column_right", 
+  "fieldtype": "Column Break", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "admission_date", 
+  "fieldtype": "Date", 
+  "label": "Date of Admission", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "businness_address", 
+  "fieldtype": "Link", 
+  "label": "Business Address", 
+  "options": "Address", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "section_break_03", 
+  "fieldtype": "Section Break", 
+  "label": "Income", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sb03_column_left", 
+  "fieldtype": "Column Break", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "montly_income", 
+  "fieldtype": "Currency", 
+  "label": "Montly Income", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "additional_income", 
+  "fieldtype": "Currency", 
+  "label": "Additional Income", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "source_of_aditional_income", 
+  "fieldtype": "Data", 
+  "label": "Source of Additional Income", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sb03_column_right", 
+  "fieldtype": "Column Break", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "patrimonio_value_summary", 
+  "fieldtype": "Currency", 
+  "label": "Patrimonio Value Sumary", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "type_of_proof_of_income", 
+  "fieldtype": "Select", 
+  "label": "Type of Proof of Income", 
+  "options": "\n1 - Holerite\n2 - Extrato Banc\u00e1rio\n3 - Outra Forma de Comprova\u00e7\u00e3o", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "type_of_income", 
+  "fieldtype": "Select", 
+  "label": "Type of Income", 
+  "options": "\n1 - Sal\u00e1rio e Comiss\u00e3o\n2 - Aluguel\n3 - Pens\u00e3o/Aponsentadoria\n4 - Outras Rendas\n5 - Presta\u00e7\u00e3o de Servi\u00e7os\n6 - Produ\u00e7\u00e3o Rural", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "section_break_04", 
+  "fieldtype": "Section Break", 
+  "label": "Politically Exposed Person", 
+  "options": "\nEm exerc\u00edcio\nInativo (cargo exercido nos \u00faltimos 5 anos)\nInativo - Parente ou Pr\u00f3ximo\nCliente n\u00e3o se enquadra na condi\u00e7\u00e3o prevista pela Circular 3.461 do Banco Central do Brasil", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sb04_column_left", 
+  "fieldtype": "Column Break", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "politically_exposed_person", 
+  "fieldtype": "Check", 
+  "label": "Politically Exposed Person", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sb04_column_right", 
+  "fieldtype": "Column Break", 
+  "permlevel": 0
+ }, 
+ {
+  "depends_on": "eval:doc.politically_exposed_person===true", 
+  "doctype": "DocField", 
+  "fieldname": "method_of_exposure", 
+  "fieldtype": "Select", 
+  "label": "Method of Exposure", 
+  "options": "\nEm exerc\u00edcio\nInativo (cargo exercido nos \u00faltimos 5 anos)\nInativo - Parente ou Pr\u00f3ximo", 
+  "permlevel": 0
+ }, 
+ {
+  "depends_on": "eval:doc.maritial_status==\"Casado(a)\"", 
+  "doctype": "DocField", 
+  "fieldname": "section_break_05", 
+  "fieldtype": "Section Break", 
+  "label": "Spouse Data", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sb05_column_left", 
+  "fieldtype": "Column Break", 
+  "permlevel": 0
+ }, 
+ {
+  "depends_on": "eval:doc.maritial_status===\"Casado(a)\"", 
+  "doctype": "DocField", 
+  "fieldname": "spouse", 
+  "fieldtype": "Data", 
+  "label": "Spouse", 
+  "permlevel": 0
+ }, 
+ {
+  "depends_on": "eval:doc.maritial_status===\"Casado(a)\"", 
+  "doctype": "DocField", 
+  "fieldname": "spouse_cpf", 
+  "fieldtype": "Data", 
+  "label": "Spouse CPF", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sb05_column_right", 
+  "fieldtype": "Column Break", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "spouse_birth", 
+  "fieldtype": "Data", 
+  "label": "Spouse Birth", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "spouse_sex", 
+  "fieldtype": "Select", 
+  "label": "Spouse Sex", 
+  "options": "\nMasculino\nFeminino", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "section_break_06", 
+  "fieldtype": "Section Break", 
+  "label": "Bank Details", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sb06_column_left", 
+  "fieldtype": "Column Break", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "bank_code", 
+  "fieldtype": "Select", 
+  "label": "Bank Code", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "bank_branch", 
+  "fieldtype": "Data", 
+  "label": "Bank Branch", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sb06_column_right", 
+  "fieldtype": "Column Break", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "account_number", 
+  "fieldtype": "Data", 
+  "label": "Account Number", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "account_type", 
+  "fieldtype": "Select", 
+  "label": "Account Type", 
+  "options": "\nConta Corrente\nConta Poupan\u00e7a", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "account_opening_date", 
+  "fieldtype": "Date", 
+  "label": "Account Opening Date", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "amended_from", 
+  "fieldtype": "Link", 
+  "label": "Amended From", 
+  "no_copy": 1, 
+  "options": "Sales Invoice", 
+  "permlevel": 1, 
+  "print_hide": 1
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "Sales User"
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "Sales Manager"
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "Sales Master Manager"
+ }, 
+ {
+  "amend": 1, 
+  "doctype": "DocPerm", 
+  "report": 1, 
+  "role": "Accounts User"
+ }, 
+ {
+  "amend": 1, 
+  "cancel": 1, 
+  "doctype": "DocPerm", 
+  "report": 1, 
+  "role": "Accounts Manager"
+ }, 
+ {
+  "amend": 1, 
+  "cancel": 1, 
+  "doctype": "DocPerm", 
+  "report": 1, 
+  "role": "System Manager"
+ }
+]
