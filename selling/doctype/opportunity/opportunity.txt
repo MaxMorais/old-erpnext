@@ -1,8 +1,8 @@
 [
  {
-  "creation": "2013-03-07 18:50:30", 
+  "creation": "2013-04-03 18:12:55", 
   "docstatus": 0, 
-  "modified": "2013-04-02 16:28:08", 
+  "modified": "2013-06-11 16:50:01", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -27,7 +27,6 @@
  {
   "amend": 1, 
   "cancel": 1, 
-  "create": 1, 
   "doctype": "DocPerm", 
   "name": "__common__", 
   "parent": "Opportunity", 
@@ -442,15 +441,20 @@
   "width": "150px"
  }, 
  {
+  "create": 1, 
   "doctype": "DocPerm", 
   "role": "System Manager"
  }, 
  {
+  "create": 0, 
   "doctype": "DocPerm", 
+  "match": "territory", 
   "role": "Sales User"
  }, 
  {
+  "create": 1, 
   "doctype": "DocPerm", 
+  "match": "owner", 
   "role": "Sales Manager"
  }
 ]

@@ -1,8 +1,8 @@
 [
  {
-  "creation": "2013-01-23 17:08:18", 
+  "creation": "2013-04-18 13:30:59", 
   "docstatus": 0, 
-  "modified": "2013-01-23 17:09:59", 
+  "modified": "2013-04-18 14:25:11", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -40,6 +40,7 @@
   "doctype": "DocField", 
   "fieldname": "customer_payment_code", 
   "fieldtype": "Data", 
+  "hidden": 1, 
   "label": "Customer's Payment Code"
  }, 
  {
@@ -47,7 +48,7 @@
   "doctype": "DocField", 
   "fieldname": "first_payment_date", 
   "fieldtype": "Date", 
-  "label": "First Payment Date", 
+  "label": "Data da Primeira Parcela", 
   "reqd": 1, 
   "width": "100px"
  }, 
@@ -55,7 +56,7 @@
   "doctype": "DocField", 
   "fieldname": "last_payment_date", 
   "fieldtype": "Date", 
-  "label": "Last Payment Date", 
+  "label": "Data da \u00daltima Parcela", 
   "read_only": 1, 
   "width": "100px"
  }, 
@@ -63,7 +64,7 @@
   "doctype": "DocField", 
   "fieldname": "number_of_payments", 
   "fieldtype": "Int", 
-  "label": "Number of Payments", 
+  "label": "N\u00famero de Parcelas", 
   "reqd": 1, 
   "width": "100px"
  }, 
@@ -71,7 +72,7 @@
   "doctype": "DocField", 
   "fieldname": "payment_value", 
   "fieldtype": "Currency", 
-  "label": "Value", 
+  "label": "Valor da Parcela", 
   "reqd": 1, 
   "width": "100px"
  }, 
@@ -79,7 +80,7 @@
   "doctype": "DocField", 
   "fieldname": "gross_payment_amount", 
   "fieldtype": "Currency", 
-  "label": "Payment Amount (Gross)", 
+  "label": "Sub-Total", 
   "read_only": 1, 
   "width": "100px"
  }, 
@@ -87,16 +88,18 @@
   "doctype": "DocField", 
   "fieldname": "rate", 
   "fieldtype": "Float", 
-  "hidden": 1, 
+  "hidden": 0, 
   "label": "Rate (%)", 
+  "read_only": 1, 
   "width": "100px"
  }, 
  {
   "doctype": "DocField", 
   "fieldname": "rate_value", 
   "fieldtype": "Float", 
-  "hidden": 1, 
-  "label": "Rate Value"
+  "hidden": 0, 
+  "label": "Rate Value", 
+  "read_only": 1
  }, 
  {
   "doctype": "DocField", 
@@ -104,7 +107,7 @@
   "fieldtype": "Currency", 
   "hidden": 0, 
   "label": "Payment Amount (Net)", 
-  "read_only": 0, 
+  "read_only": 1, 
   "reqd": 0, 
   "width": "100px"
  }, 
@@ -112,28 +115,32 @@
   "doctype": "DocField", 
   "fieldname": "service_rate", 
   "fieldtype": "Float", 
-  "hidden": 1, 
-  "label": "Service Rate (%)"
+  "hidden": 0, 
+  "label": "Service Rate (%)", 
+  "read_only": 1
  }, 
  {
   "doctype": "DocField", 
   "fieldname": "service_rate_value", 
   "fieldtype": "Currency", 
-  "hidden": 1, 
-  "label": "Service Rate Value"
+  "hidden": 0, 
+  "label": "Service Rate Value", 
+  "read_only": 1
  }, 
  {
   "doctype": "DocField", 
   "fieldname": "deduction_rate", 
   "fieldtype": "Float", 
-  "hidden": 1, 
-  "label": "Reduction Rate (%)"
+  "hidden": 0, 
+  "label": "Reduction Rate (%)", 
+  "read_only": 1
  }, 
  {
   "doctype": "DocField", 
   "fieldname": "deduction_rate_value", 
   "fieldtype": "Currency", 
-  "hidden": 1, 
-  "label": "Reduction Rate Value"
+  "hidden": 0, 
+  "label": "Reduction Rate Value", 
+  "read_only": 1
  }
 ]

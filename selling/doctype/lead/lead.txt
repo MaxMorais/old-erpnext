@@ -1,8 +1,8 @@
 [
  {
-  "creation": "2013-04-10 11:45:37", 
+  "creation": "2013-04-10 08:54:11", 
   "docstatus": 0, 
-  "modified": "2013-04-10 11:49:11", 
+  "modified": "2013-06-11 17:17:55", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -23,7 +23,6 @@
   "permlevel": 0
  }, 
  {
-  "amend": 0, 
   "create": 1, 
   "doctype": "DocPerm", 
   "name": "__common__", 
@@ -33,7 +32,6 @@
   "permlevel": 0, 
   "read": 1, 
   "report": 1, 
-  "submit": 0, 
   "write": 1
  }, 
  {
@@ -450,13 +448,36 @@
   "label": "Blog Subscriber"
  }, 
  {
-  "cancel": 1, 
   "doctype": "DocPerm", 
-  "role": "Sales Manager"
+  "role": "Guest", 
+  "submit": 0
  }, 
  {
+  "amend": 0, 
+  "cancel": 1, 
+  "doctype": "DocPerm", 
+  "match": "territory", 
+  "role": "Sales Manager", 
+  "submit": 0
+ }, 
+ {
+  "amend": 0, 
   "cancel": 0, 
   "doctype": "DocPerm", 
-  "role": "Sales User"
+  "match": "owner", 
+  "role": "Sales User", 
+  "submit": 0
+ }, 
+ {
+  "amend": 0, 
+  "cancel": 0, 
+  "doctype": "DocPerm", 
+  "role": "System Manager", 
+  "submit": 0
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "match": "territory", 
+  "role": "Sales Master Manager"
  }
 ]

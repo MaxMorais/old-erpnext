@@ -1,8 +1,8 @@
 [
  {
-  "creation": "2013-05-22 12:10:46", 
+  "creation": "2013-05-22 09:00:49", 
   "docstatus": 0, 
-  "modified": "2013-05-22 16:54:07", 
+  "modified": "2013-06-11 16:51:11", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -868,22 +868,25 @@
   "cancel": 1, 
   "create": 1, 
   "doctype": "DocPerm", 
-  "role": "Sales User", 
+  "match": "territory", 
+  "role": "Sales Manager", 
   "submit": 1, 
   "write": 1
- }, 
- {
-  "doctype": "DocPerm", 
-  "role": "Customer"
  }, 
  {
   "amend": 1, 
   "cancel": 1, 
   "create": 1, 
   "doctype": "DocPerm", 
-  "role": "Sales Manager", 
+  "match": "owner", 
+  "role": "Sales User", 
   "submit": 1, 
   "write": 1
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "match": "customer_name", 
+  "role": "Customer"
  }, 
  {
   "amend": 1, 
