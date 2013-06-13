@@ -25,7 +25,13 @@ wn.module_page["Selling"] = [
 				label: wn._("Sales Order"),
 				description: wn._("Confirmed orders from Customers."),
 				doctype:"Sales Order"
-			},
+			}
+		]
+	},
+	{
+		title: wn._('Accounts'),
+		icon: 'icon-money',
+		items: [
 			{
 				label: wn._("Join Financial"),
 				description: wn._("Financial data from Customers."),
