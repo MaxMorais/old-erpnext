@@ -1,4 +1,5 @@
 [
+ "Taxes and Charges Added (Import)", 
  "Price List Currency", 
  "Grand Total (Import)", 
  "Supplier", 
@@ -29,7 +30,6 @@
  "Contact Person", 
  "Supplier's currency", 
  "Get Items", 
- "File List", 
  "Items", 
  "% of materials received against this Purchase Order", 
  "In Words(Import)", 
@@ -61,7 +61,7 @@
  "Ref SQ", 
  "Taxes and Charges Added", 
  "Submitted", 
- "Taxes and Charges Added (Import)", 
+ "Grand Total", 
  "Stopped", 
  "Mobile No", 
  "Taxes and Charges Deducted", 
@@ -87,6 +87,5 @@
  "Get Tax Detail", 
  "Contact Email", 
  "Get Last Purchase Rate", 
- "Grand Total", 
  "In Words will be visible once you save the Purchase Order."
 ]

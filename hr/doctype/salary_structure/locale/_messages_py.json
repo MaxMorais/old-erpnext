@@ -1,0 +1,6 @@
+[
+ "Another Salary Structure '%s' is active for employee '%s'. \n\t\t\t\tPlease make its status 'Inactive' to proceed.", 
+ "Annual Cost To Company can not be less than 12 months of Total Earning", 
+ "Net pay can not be greater than 1/12th of Annual Cost To Company", 
+ "Net pay can not be negative"
+]

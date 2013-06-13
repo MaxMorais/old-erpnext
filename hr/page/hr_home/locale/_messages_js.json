@@ -1,6 +1,7 @@
 [
  "Leave Setup", 
  "Documents", 
+ "Monthly Attendance Sheet", 
  "Employee Leave Balance", 
  "Attendance record.", 
  "Employee records.", 
@@ -25,7 +26,9 @@
  "Leave Allocation Tool", 
  "Employee Setup", 
  "Job Opening", 
+ "Upload Attendance", 
  "Employee grades", 
+ "Monthly Salary Register", 
  "Job Applicant", 
  "Salary Slip", 
  "Employment Type", 
@@ -47,13 +50,14 @@
  "Grade", 
  "Monthly salary statement.", 
  "Leave Type", 
+ "Employee Information", 
  "Department", 
  "Salary Structure", 
  "Company branches.", 
  "List of holidays.", 
- "Process Payroll", 
+ "Employee Birthday", 
  "Earning Type", 
  "Allocate leaves for the year.", 
  "Salary components.", 
- "Upload attendance"
+ "Process Payroll"
 ]

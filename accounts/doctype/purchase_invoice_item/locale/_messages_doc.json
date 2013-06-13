@@ -1,10 +1,12 @@
 [
  "Item Name", 
- "Expense Head", 
+ "Item Group", 
  "Cost Center", 
  "Discount %", 
  "Pur Receipt", 
+ "Raw Materials Supplied Cost", 
  "UOM", 
+ "Conversion Factor", 
  "Item Tax Rate", 
  "Description", 
  "Project Name", 
@@ -16,7 +18,7 @@
  "Amount*", 
  "Amount", 
  "Ref Rate ", 
- "Item Group", 
+ "Expense Head", 
  "Ref Rate*", 
  "Purchase Invoice Item", 
  "Item", 
@@ -25,5 +27,6 @@
  "Item Tax Amount", 
  "Accounts", 
  "Purchase Order Item", 
- "Page Break"
+ "Page Break", 
+ "Valuation Rate"
 ]

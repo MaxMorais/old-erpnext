@@ -1,16 +1,8 @@
 [
- "Customer", 
- "Account", 
- "Document to rename", 
- "Item", 
- "Company", 
  "Select DocType", 
  "Utilities", 
- "Employee", 
- "Warehouse", 
- "Supplier", 
- "Profile", 
- "Rename Tool", 
- "Rename", 
- "New Name"
+ "Type of document to rename.", 
+ "Upload HTML", 
+ "Rename Log", 
+ "Rename Tool"
 ]

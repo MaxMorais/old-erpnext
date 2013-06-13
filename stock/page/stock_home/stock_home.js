@@ -120,6 +120,11 @@ wn.module_page["Stock"] = [
 				"label": wn._("Warehouse Type"),
 				"doctype":"Warehouse Type",
 				"description": wn._("Types of warehouse")
+			},
+			{
+				"label": wn._("NCM"),
+				"description": wn._("Mercosur Common Nomenclature"),
+				"doctype": "NCM"
 			}
 		]
 	},

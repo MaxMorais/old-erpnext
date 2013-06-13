@@ -2,10 +2,10 @@
  "Allow this price in purchase related forms", 
  "Price List Name", 
  "Item Price", 
- "For Buying", 
  "Currency", 
  "Ref Rate", 
- "For Selling", 
+ "Valid For Buying", 
  "Allow this price in sales related forms", 
+ "Valid For Selling", 
  "Stock"
 ]

@@ -4,6 +4,7 @@
  "Delivery Note": "Guia de Remessa", 
  "From Package No.": "De No. Package", 
  "Generate packing slips for packages to be delivered. Used to notify package number, package contents and its weight.": "Gerar guias de remessa de pacotes a serem entregues. Usado para notificar o n\u00famero do pacote, o conte\u00fado do pacote e seu peso.", 
+ "Get Items": "Obter itens", 
  "Gross Weight": "Peso bruto", 
  "Gross Weight UOM": "UDM do Peso Bruto", 
  "Identification of the package for the delivery (for print)": "Identifica\u00e7\u00e3o do pacote para a Entrega (para impress\u00e3o)", 

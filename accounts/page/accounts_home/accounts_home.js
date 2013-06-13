@@ -21,6 +21,11 @@ wn.module_page["Accounts"] = [
 				description: wn._("Bills raised by Suppliers."),
 				doctype:"Purchase Invoice"
 			},
+			{
+				label: wn._("Join Financial"),
+				description: wn._("Financial data from Customers."),
+				doctype:"Registration Data Personal Financial"
+			}
 		]
 	},
 	{

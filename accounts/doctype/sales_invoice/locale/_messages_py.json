@@ -1,5 +1,8 @@
 [
- "Invalid Email Address", 
  ": Mandatory for a Recurring Invoice.", 
+ " for item: ", 
+ "Time Log Batch status must be 'Submitted'", 
+ "Rate is not matching with ", 
+ "Invalid Email Address", 
  "Please select: "
 ]

@@ -1,4 +1,5 @@
 [
+ "Taxes and Charges Added (Import)", 
  "Price List Currency", 
  "Grand Total (Import)", 
  "In Words will be visible once you save the Purchase Receipt.", 
@@ -35,7 +36,6 @@
  "Contact Person", 
  "Supplier's currency", 
  "LR No", 
- "File List", 
  "Rounded Total", 
  "To manage multiple series please go to Setup > Manage Series", 
  "Items", 
@@ -67,7 +67,7 @@
  "Posting Date", 
  "Taxes and Charges Added", 
  "Submitted", 
- "Taxes and Charges Added (Import)", 
+ "Grand Total", 
  "Supplier Warehouse", 
  "Mobile No", 
  "Taxes and Charges Deducted", 
@@ -99,6 +99,5 @@
  "Raw Material Details", 
  "Select the relevant company name if you have multiple companies", 
  "Get Tax Detail", 
- "Contact Email", 
- "Grand Total"
+ "Contact Email"
 ]

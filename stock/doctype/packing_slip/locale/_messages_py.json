@@ -1,0 +1,7 @@
+[
+ "Please specify a valid 'From Case No.'", 
+ "Invalid Delivery Note. Delivery Note should exist and should be in \n\t\t\t\tdraft state. Please rectify and try again.", 
+ "Case No(s) already in use. Please rectify and try again.\n\t\t\t\tRecommended <b>From Case No. = %s</b>", 
+ "'To Case No.' cannot be less than 'From Case No.'", 
+ "No Items to Pack"
+]

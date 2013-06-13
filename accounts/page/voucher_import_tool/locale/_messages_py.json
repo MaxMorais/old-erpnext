@@ -1,0 +1,6 @@
+[
+ "Company is missing or entered incorrect value", 
+ "No Account found in csv file, \n\t\t\t\t\t\t\tMay be company abbreviation is not correct", 
+ "Ref Date is Mandatory if Ref Number is specified", 
+ "All account columns should be after \\\n\t\t\t\t\t\t\tstandard columns and on the right.\n\t\t\t\t\t\t\tIf you entered it properly, next probable reason \\\n\t\t\t\t\t\t\tcould be wrong account name.\n\t\t\t\t\t\t\tPlease rectify it in the file and try again."
+]

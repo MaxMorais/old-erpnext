@@ -40,6 +40,7 @@
  "Print Heading": "Cabe\u00e7alho de impress\u00e3o", 
  "Profile": "Perfil", 
  "Prompt email sending to customers and suppliers": "E-mail Prompt envio a clientes e fornecedores", 
+ "Rename Tool": "Ferramenta de Renomear", 
  "Restrict submission rights based on amount": "Restringir direitos de envio com base no valor", 
  "SMS Center": "Centro de SMS", 
  "SMS Settings": "Defini\u00e7\u00f5es de SMS", 
@@ -57,5 +58,6 @@
  "Style Settings": "Configura\u00e7\u00f5es de Estilo", 
  "User Properties": "Propriedades do Usu\u00e1rio", 
  "Users": "Usu\u00e1rios", 
+ "Workflow": "Fluxo de Trabalho", 
  "Workfow": "Fluxo de Trabalho"
 }

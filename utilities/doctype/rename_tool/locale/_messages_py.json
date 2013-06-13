@@ -1,0 +1,7 @@
+[
+ "Successful: ", 
+ "Max 500 rows only.", 
+ "Please select a valid csv file with data.", 
+ "Failed: ", 
+ "Ignored: "
+]

@@ -1,11 +1,15 @@
 [
  "Reconciliation JSON", 
- "Reconciliation HTML", 
+ "Company", 
+ "Stock Value Difference", 
+ "Fiscal Year", 
  "Amended From", 
  "Stock Reconciliation", 
  "This tool helps you to update or fix the quantity and valuation of stock in the system. It is typically used to synchronise the system values and what actually exists in your warehouses.", 
  "Upload HTML", 
+ "Expense Account", 
  "Reconciliation Data", 
+ "Reconciliation HTML", 
  "Posting Time", 
  "Posting Date", 
  "Stock"

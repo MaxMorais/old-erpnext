@@ -1,6 +1,7 @@
 [
  "Item Name", 
  "Cost Center", 
+ "Time Log Batch", 
  "Batch No", 
  "Warehouse", 
  "UOM", 
@@ -14,7 +15,9 @@
  "Discount (%)", 
  "Clear Pending", 
  "Page Break", 
+ "Buying Amount", 
  "SO Detail ", 
+ "Expense Account", 
  "Amount*", 
  "Amount", 
  "Item Group", 

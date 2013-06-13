@@ -1,0 +1,9 @@
+[
+ " not active or does not exists in the system", 
+ "Attendance can not be marked for future dates", 
+ " was on leave on ", 
+ " already marked", 
+ "Employee: ", 
+ "Attendance for the employee: ", 
+ ". You can not mark his attendance as 'Present'"
+]

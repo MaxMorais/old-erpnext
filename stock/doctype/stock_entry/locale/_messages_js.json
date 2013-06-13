@@ -1,1 +1,5 @@
-[]
+[
+ "You can not enter both Delivery Note No and Sales Invoice No. \\\n\t\t\t\t\tPlease enter any one.", 
+ "Please enter Purchase Receipt No to proceed", 
+ "Please enter Delivery Note No or Sales Invoice No to proceed"
+]

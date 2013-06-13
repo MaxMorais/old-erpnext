@@ -3,6 +3,7 @@
  "Amount": "Quantidade", 
  "Amount*": "Quantidade*", 
  "Brand": "Marca", 
+ "Conversion Factor": "Fator de Convers\u00e3o", 
  "Cost Center": "Centro de Custos", 
  "Description": "Descri\u00e7\u00e3o", 
  "Discount %": "% De desconto", 
@@ -22,7 +23,9 @@
  "Qty": "Qtde.", 
  "Rate ": "Taxa", 
  "Rate*": "Taxa*", 
+ "Raw Materials Supplied Cost": "Custo de fornecimento de Mat\u00e9rias-Primas", 
  "Ref Rate ": "Taxa de Ref.", 
  "Ref Rate*": "* Taxa de Ref.", 
- "UOM": "UDM"
+ "UOM": "UDM", 
+ "Valuation Rate": "Taxa de Avalia\u00e7\u00e3o"
 }

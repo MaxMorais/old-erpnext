@@ -10,6 +10,7 @@
  "Default Source Warehouse": "Almoxarifado da origem padr\u00e3o", 
  "Default Target Warehouse": "Almoxarifado de destino padr\u00e3o", 
  "Delivery Note No": "N\u00ba da Guia de Remessa", 
+ "Fiscal Year": "Exerc\u00edcio fiscal", 
  "Get Items": "Obter itens", 
  "Get Stock and Rate": "Obter Estoque e Valor", 
  "Get valuation rate and available stock at source/target warehouse on mentioned posting date-time. If serialized item, please press this button after entering serial nos.": "Obter valoriza\u00e7\u00e3o e estoque dispon\u00edvel no almoxarifado de origem/destino na data e hora de postagem mencionada. Se for item serializado, pressione este bot\u00e3o depois de entrar os n\u00ba de s\u00e9rie.", 
@@ -44,5 +45,6 @@
  "Supplier Name": "Nome do Fornecedor", 
  "The date at which current entry will get or has actually executed.": "A data em que o lan\u00e7amento atual vai ser ou foi realmente executado.", 
  "To manage multiple series please go to Setup > Manage Series": "Para gerenciar v\u00e1rias s\u00e9ries por favor, v\u00e1 para Configura\u00e7\u00e3o &gt; Gerenciar S\u00e9ries", 
+ "Total Amount": "Valor Total", 
  "Use Multi-Level BOM": "Utilize LDM de V\u00e1rios N\u00edveis"
 }

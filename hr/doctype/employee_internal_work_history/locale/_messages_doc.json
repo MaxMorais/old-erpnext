@@ -2,9 +2,9 @@
  "Employee Internal Work History", 
  "Designation", 
  "HR", 
- "Grade", 
- "Department", 
  "To Date", 
+ "Grade", 
  "From Date", 
- "Branch"
+ "Branch", 
+ "Department"
 ]

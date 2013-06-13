@@ -4,11 +4,11 @@
  "Warehouse Contact Info", 
  "State", 
  "Warehouse", 
- "Merge With", 
  "Stock", 
  "PIN", 
  "Warehouse Detail", 
  "Company", 
+ "This feature is for merging duplicate warehouses. It will replace all the links of this warehouse by \"Merge Into\" warehouse. After merging you can delete this warehouse, as stock level for this warehouse will be zero.", 
  "Phone No", 
  "Address Line 1", 
  "Address Line 2", 
@@ -17,9 +17,9 @@
  "Merge", 
  "Mobile No", 
  "For Reference Only.", 
- "This feature is for merging duplicate warehouses. It will replace all the links of this warehouse by \"Merge With\" warehouse. After merging you can delete this warehouse, as stock level for this warehouse will be zero.", 
  "If set, data entry is only allowed for specified users. Else, entry is allowed for all users with requisite permissions.", 
  "Warehouse Type", 
+ "Merge Into", 
  "Warehouse Users", 
  "Email Id"
 ]

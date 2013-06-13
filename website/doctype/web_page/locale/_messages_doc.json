@@ -7,10 +7,11 @@
  "Begin this page with a slideshow of images", 
  "More", 
  "Website", 
+ "Description", 
  "Javascript", 
  "Slideshow", 
- "File List", 
  "Page Name", 
+ "Description for page header.", 
  "Page content", 
  "Center", 
  "Content in markdown format that appears on the main side of your page", 
@@ -21,8 +22,8 @@
  "Left", 
  "Right", 
  "Page url name (auto-generated) (add \".html\")", 
- "Page to show on the website\n", 
  "Link to other pages in the side bar and next section", 
+ "Page to show on the website\n", 
  "Main Section", 
  "Web Page"
 ]

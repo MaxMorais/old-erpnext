@@ -1,18 +1,18 @@
 [
  "not equal", 
  "Field from other forms", 
- "Operator", 
- "Setup", 
+ "greater than equal", 
+ "Workflow Rule Detail", 
  "No", 
  "equal", 
  "greater than", 
  "Field", 
  "Value", 
- "greater than equal", 
+ "Operator", 
  "Raise Exception", 
  "Yes", 
  "less than equal", 
  "Message when Cond. False", 
- "Workflow Rule Detail", 
+ "Setup", 
  "less than"
 ]

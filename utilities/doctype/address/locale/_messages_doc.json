@@ -1,6 +1,5 @@
 [
  "e.g. Office, Billing, Shipping", 
- "State", 
  "Linked With", 
  "Supplier", 
  "Is Primary Address", 
@@ -21,6 +20,7 @@
  "Check to make primary address", 
  "Customer Name", 
  "Sales Partner", 
+ "State", 
  "Pincode", 
  "Name of person or organization that this address belongs to.", 
  "Supplier Name", 

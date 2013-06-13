@@ -3,6 +3,7 @@
  "The net weight of this package. (calculated automatically as sum of net weight of items)", 
  "Net Weight", 
  "To Package No.", 
+ "Get Items", 
  "Stock", 
  "PS", 
  "The gross weight of the package. Usually net weight + packaging material weight. (for print)", 

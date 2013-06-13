@@ -8,6 +8,7 @@
  "Description", 
  "Total Amount", 
  "Item Wise Tax Detail ", 
+ "Rate", 
  "Cheating Field\nPlease do not delete ", 
  "Actual", 
  "Amount", 
@@ -16,7 +17,6 @@
  "Is this Tax included in Basic Rate?", 
  "Parenttype", 
  "On Previous Row Total", 
- "Rate", 
  "Accounts", 
  "Account Head", 
  "Total"
