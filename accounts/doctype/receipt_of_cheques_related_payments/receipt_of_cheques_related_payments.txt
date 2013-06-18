@@ -1,0 +1,96 @@
+[
+ {
+  "creation": "2013-06-17 16:13:01", 
+  "docstatus": 0, 
+  "modified": "2013-06-17 18:22:11", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "custom": 1, 
+  "description": "Receipt of Cheques Related Payments", 
+  "doctype": "DocType", 
+  "document_type": "Master", 
+  "istable": 1, 
+  "module": "Accounts", 
+  "name": "__common__"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Receipt of Cheques Related Payments", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Receipt of Cheques Related Payments"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sales_order", 
+  "fieldtype": "Link", 
+  "hidden": 1, 
+  "label": "Sales Order", 
+  "options": "Sales Order"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "customer", 
+  "fieldtype": "Link", 
+  "hidden": 1, 
+  "label": "Customer", 
+  "options": "Customer", 
+  "read_only": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sales_order_payment", 
+  "fieldtype": "Link", 
+  "label": "Sales Order Payment", 
+  "options": "Sales Order Payment", 
+  "read_only": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "cheque_qty", 
+  "fieldtype": "Int", 
+  "label": "Cheque qty", 
+  "read_only": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "cheques_penddind_to_receive", 
+  "fieldtype": "Data", 
+  "label": "Pedding to Receive", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "cheque_first_date", 
+  "fieldtype": "Date", 
+  "label": "First Cheque Date", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "cheque_last_date", 
+  "fieldtype": "Date", 
+  "label": "Last Cheque Date", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "cheque_amount", 
+  "fieldtype": "Currency", 
+  "label": "Value", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "generate_cheques", 
+  "fieldtype": "Button", 
+  "label": "Generate Cheques"
+ }
+]

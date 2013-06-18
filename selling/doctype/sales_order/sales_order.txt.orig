@@ -1,8 +1,14 @@
 [
  {
+<<<<<<< HEAD
+  "creation": "2013-05-24 10:21:44", 
+  "docstatus": 0, 
+  "modified": "2013-06-11 16:54:15", 
+=======
   "creation": "2013-06-18 12:39:59", 
   "docstatus": 0, 
   "modified": "2013-06-18 17:49:11", 
+>>>>>>> 3c6c3cf5ee902124f3a7e576a4865b206d4749c4
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -33,8 +39,12 @@
   "parentfield": "permissions", 
   "parenttype": "DocType", 
   "permlevel": 0, 
+<<<<<<< HEAD
   "read": 1, 
   "report": 1
+=======
+  "read": 1
+>>>>>>> 3c6c3cf5ee902124f3a7e576a4865b206d4749c4
  }, 
  {
   "doctype": "DocType", 
@@ -953,6 +963,7 @@
   "print_hide": 1
  }, 
  {
+<<<<<<< HEAD
   "amend": 0, 
   "cancel": 0, 
   "create": 1, 
@@ -968,9 +979,22 @@
   "create": 1, 
   "doctype": "DocPerm", 
   "match": "owner", 
+=======
+  "amend": 1, 
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "report": 1, 
+>>>>>>> 3c6c3cf5ee902124f3a7e576a4865b206d4749c4
   "role": "Sales User", 
   "submit": 1, 
   "write": 1
+ }, 
+ {
+<<<<<<< HEAD
+  "doctype": "DocPerm", 
+  "match": "customer_name", 
+  "role": "Customer"
  }, 
  {
   "amend": 1, 
@@ -982,6 +1006,23 @@
   "write": 1
  }, 
  {
+=======
+>>>>>>> 3c6c3cf5ee902124f3a7e576a4865b206d4749c4
+  "amend": 1, 
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+<<<<<<< HEAD
+  "role": "Maintenance User", 
+  "submit": 1, 
+  "write": 1
+=======
+  "report": 1, 
+  "role": "Maintenance User", 
+  "submit": 1, 
+  "write": 1
+ }, 
+ {
   "doctype": "DocPerm", 
   "role": "Accounts User"
  }, 
@@ -989,5 +1030,6 @@
   "doctype": "DocPerm", 
   "match": "customer", 
   "role": "Customer"
+>>>>>>> 3c6c3cf5ee902124f3a7e576a4865b206d4749c4
  }
 ]
