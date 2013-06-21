@@ -36,6 +36,11 @@ wn.module_page["Selling"] = [
 				label: wn._("Join Financial"),
 				description: wn._("Financial data from Customers."),
 				doctype:"Registration Data Personal Financial"
+			},
+			{
+				label: wn._("Receipt of Cheques"),
+				description: wn._("Receipt Control Cheques"),
+				doctype: "Receipt of Cheque"
 			}
 		]
 	},
@@ -181,6 +186,10 @@ wn.module_page["Selling"] = [
 				route: "query-report/Customers Not Buying Since Long Time",
 				doctype: "Sales Order"
 			},
+			{
+				"label": wn._("Cheques Pendding to Receive"),
+				route: "query-report/Cheques Pendding to Receive"
+			}
 
 		]
 	}

@@ -52,7 +52,7 @@ cur_frm.fields_dict.customer.get_query = function(doc){
 cur_frm.cscript.generate_cheques = function(doc, cdt, cdn){
 	var qty = prompt(wn._("Enter the number of cheques to be generated", doc.cheques_pendding_to_receive)),
 	d = locals[cdt][cdn];
-	if (!parseInt(qty)){
+	if (!parseInt(qty)){	
 		msgprint(wn._("You must enter a number"), "Ops...")
 	} else if (parseInt(qty)>parseInt(doc.cheques_pendding_to_receive) || parseInt(qty) === 0){
 		msgprint(wn._("You must enter a number from 1 to ")+doc,cheques_pendding_to_receive, "Ops...")
@@ -70,6 +70,7 @@ cur_frm.cscript.generate_cheques = function(doc, cdt, cdn){
 				doccheque = locals[dt][cn];
 				cheque = cheques[i];
 				doccheque.sales_order = doc.sales_order;
+				doccheque.sales_order_payment = d.name;
 				doccheque.customer = doc.customer;
 				doccheque.customer_name = doc.customer_name;
 				doccheque.parcel = cheque.parcel;
