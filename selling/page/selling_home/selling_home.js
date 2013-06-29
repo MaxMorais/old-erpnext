@@ -29,6 +29,22 @@ wn.module_page["Selling"] = [
 		]
 	},
 	{
+		title: wn._('Accounts'),
+		icon: "icon-money",
+		items: [
+			{
+				label: wn._('Join Financial'),
+				description: wn._('Financial Data from Customers'),
+				doctype: "Registration Data Personal Financial"
+			},
+			{
+				label: wn._("Receipt of Cheque"),
+				description: wn._("Register of Received Cheques"),
+				doctype: "Receipt of Cheque"
+			}
+		]
+	},
+	{
 		title: wn._("Masters"),
 		icon: "icon-book",
 		items: [
@@ -51,7 +67,7 @@ wn.module_page["Selling"] = [
 				label: wn._("Item"),
 				description: wn._("All Products or Services."),
 				doctype:"Item"
-			},
+			}
 		]
 	},
 	{
@@ -202,6 +218,10 @@ wn.module_page["Selling"] = [
 				"label":wn._("Pending SO Items For Purchase Request"),
 				route: "query-report/Pending SO Items For Purchase Request"
 			},
+			{
+				"label": wn._("Cheques Pendding to Receive"),
+				route: "query-report/Cheques Pendding to Receive"
+			}
 		]
 	}
 ]

@@ -328,6 +328,28 @@ class DocType(SellingController):
 	def get_item_list(self, is_stopped):
 		return get_obj('Sales Common').get_item_list( self, is_stopped)
 
+	def get_project_description(self):
+		from ParsePromob import PromobReader
+
+		cost, increase = 0, 0
+		items = []
+
+		for project_files in self.doc.project_files.split(';'):
+			reader = PromobReader(project_files)
+			project = reader.getProject()
+			data = project.toDict()
+			cost += item.get('project_cost', 0)
+			increase += item.get('project_increase', 0)
+			for item in data.get('items', []):
+				items.append(item)
+
+		return {
+			'project_cost': cost,
+			'project_increase': increase,
+			'project_cost_net': cost-increase,
+			'items': items
+		}
+
 	def on_update(self):
 		pass
 		

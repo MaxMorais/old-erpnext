@@ -1,0 +1,60 @@
+[
+ {
+  "creation": "2013-06-17 16:50:14", 
+  "docstatus": 0, 
+  "modified": "2013-06-27 12:07:52", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "description": "Bank", 
+  "doctype": "DocType", 
+  "document_type": "Master", 
+  "module": "Setup", 
+  "name": "__common__"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Bank", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "name": "__common__", 
+  "parent": "Bank", 
+  "parentfield": "permissions", 
+  "parenttype": "DocType", 
+  "permlevel": 0, 
+  "read": 1
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Bank"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "bank_code", 
+  "fieldtype": "Data", 
+  "label": "Bank Code"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "bank_name", 
+  "fieldtype": "Text", 
+  "label": "Bank Name"
+ }, 
+ {
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "role": "System Manager", 
+  "write": 1
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "All"
+ }
+]

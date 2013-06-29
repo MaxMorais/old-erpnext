@@ -1,0 +1,199 @@
+[
+ {
+  "creation": "2013-06-17 16:12:58", 
+  "docstatus": 0, 
+  "modified": "2013-06-27 12:07:47", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "allow_attach": 0, 
+  "allow_rename": 0, 
+  "autoname": "naming_series:", 
+  "custom": 1, 
+  "description": "Cheque", 
+  "doctype": "DocType", 
+  "document_type": "Master", 
+  "is_submittable": 1, 
+  "istable": 0, 
+  "module": "Accounts", 
+  "name": "__common__"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Cheque", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0
+ }, 
+ {
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "name": "__common__", 
+  "parent": "Cheque", 
+  "parentfield": "permissions", 
+  "parenttype": "DocType", 
+  "permlevel": 0, 
+  "read": 1, 
+  "report": 1, 
+  "write": 1
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Cheque"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "naming_series", 
+  "fieldtype": "Data", 
+  "label": "Series", 
+  "options": "CHQ"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sales_order", 
+  "fieldtype": "Link", 
+  "label": "Sales Order", 
+  "options": "Sales Order", 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sales_order_payment", 
+  "fieldtype": "Link", 
+  "hidden": 1, 
+  "label": "Sales Order Payment", 
+  "options": "Sales Order Payment", 
+  "print_hide": 1, 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "amended_from", 
+  "fieldtype": "Link", 
+  "hidden": 1, 
+  "label": "Amended From", 
+  "no_copy": 1, 
+  "options": "Journal Voucher", 
+  "print_hide": 1, 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "customer", 
+  "fieldtype": "Link", 
+  "hidden": 1, 
+  "label": "Customer", 
+  "options": "Customer", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "customer_name", 
+  "fieldtype": "Data", 
+  "hidden": 1, 
+  "label": "Customer Name", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "parcel", 
+  "fieldtype": "Int", 
+  "label": "Parcel", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "bank_code", 
+  "fieldtype": "Link", 
+  "label": "Bank Code", 
+  "options": "Bank"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "bank_name", 
+  "fieldtype": "Data", 
+  "label": "Bank Name", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "bank_branch", 
+  "fieldtype": "Data", 
+  "label": "Bank Branch", 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "bank_account", 
+  "fieldtype": "Data", 
+  "label": "Bank Account", 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "accountholder", 
+  "fieldtype": "Data", 
+  "label": "AccountHolder", 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "accountholder_document", 
+  "fieldtype": "Data", 
+  "label": "AccountHolder CPF/CNPJ", 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "cheque_amount", 
+  "fieldtype": "Currency", 
+  "label": "Cheque Amount", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "cheque_debit_date", 
+  "fieldtype": "Date", 
+  "label": "Cheque Debit Date", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "receipt_of_cheque", 
+  "fieldtype": "Link", 
+  "hidden": 1, 
+  "label": "Cheque Receipt", 
+  "options": "Receipt of Cheque", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "match": "owner", 
+  "role": "Sales User"
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "match": "territory", 
+  "role": "Sales Manager"
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "Sales Master Manager"
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "Accounts User"
+ }, 
+ {
+  "amend": 1, 
+  "cancel": 1, 
+  "doctype": "DocPerm", 
+  "role": "Accounts Manager", 
+  "submit": 1
+ }
+]

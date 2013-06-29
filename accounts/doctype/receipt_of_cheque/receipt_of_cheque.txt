@@ -1,0 +1,167 @@
+[
+ {
+  "creation": "2013-06-17 16:55:10", 
+  "docstatus": 0, 
+  "modified": "2013-06-27 12:07:15", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "allow_attach": 0, 
+  "autoname": "CHQ-RCB.####", 
+  "custom": 1, 
+  "description": "Receipt of Cheque", 
+  "doctype": "DocType", 
+  "document_type": "Master", 
+  "max_attachments": 1, 
+  "module": "Accounts", 
+  "name": "__common__", 
+  "name_case": "UPPER CASE", 
+  "read_only_onload": 1, 
+  "search_fields": "sales_order,customer,customer_name"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Receipt of Cheque", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "name": "__common__", 
+  "parent": "Receipt of Cheque", 
+  "parentfield": "permissions", 
+  "parenttype": "DocType", 
+  "permlevel": 0, 
+  "read": 1, 
+  "report": 1
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Receipt of Cheque"
+ }, 
+ {
+  "default": "Today", 
+  "doctype": "DocField", 
+  "fieldname": "issue_date", 
+  "fieldtype": "Date", 
+  "label": "Issue Date", 
+  "read_only": 1, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sales_order", 
+  "fieldtype": "Link", 
+  "label": "Sales Order", 
+  "options": "Sales Order", 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "column_break_0_right", 
+  "fieldtype": "Column Break"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "customer", 
+  "fieldtype": "Link", 
+  "label": "Customer", 
+  "options": "Customer", 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "customer_name", 
+  "fieldtype": "Data", 
+  "hidden": 0, 
+  "label": "Customer Name", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "related_payments_sb", 
+  "fieldtype": "Section Break", 
+  "label": "Related Payments"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "related_payments", 
+  "fieldtype": "Table", 
+  "options": "Receipt of Cheques Related Payments"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "column_break_1_right", 
+  "fieldtype": "Section Break"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "related_cheque_qty", 
+  "fieldtype": "Int", 
+  "label": "Related Cheque Qty", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "related_cheque_amount", 
+  "fieldtype": "Currency", 
+  "label": "Related Cheque Amount", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "cheques_sb", 
+  "fieldtype": "Section Break", 
+  "label": "Cheques"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "cheques", 
+  "fieldtype": "Table", 
+  "options": "Cheque"
+ }, 
+ {
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "match": "owner", 
+  "role": "Sales User", 
+  "write": 1
+ }, 
+ {
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "match": "territory", 
+  "role": "Sales Manager", 
+  "write": 1
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "Sales Master Manager"
+ }, 
+ {
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "role": "Accounts User", 
+  "write": 1
+ }, 
+ {
+  "amend": 1, 
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "role": "Accounts Manager", 
+  "write": 1
+ }, 
+ {
+  "amend": 1, 
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "role": "System Manager", 
+  "write": 1
+ }
+]

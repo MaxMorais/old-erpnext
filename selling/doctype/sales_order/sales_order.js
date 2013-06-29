@@ -303,3 +303,4 @@ cur_frm.cscript.on_submit = function(doc, cdt, cdn) {
 		cur_frm.email_doc(wn.boot.notification_settings.sales_order_message);
 	}
 };
+
