@@ -75,32 +75,9 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 // for backward compatibility: combine new and previous states
 $.extend(cur_frm.cscript, new erpnext.selling.SalesOrderController({frm: cur_frm}));
 
-//cur_frm.cscript.customer_address = cur_frm.cscript.contact_person = function(doc,dt,dn) {		
-//	if(doc.customer) get_server_fields('get_customer_address', JSON.stringify({customer: doc.customer, address: doc.customer_address, contact: doc.contact_person}),'', doc, dt, dn, 1);
-//}
-
-//cur_frm.fields_dict.shipping_address_name.get_query = cur_frm.fields_dict['customer_address'].get_query;
-
-cur_frm.cscript.shipping_address_name = function() {
-	if(cur_frm.doc.shipping_address_name) {
-		wn.model.with_doc("Address", cur_frm.doc.shipping_address_name, function(name) {
-			var address = wn.model.get_doc("Address", name);
-			
-			var out = $.map(["address_line1", "address_line2", "city"], 
-				function(f) { return address[f]; });
-
-			var state_pincode = $.map(["state", "pincode"], function(f) { return address[f]; }).join(" ");
-			if(state_pincode) out.push(state_pincode);
-			
-			if(address["country"]) out.push(address["country"]);
-			
-			out.concat($.map([["Phone:", address["phone"]], ["Fax:", address["fax"]]], 
-				function(val) { return val[1] ? val.join(" ") : null; }));
-			
-			cur_frm.set_value("shipping_address", out.join("\n"));
-		});
-	}
-};
+cur_frm.cscript.customer_address = cur_frm.cscript.contact_person = function(doc,dt,dn) {		
+	if(doc.customer) get_server_fields('get_customer_address', JSON.stringify({customer: doc.customer, address: doc.customer_address, contact: doc.contact_person}),'', doc, dt, dn, 1);
+}
 
 cur_frm.cscript.pull_quotation_details = function(doc,dt,dn) {
 	var callback = function(r,rt){
@@ -305,6 +282,12 @@ cur_frm.cscript.on_submit = function(doc, cdt, cdn) {
 };
 
 cur_frm.cscript.get_project_costs = function(doc, cdt, cdn){
+	if (!DBChooser.cache){
+		DBChooser.cache = {};
+	} 
+	if (!DBChooser.cache[doc.name]){
+		DBChooser.cache[doc.name] = {};
+	}
 	if (DBChooser.selected_files){
 		cur_frm.call({
 			method: 'get_project_costs',
@@ -312,7 +295,25 @@ cur_frm.cscript.get_project_costs = function(doc, cdt, cdn){
 				filenames: DBChooser.selected_files.join(';')
 			}, 
 			callback: function(r){
-				console.log(r);
+				var i;
+				if (!r.exc){
+					for (i = 0; i<r.message.items.length; i++) {
+						if (!DBChooser.cache[doc.name][r.message.items[i]]){
+							name = wn.model.make_new_doc_and_get_name('Sales Order Item');
+							DBChooser.cache[doc.name][r.message.items[i]] = name;
+						} else {
+							name = DBChooser.cache[doc.name][r.message.items[i]];
+						}
+						item = locals['Sales Order Item'][name];
+						item.parent = doc.name;
+						item.parenttype = doc.doctype;
+						item.parentfield = "sales_order_details";
+						item.item_code = r.message.items[i];
+						item.customer_item_code = doc.customer;
+						cur_frm.cscript.item_code(doc, 'Sales Order Item', name);
+					}
+					cur_frm.refresh_fields();
+				}
 			}
 		});
 	}

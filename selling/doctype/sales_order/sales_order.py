@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 # ERPNext - web based ERP (http://erpnext.com)
 # Copyright (C) 2012 Web Notes Technologies Pvt Ltd
 # 
@@ -382,6 +383,38 @@ def get_currency_and_number_format():
 @webnotes.whitelist()
 def get_project_costs(filenames):
 	from ParsePromob import PromobReader
+	from webnotes.model.bean import getlist
+
+	enviroment_template = [
+		# The enviroment
+		{
+			'doctype': 'Item',
+			'item_code': '_Item Template_Code',
+			'item_name': '_Item Template_Name',
+			'description': '__Item Template_Description',
+			'brand': '_Item Template_Brand',
+			'item_group': 'Itens Projetados',
+			'stock_uom': 'Un',
+			'is_stock_item': 'No',
+			'is_purchase_item': 'No',
+			'is_sales_item': 'Yes',
+			'is_service_item': 'No',
+			'is_sample_item': 'No',
+			'max_discount': 65,
+			'default_income_account': u'Vendas - Grupo Realize Móveis',
+			'default_sales_cost_center': u'Auto Inventory Accounting - Grupo Realize Móveis',	
+		}, 
+		# The Price
+		{
+			'doctype': 'Item Price',
+			'parentfield': 'ref_rate_details',
+			'price_list_name': 'Itens Projetados',
+			'ref_rate': '_Item Template_Price',
+			'ref_currency': 'BRL',
+			'buying_or_selling': 'Selling'
+		}
+	]
+
 
 	cost, increase = 0, 0
 	items = []
@@ -392,12 +425,30 @@ def get_project_costs(filenames):
 		data = project.toDict()
 		cost += data.get('project_cost', 0)
 		increase += data.get('project_increase', 0)
-		for item in data.get('items', []):
-			items.append(item)
+		for i in data.get('items', []):
+			price = i.pop('price')
+			try:
+				item = webnotes.bean('Item', i['item_code'])
+				isinsertable = False
+			except:
+				item = webnotes.bean(copy=enviroment_template)
+			
+			if isinsertable:
+				item.doclist[1].fields.update({'ref_rate': price})
+				item.insert()
+			else:
+				item.doc.fields.update(i)
+				pricelist = getlist(item.doclist, 'ref_rate_details')
+				if pricelist:
+					webnotes.msgprint(isinstance(pricelist[0], dict))
+					#pricelist[0].update({'ref_rate': price})
+
+			item.load_from_db()
+			items.append(i['item_code'])
 
 	return {
 		'project_cost': cost,
 		'project_increase': increase,
-		'project_cost_net': cost-increase
-		#'items': items
+		'project_cost_net': cost-increase,
+		'items': items
 	}	

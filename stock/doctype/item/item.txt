@@ -2,7 +2,7 @@
  {
   "creation": "2013-05-03 10:45:46", 
   "docstatus": 0, 
-  "modified": "2013-06-26 21:39:46", 
+  "modified": "2013-07-01 11:27:46", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -35,7 +35,6 @@
   "parenttype": "DocType", 
   "permlevel": 0, 
   "read": 1, 
-  "report": 1, 
   "submit": 0
  }, 
  {
@@ -812,6 +811,16 @@
  }, 
  {
   "depends_on": "show_in_website", 
+  "description": "Show Price in Website (if set)", 
+  "doctype": "DocField", 
+  "fieldname": "website_price_list", 
+  "fieldtype": "Link", 
+  "label": "Website Price List", 
+  "options": "Price List", 
+  "read_only": 0
+ }, 
+ {
+  "depends_on": "show_in_website", 
   "description": "Show \"In Stock\" or \"Not in Stock\" based on stock available in this warehouse.", 
   "doctype": "DocField", 
   "fieldname": "website_warehouse", 
@@ -838,7 +847,6 @@
   "read_only": 0
  }, 
  {
-  "depends_on": "show_in_website", 
   "doctype": "DocField", 
   "fieldname": "copy_from_item_group", 
   "fieldtype": "Button", 
@@ -863,17 +871,11 @@
   "read_only": 0
  }, 
  {
-  "cancel": 1, 
-  "create": 1, 
-  "doctype": "DocPerm", 
-  "role": "Material Master Manager", 
-  "write": 1
- }, 
- {
   "amend": 0, 
   "cancel": 0, 
   "create": 0, 
   "doctype": "DocPerm", 
+  "report": 1, 
   "role": "Material Manager", 
   "write": 0
  }, 
@@ -882,7 +884,32 @@
   "cancel": 0, 
   "create": 0, 
   "doctype": "DocPerm", 
+  "report": 1, 
   "role": "Material User", 
   "write": 0
+ }, 
+ {
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "report": 1, 
+  "role": "Material Master Manager", 
+  "write": 1
+ }, 
+ {
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "report": 1, 
+  "role": "System Manager", 
+  "write": 1
+ }, 
+ {
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "match": "owner", 
+  "role": "Sales User", 
+  "write": 1
  }
 ]
