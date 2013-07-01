@@ -64,7 +64,7 @@ cur_frm.cscript.sales_order_payment = function (doc, cdt,cdn){
 						var msg = wn._("The Sales Order ") + doc.sales_order+"/"+d.sales_order_payment + wn._(" has no checks to be received!");
 						validated = false;
 						msgprint(msg);
-						d.pendding_qty = 10;//r.message.qty;
+						d.pendding_qty = r.message.qty;
 						d.cheque_qty = r.message.qty;
 						cur_frm.refresh_fields();
 						throw msg;
@@ -102,16 +102,21 @@ cur_frm.cscript.cheque_qty = function (doc, cdt, cdn){
 cur_frm.cscript.generate_cheques = function(doc, cdt, cdn){
 	var d = locals[cdt][cdn];
 	var ch = locals["Cheque"];
-	for (var i=d.pendding_qty; i>0; i--){
-		c = wn.model.make_new_doc_and_get_name('Cheque');
-		c.parcel = i;
+	console.log(d.cheque_qty);
+	for (var i=0; i<d.cheque_qty; i++){
+		name = wn.model.make_new_doc_and_get_name('Cheque');
+		c = locals["Cheque"][name];
+		c.parent = doc.name;
+		c.parenttype = doc.doctype;
+		c.parentfield = "cheques";
+		c.parcel = i+1;
 		c.sales_order = doc.sales_order;
 		c.sales_order_payment = d.sales_order_payment;
 		c.customer = doc.customer;
 		c.customer_name = doc.customer_name;
 		c.cheque_amount = d.cheque_amount;
 		c.receipt_of_cheque = d.name;
-		//c.cheque_debit_date = wn.date.add_month(d.cheque_first_date, i-(i-1));
+		c.cheque_debit_date = wn.datetime.add_months(d.cheque_first_date, i);
 		cur_frm.refresh_fields();
 		validated = true;
 	}

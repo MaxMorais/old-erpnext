@@ -545,17 +545,17 @@ cur_frm.fields_dict[cur_frm.cscript.fname].grid.get_field('batch_no').get_query 
 		}
 	}
 
-cur_frm.fields_dict['customer_address'].get_query = function(doc, cdt, cdn) {
-	return 'SELECT name, address_line1, city FROM tabAddress \
-		WHERE customer = "'+ doc.customer +'" AND docstatus != 2 AND \
-		%(key)s LIKE "%s" ORDER BY name ASC LIMIT 50';
-}
+//cur_frm.fields_dict['customer_address'].get_query = function(doc, cdt, cdn) {
+//	return 'SELECT name, address_line1, city FROM tabAddress \
+//		WHERE customer = "'+ doc.customer +'" AND docstatus != 2 AND \
+//		%(key)s LIKE "%s" ORDER BY name ASC LIMIT 50';
+//}
 
-cur_frm.fields_dict['contact_person'].get_query = function(doc, cdt, cdn) {
-	return 'SELECT name, CONCAT(first_name," ",ifnull(last_name,"")) As FullName, \
-		department, designation FROM tabContact WHERE customer = "'+ doc.customer + 
-		'" AND docstatus != 2 AND %(key)s LIKE "%s" ORDER BY name ASC LIMIT 50';
-}
+//cur_frm.fields_dict['contact_person'].get_query = function(doc, cdt, cdn) {
+//	return 'SELECT name, CONCAT(first_name," ",ifnull(last_name,"")) As FullName, \
+//		department, designation FROM tabContact WHERE customer = "'+ doc.customer + 
+//		'" AND docstatus != 2 AND %(key)s LIKE "%s" ORDER BY name ASC LIMIT 50';
+//}
 
 // ************* GET OTHER CHARGES BASED ON COMPANY *************
 cur_frm.fields_dict.charge.get_query = function(doc) {

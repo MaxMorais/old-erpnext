@@ -75,11 +75,11 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 // for backward compatibility: combine new and previous states
 $.extend(cur_frm.cscript, new erpnext.selling.SalesOrderController({frm: cur_frm}));
 
-cur_frm.cscript.customer_address = cur_frm.cscript.contact_person = function(doc,dt,dn) {		
-	if(doc.customer) get_server_fields('get_customer_address', JSON.stringify({customer: doc.customer, address: doc.customer_address, contact: doc.contact_person}),'', doc, dt, dn, 1);
-}
+//cur_frm.cscript.customer_address = cur_frm.cscript.contact_person = function(doc,dt,dn) {		
+//	if(doc.customer) get_server_fields('get_customer_address', JSON.stringify({customer: doc.customer, address: doc.customer_address, contact: doc.contact_person}),'', doc, dt, dn, 1);
+//}
 
-cur_frm.fields_dict.shipping_address_name.get_query = cur_frm.fields_dict['customer_address'].get_query;
+//cur_frm.fields_dict.shipping_address_name.get_query = cur_frm.fields_dict['customer_address'].get_query;
 
 cur_frm.cscript.shipping_address_name = function() {
 	if(cur_frm.doc.shipping_address_name) {
@@ -304,3 +304,16 @@ cur_frm.cscript.on_submit = function(doc, cdt, cdn) {
 	}
 };
 
+cur_frm.cscript.get_project_costs = function(doc, cdt, cdn){
+	if (DBChooser.selected_files){
+		cur_frm.call({
+			method: 'get_project_costs',
+			args: {
+				filenames: DBChooser.selected_files.join(';')
+			}, 
+			callback: function(r){
+				console.log(r);
+			}
+		});
+	}
+}
