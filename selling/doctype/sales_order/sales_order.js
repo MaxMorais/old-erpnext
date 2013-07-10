@@ -318,3 +318,5 @@ cur_frm.cscript.get_project_costs = function(doc, cdt, cdn){
 		});
 	}
 }
+
+cur_frm.toggle_enable('project_cost', (user_roles.indexOf('Accounts Manager')=== -1 || user_roles.indexOf('System Manager')=== -1 ) );

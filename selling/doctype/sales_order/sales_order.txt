@@ -2,7 +2,7 @@
  {
   "creation": "2013-05-24 19:29:08", 
   "docstatus": 0, 
-  "modified": "2013-07-01 14:46:18", 
+  "modified": "2013-07-03 13:24:11", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -716,6 +716,16 @@
   "print_hide": 1
  }, 
  {
+  "doctype": "DocField", 
+  "fieldname": "source", 
+  "fieldtype": "Select", 
+  "label": "Source", 
+  "oldfieldname": "source", 
+  "oldfieldtype": "Select", 
+  "options": "\nExisting Customer\nReference\nAdvertisement\nCold Calling\nExhibition\nSupplier Reference\nMass Mailing\nCustomer's Vendor\nCampaign", 
+  "print_hide": 1
+ }, 
+ {
   "description": "Track this Sales Order against any Project", 
   "doctype": "DocField", 
   "fieldname": "project_name", 
@@ -736,16 +746,6 @@
   "oldfieldname": "campaign", 
   "oldfieldtype": "Link", 
   "options": "Campaign", 
-  "print_hide": 1
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "source", 
-  "fieldtype": "Select", 
-  "label": "Source", 
-  "oldfieldname": "source", 
-  "oldfieldtype": "Select", 
-  "options": "\nExisting Customer\nReference\nAdvertisement\nCold Calling\nExhibition\nSupplier Reference\nMass Mailing\nCustomer's Vendor\nCampaign", 
   "print_hide": 1
  }, 
  {

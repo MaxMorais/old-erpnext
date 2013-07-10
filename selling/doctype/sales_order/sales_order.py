@@ -382,17 +382,18 @@ def get_currency_and_number_format():
 
 @webnotes.whitelist()
 def get_project_costs(filenames):
-	from ParsePromob import PromobReader
+	from ParsePromob import PromobReader  # The file parse
 	from webnotes.model.bean import getlist
+	# The Item, Sales BOM and Price templates
 
 	enviroment_template = [
-		# The enviroment
+		# The Item
 		{
 			'doctype': 'Item',
 			'item_code': '_Item Template_Code',
 			'item_name': '_Item Template_Name',
 			'description': '__Item Template_Description',
-			'brand': '_Item Template_Brand',
+			'brand': 'New',
 			'item_group': 'Itens Projetados',
 			'stock_uom': 'Un',
 			'is_stock_item': 'No',
@@ -415,40 +416,72 @@ def get_project_costs(filenames):
 		}
 	]
 
+	sales_bom_template = [
+		# The Sales BOM
+		{
+			'doctype': 'Sales BOM',
+			'new_item_code': '_Item Sales BOM Template_Code',
+		},
+		# The Sales BOM Item
+		{
+			'doctype': 'Sales BOM Item',
+			'parentfield': 'sales_bom_items',
+			'item_code': '_Item Sales BOM Item Template_SubCode',
+			'qty': '_Item Sales BOM Item Template_Qty',
+			'description': '_Item Sales BOM Item Template_Description',
+			'rate': 0,
+			'uom': '_Item Sales BOM Item Template_UOM'
+		}
+	]
+	item_template = [
+		# The raw item
+		{
+			'doctype': 'Item',
+			'item_code': '_Item Template_Code',
+			'item_name': '_Item Template_Name',
+			'description': '__Item Template_Description',
+			'brand': 'New',
+			'item_group': 'Itens Projetados',
+			'stock_uom': '__Item Template_UOM',
+			'is_stock_item': 'No',
+			'is_purchase_item': 'Yes',
+			'is_sales_item': 'Yes',
+			'manufacturer_part_no': '_Item Template_Code'
+		}
+	]
+
 
 	cost, increase = 0, 0
 	items = []
 
 	for project_files in filenames.split(';'):
-		reader = PromobReader(project_files)
-		project = reader.getProject()
-		data = project.toDict()
-		cost += data.get('project_cost', 0)
-		increase += data.get('project_increase', 0)
-		for i in data.get('items', []):
-			price = i.pop('price')
+		reader = PromobReader(project_files)              # Init the parse
+		project = reader.getProject()                     # Get the xml root element 
+		data = project.toDict()                           # Get the item and subitems to compose the sales bom
+		cost += data.get('project_cost', 0)               # Get the raw price of the item
+		increase += data.get('project_increase', 0)       # Get the project increase
+		
+		for i in data.get('items', []):  				  								# Process each item for CAD File
+			price = i.pop('price')                       								# Pop the price to append this on your doctype
+			subitems = i.pop('subitems')
 			try:
-				item = webnotes.bean('Item', i['item_code'])
-				isinsertable = False
-			except:
-				item = webnotes.bean(copy=enviroment_template)
-			
-			if isinsertable:
-				item.doclist[1].fields.update({'ref_rate': price})
-				item.insert()
-			else:
-				item.doc.fields.update(i)
-				pricelist = getlist(item.doclist, 'ref_rate_details')
+				item = webnotes.bean('Item', i['item_code'])                            # First can get the doctype from db
+				item.doc.fields.update(i)												# Update the item data based on CAD data
+				pricelist = item.doclist.get({'doctype': 'Item Price'})
 				if pricelist:
-					webnotes.msgprint(isinstance(pricelist[0], dict))
-					#pricelist[0].update({'ref_rate': price})
-
-			item.load_from_db()
-			items.append(i['item_code'])
+					pricelist[0].ref_rate = price
+				item.save()                                                             # Save the item
+			except Exception, e:
+				webnotes.msgprint(e)
+				item = webnotes.bean(copy=enviroment_template)                          # Make a new item based on template
+				item.doc.fields.update(i)                                               # Update the item data based on CAD data
+				item.doclist[1].fields.update({'ref_rate': price})                      # Update the price
+				item.insert()                                                           # Save the item
+			items.append(i['item_code']) # Append item code to
 
 	return {
 		'project_cost': cost,
 		'project_increase': increase,
 		'project_cost_net': cost-increase,
 		'items': items
-	}	
+	}		
