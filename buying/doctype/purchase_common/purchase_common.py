@@ -183,6 +183,29 @@ class DocType(BuyingController):
 			if item[0][1] != 'Yes' and item[0][2] != 'Yes':
 				msgprint("Item %s is not a purchase item or sub-contracted item. Please check" % (d.item_code), raise_exception=True)
 			
+			if d.fields.has_key('prevdoc_docname') and d.prevdoc_docname:
+				# check warehouse, uom	in previous doc and in current doc are same.
+				data = sql("select item_code, warehouse, uom from `tab%s` where name = '%s'" % ( self.doctype_dict[d.prevdoc_doctype], d.prevdoc_detail_docname), as_dict = 1)
+				if not data:
+					msgprint("Please fetch data in Row " + cstr(d.idx) + " once again or please contact Administrator.")
+					raise Exception
+				
+				# Check if Item Code has been modified.
+				if not cstr(data[0]['item_code']) == cstr(d.item_code):
+					msgprint("Please check Item %s is not present in %s %s ." % (d.item_code, d.prevdoc_doctype, d.prevdoc_docname))
+					raise Exception
+				
+				if cstr(data[0]['warehouse']) and \
+						not cstr(data[0]['warehouse']) == cstr(d.warehouse):
+					msgprint("""Please check warehouse %s of Item %s 
+						which is not present in %s %s""" % (d.warehouse, d.item_code, 
+						d.prevdoc_doctype, d.prevdoc_docname), raise_exception=1)
+				
+				#	Check if UOM has been modified.
+				if not cstr(data[0]['uom']) == cstr(d.uom) and not cstr(d.prevdoc_doctype) == 'Material Request':
+					msgprint("Please check UOM %s of Item %s which is not present in %s %s ." % \
+						(d.uom, d.item_code, d.prevdoc_doctype, d.prevdoc_docname), raise_exception=True)
+			
 			# list criteria that should not repeat if item is stock item
 			e = [d.schedule_date, d.item_code, d.description, d.warehouse, d.uom, d.fields.has_key('prevdoc_docname') and d.prevdoc_docname or '', d.fields.has_key('prevdoc_detail_docname') and d.prevdoc_detail_docname or '', d.fields.has_key('batch_no') and d.batch_no or '']
 			

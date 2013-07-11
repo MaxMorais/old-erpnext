@@ -1,0 +1,146 @@
+[
+ {
+  "creation": "2013-04-18 13:30:59", 
+  "docstatus": 0, 
+  "modified": "2013-04-18 14:25:11", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "autoname": "PMT/.#####", 
+  "custom": 1, 
+  "description": "Sales Order Payment", 
+  "doctype": "DocType", 
+  "istable": 1, 
+  "module": "Selling", 
+  "name": "__common__"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Sales Order Payment", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Sales Order Payment"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "mode_of_payment", 
+  "fieldtype": "Link", 
+  "label": "Mode of Payment", 
+  "options": "Mode of Payment", 
+  "reqd": 1, 
+  "width": "150px"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "customer_payment_code", 
+  "fieldtype": "Data", 
+  "hidden": 1, 
+  "label": "Customer's Payment Code"
+ }, 
+ {
+  "default": "Today", 
+  "doctype": "DocField", 
+  "fieldname": "first_payment_date", 
+  "fieldtype": "Date", 
+  "label": "Data da Primeira Parcela", 
+  "reqd": 1, 
+  "width": "100px"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "last_payment_date", 
+  "fieldtype": "Date", 
+  "label": "Data da \u00daltima Parcela", 
+  "read_only": 1, 
+  "width": "100px"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "number_of_payments", 
+  "fieldtype": "Int", 
+  "label": "N\u00famero de Parcelas", 
+  "reqd": 1, 
+  "width": "100px"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "payment_value", 
+  "fieldtype": "Currency", 
+  "label": "Valor da Parcela", 
+  "reqd": 1, 
+  "width": "100px"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "gross_payment_amount", 
+  "fieldtype": "Currency", 
+  "label": "Sub-Total", 
+  "read_only": 1, 
+  "width": "100px"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "rate", 
+  "fieldtype": "Float", 
+  "hidden": 0, 
+  "label": "Rate (%)", 
+  "read_only": 1, 
+  "width": "100px"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "rate_value", 
+  "fieldtype": "Float", 
+  "hidden": 0, 
+  "label": "Rate Value", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "net_payment_amount", 
+  "fieldtype": "Currency", 
+  "hidden": 0, 
+  "label": "Payment Amount (Net)", 
+  "read_only": 1, 
+  "reqd": 0, 
+  "width": "100px"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "service_rate", 
+  "fieldtype": "Float", 
+  "hidden": 0, 
+  "label": "Service Rate (%)", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "service_rate_value", 
+  "fieldtype": "Currency", 
+  "hidden": 0, 
+  "label": "Service Rate Value", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "deduction_rate", 
+  "fieldtype": "Float", 
+  "hidden": 0, 
+  "label": "Reduction Rate (%)", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "deduction_rate_value", 
+  "fieldtype": "Currency", 
+  "hidden": 0, 
+  "label": "Reduction Rate Value", 
+  "read_only": 1
+ }
+]

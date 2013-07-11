@@ -1,0 +1,82 @@
+[
+ {
+  "creation": "2013-05-29 18:27:46", 
+  "docstatus": 0, 
+  "modified": "2013-06-05 13:47:41", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "autoname": "field:ncm_code", 
+  "custom": 1, 
+  "description": "Tabela de Cadastro de NCM", 
+  "doctype": "DocType", 
+  "document_type": "Master", 
+  "module": "Stock", 
+  "name": "__common__", 
+  "name_case": "UPPER CASE", 
+  "search_fields": "ncm_code,ncmd_description"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "NCM", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "name": "__common__", 
+  "parent": "NCM", 
+  "parentfield": "permissions", 
+  "parenttype": "DocType", 
+  "permlevel": 0, 
+  "read": 1
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "NCM"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "ncm_code", 
+  "fieldtype": "Data", 
+  "label": "NCM", 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "ncm_description", 
+  "fieldtype": "Small Text", 
+  "label": "Descri\u00e7\u00e3o", 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "uom", 
+  "fieldtype": "Link", 
+  "label": "UDM", 
+  "options": "UOM"
+ }, 
+ {
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "report": 1, 
+  "role": "Administrator", 
+  "write": 1
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "All"
+ }, 
+ {
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "report": 1, 
+  "role": "System Manager", 
+  "write": 1
+ }
+]

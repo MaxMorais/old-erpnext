@@ -1,8 +1,8 @@
 [
  {
-  "creation": "2013-06-11 14:26:44", 
+  "creation": "2013-06-11 13:10:26", 
   "docstatus": 0, 
-  "modified": "2013-07-05 14:34:09", 
+  "modified": "2013-06-11 16:53:13", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -31,7 +31,8 @@
   "parent": "Customer", 
   "parentfield": "permissions", 
   "parenttype": "DocType", 
-  "read": 1
+  "read": 1, 
+  "submit": 0
  }, 
  {
   "doctype": "DocType", 
@@ -336,34 +337,73 @@
  {
   "amend": 0, 
   "cancel": 0, 
-  "create": 1, 
+  "create": 0, 
   "doctype": "DocPerm", 
+  "match": "territory", 
+  "permlevel": 0, 
+  "report": 1, 
+  "role": "Sales Manager", 
+  "write": 0
+ }, 
+ {
+  "amend": 0, 
+  "cancel": 0, 
+  "create": 0, 
+  "doctype": "DocPerm", 
+  "match": "owner", 
   "permlevel": 0, 
   "report": 1, 
   "role": "Sales User", 
-  "submit": 0, 
-  "write": 1
- }, 
- {
-  "doctype": "DocPerm", 
-  "permlevel": 1, 
-  "role": "Sales User"
+  "write": 0
  }, 
  {
   "amend": 0, 
   "cancel": 1, 
   "create": 1, 
   "doctype": "DocPerm", 
+  "match": "territory", 
   "permlevel": 0, 
   "report": 1, 
   "role": "Sales Master Manager", 
-  "submit": 0, 
   "write": 1
  }, 
  {
+  "amend": 0, 
+  "cancel": 0, 
+  "create": 0, 
   "doctype": "DocPerm", 
-  "permlevel": 1, 
-  "role": "Sales Master Manager", 
+  "permlevel": 2, 
+  "report": 1, 
+  "role": "Accounts Manager", 
+  "write": 1
+ }, 
+ {
+  "amend": 1, 
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "permlevel": 0, 
+  "report": 1, 
+  "role": "System Manager", 
+  "write": 1
+ }, 
+ {
+  "amend": 0, 
+  "cancel": 0, 
+  "create": 0, 
+  "doctype": "DocPerm", 
+  "permlevel": 2, 
+  "report": 0, 
+  "role": "All", 
+  "write": 0
+ }, 
+ {
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "permlevel": 0, 
+  "report": 1, 
+  "role": "Accounts Manager", 
   "write": 1
  }
 ]

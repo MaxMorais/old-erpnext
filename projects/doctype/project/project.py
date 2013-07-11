@@ -73,4 +73,8 @@ class DocType:
 				}).insert()
 	
 	def on_trash(self):
-		delete_events(self.doc.doctype, self.doc.name)
+		self.delete_events()
+			
+	def delete_events(self):
+		webnotes.delete_doc("Event", webnotes.conn.sql_list("""select name from `tabEvent` 
+			where ref_type=%s and ref_name=%s""", (self.doc.doctype, self.doc.name)))

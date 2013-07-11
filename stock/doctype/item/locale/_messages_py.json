@@ -1,0 +1,12 @@
+[
+ " should be 'Yes'. As Item: ", 
+ "Currency does not match Price List Currency for Price List", 
+ "Please transfer the above quantities to an asset warehouse \\\n\t\t\t\t\tbefore changing this item to an asset item", 
+ " is present in one or many Active BOMs", 
+ "As there are existing stock transactions for this \\\n\t\t\t\t\t\t\titem, you can not change the values of 'Has Serial No', \\\n\t\t\t\t\t\t\t'Is Stock Item' and 'Valuation Method'", 
+ "To set reorder level, item must be Purchase Item", 
+ "Please Update Stock UOM with the help of Stock UOM Replace Utility.", 
+ "Cannot have two prices for same Price List", 
+ "Please enter Default Unit of Measure", 
+ "Item Code is mandatory"
+]

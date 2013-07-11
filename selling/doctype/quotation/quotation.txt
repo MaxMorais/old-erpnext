@@ -722,6 +722,42 @@
   "report_hide": 0
  }, 
  {
+  "doctype": "DocField", 
+  "fieldname": "fiscal_year", 
+  "fieldtype": "Select", 
+  "in_filter": 1, 
+  "label": "Fiscal Year", 
+  "oldfieldname": "fiscal_year", 
+  "oldfieldtype": "Select", 
+  "options": "link:Fiscal Year", 
+  "print_hide": 1, 
+  "read_only": 0, 
+  "reqd": 1, 
+  "search_index": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "enq_det", 
+  "fieldtype": "Text", 
+  "hidden": 1, 
+  "label": "Opportunity Item", 
+  "no_copy": 0, 
+  "oldfieldname": "enq_det", 
+  "oldfieldtype": "Text", 
+  "print_hide": 1, 
+  "read_only": 1, 
+  "report_hide": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "column_break4", 
+  "fieldtype": "Column Break", 
+  "oldfieldtype": "Column Break", 
+  "print_hide": 1, 
+  "read_only": 0, 
+  "width": "50%"
+ }, 
+ {
   "allow_on_submit": 0, 
   "default": "Draft", 
   "doctype": "DocField", 
@@ -737,6 +773,20 @@
   "read_only": 1, 
   "reqd": 1, 
   "search_index": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "campaign", 
+  "fieldtype": "Link", 
+  "hidden": 0, 
+  "label": "Campaign", 
+  "no_copy": 0, 
+  "oldfieldname": "campaign", 
+  "oldfieldtype": "Link", 
+  "options": "Campaign", 
+  "print_hide": 1, 
+  "read_only": 0, 
+  "report_hide": 0
  }, 
  {
   "allow_on_submit": 1, 
@@ -839,6 +889,7 @@
   "cancel": 1, 
   "create": 1, 
   "doctype": "DocPerm", 
+  "match": "territory", 
   "role": "Sales Manager", 
   "submit": 1, 
   "write": 1
@@ -848,6 +899,7 @@
   "cancel": 1, 
   "create": 1, 
   "doctype": "DocPerm", 
+  "match": "owner", 
   "role": "Sales User", 
   "submit": 1, 
   "write": 1

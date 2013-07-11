@@ -1,6 +1,6 @@
 [
  {
-  "creation": "2013-03-07 18:50:30", 
+  "creation": "2013-04-03 18:12:55", 
   "docstatus": 0, 
   "modified": "2013-07-05 14:47:52", 
   "modified_by": "Administrator", 
@@ -28,7 +28,6 @@
  {
   "amend": 1, 
   "cancel": 1, 
-  "create": 1, 
   "doctype": "DocPerm", 
   "name": "__common__", 
   "parent": "Opportunity", 
@@ -443,11 +442,32 @@
   "width": "150px"
  }, 
  {
+  "doctype": "DocField", 
+  "fieldname": "amendment_date", 
+  "fieldtype": "Date", 
+  "label": "Amendment Date", 
+  "no_copy": 1, 
+  "oldfieldname": "amendment_date", 
+  "oldfieldtype": "Date", 
+  "print_hide": 1, 
+  "read_only": 1, 
+  "width": "150px"
+ }, 
+ {
+  "create": 1, 
   "doctype": "DocPerm", 
+  "role": "System Manager"
+ }, 
+ {
+  "create": 0, 
+  "doctype": "DocPerm", 
+  "match": "territory", 
   "role": "Sales User"
  }, 
  {
+  "create": 1, 
   "doctype": "DocPerm", 
+  "match": "owner", 
   "role": "Sales Manager"
  }
 ]

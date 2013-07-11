@@ -1,0 +1,15 @@
+[
+ "New Leave Application", 
+ "Hurray! The day(s) on which you are applying for leave \\\n\t\t\t\t\tcoincide with holiday(s). You need not apply for leave.", 
+ "Leave by", 
+ "does not have role 'Leave Approver'", 
+ "Leave Approver can be one of", 
+ "Cannot approve leave as you are not authorized to approve leaves on Block Dates.", 
+ "Employee", 
+ "Leave Blocked", 
+ "Holiday", 
+ "Warning: Leave application contains following block dates", 
+ " (Half Day)", 
+ "Leave Application", 
+ "For Employee"
+]
