@@ -26,15 +26,97 @@ wn.require("app/js/transaction.js");
 
 erpnext.selling.SellingController = erpnext.TransactionController.extend({
 	setup: function() {
+		var me = this;
+		
 		this.frm.add_fetch("sales_partner", "commission_rate", "commission_rate");
 		
-		if(this.frm.fields_dict.shipping_address_name && this.frm.fields_dict.customer_address)
-			this.frm.fields_dict.shipping_address_name.get_query = this.frm.fields_dict['customer_address'].get_query;
+		if(this.frm.fields_dict.shipping_address_name && this.frm.fields_dict.customer_address) {
+			this.frm.fields_dict.shipping_address_name.get_query = 
+				this.frm.fields_dict['customer_address'].get_query;
+		}
+		
+		this.frm.set_query("customer_address", function() {
+			return {
+				filters: {'customer': me.frm.doc.customer }
+			}
+		});
+		
+		this.frm.set_query("contact_person", function() {
+			return {
+				filters: {'customer': me.frm.doc.customer }
+			}
+		});
+		
+		if(this.frm.fields_dict.charge) {
+			this.frm.set_query("charge", function() {
+				return {
+					filters: [
+						['Sales Taxes and Charges Master', 'company', '=', me.frm.doc.company],
+						['Sales Taxes and Charges Master', 'company', 'is not', 'NULL'],
+						['Sales Taxes and Charges Master', 'docstatus', '!=', 2]
+					]
+				}
+			});
+		}
+		
+		this.frm.fields_dict.customer.get_query = function(doc,cdt,cdn) {
+			return{	query:"controllers.queries.customer_query" } }
+
+		this.frm.fields_dict.lead && this.frm.set_query("lead", function(doc,cdt,cdn) {
+			return{	query:"controllers.queries.lead_query" } });
+
+		if(!this.fname) {
+			return;
+		}
+		
+		if(this.frm.fields_dict[this.fname].grid.get_field('item_code')) {
+			this.frm.set_query("item_code", this.fname, function() {
+				return me.frm.doc.order_type === "Maintenance" ?
+					 	{ query:"controllers.queries.item_query",
+							filters:{'is_service_item': 'Yes'}}	:
+						{ query:"controllers.queries.item_query",
+							filters:{'is_sales_item': 'Yes'	}}	;
+			});
+		}
+		
+		if(this.frm.fields_dict[this.fname].grid.get_field('batch_no')) {
+			this.frm.set_query("batch_no", this.fname, function(doc, cdt, cdn) {
+				var item = wn.model.get_doc(cdt, cdn);
+				if(!item.item_code) {
+					wn.throw("Please enter Item Code to get batch no");
+				} else {
+					if(item.warehouse) {
+						return {
+							query : "selling.doctype.sales_common.sales_common.get_batch_no",
+							filters: {
+								'item_code': item.item_code,
+								'warehouse': item.warehouse,
+								'posting_date': me.frm.doc.posting_date
+							}
+						}
+					} else {
+						return{
+							query : "selling.doctype.sales_common.sales_common.get_batch_no",
+							filters: {
+								'item': item.item_code,
+								'posting_date': me.frm.doc.posting_date
+							}
+						}
+					}
+				}
+			});
+		}
 	},
 	
 	onload: function() {
 		this._super();
 		this.toggle_rounded_total();
+	},
+	
+	refresh: function(doc) {
+		this.frm.toggle_display("customer_name", 
+			(this.customer_name && this.frm.doc.customer_name!==this.frm.doc.customer));
+		this._super();
 	},
 	
 	customer: function() {
@@ -323,7 +405,7 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		// NOTE: 
 		// write_off_amount is only for POS Invoice
 		// total_advance is only for non POS Invoice
-		if(this.frm.doc.doctype == "Sales Invoice" && this.frm.doc.docstatus < 2) {
+		if(this.frm.doc.doctype == "Sales Invoice" && this.frm.doc.docstatus==0) {
 			wn.model.round_floats_in(this.frm.doc, ["grand_total", "total_advance", "write_off_amount",
 				"paid_amount"]);
 			var total_amount_to_pay = this.frm.doc.grand_total - this.frm.doc.write_off_amount;
@@ -397,7 +479,7 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		
 		var setup_field_label_map = function(fields_list, currency) {
 			$.each(fields_list, function(i, fname) {
-				var docfield = wn.meta.get_docfield(me.frm.doc.doctype, fname);
+				var docfield = wn.meta.docfield_map[me.frm.doc.doctype][fname];
 				if(docfield) {
 					var label = wn._(docfield.label || "").replace(/\([^\)]*\)/g, "");
 					field_label_map[fname] = label.trim() + " (" + currency + ")";
@@ -442,7 +524,7 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		var setup_field_label_map = function(fields_list, currency, parentfield) {
 			var grid_doctype = me.frm.fields_dict[parentfield].grid.doctype;
 			$.each(fields_list, function(i, fname) {
-				var docfield = wn.meta.get_docfield(grid_doctype, fname);
+				var docfield = wn.meta.docfield_map[grid_doctype][fname];
 				if(docfield) {
 					var label = wn._(docfield.label || "").replace(/\([^\)]*\)/g, "");
 					field_label_map[grid_doctype + "-" + fname] = 
@@ -501,15 +583,6 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		}
 	}
 });
-
-// to save previous state of cur_frm.cscript
-var prev_cscript = {};
-$.extend(prev_cscript, cur_frm.cscript);
-
-cur_frm.cscript = new erpnext.selling.SellingController({frm: cur_frm});
-
-// for backward compatibility: combine new and previous states
-$.extend(cur_frm.cscript, prev_cscript);
 
 // Help for Sales BOM items
 var set_sales_bom_help = function(doc) {

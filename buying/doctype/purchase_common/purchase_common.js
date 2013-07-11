@@ -28,29 +28,45 @@ erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 		
 		if(this.frm.fields_dict.price_list_name) {
 			this.frm.set_query("price_list_name", function() {
-				return repl("select name, currency from `tabPrice List` \
-					where buying_or_selling = 'Buying' and name like \"%s%%\"");
+				return{
+					filters: { 'buying_or_selling': "Buying" }
+				}
 			});
 			
 			this.frm.set_query("price_list_currency", function() {
-				return repl("select distinct ref_currency from `tabItem Price` \
-					where price_list_name=\"%(price_list_name)s\" and buying_or_selling = 'Buying' \
-					and ref_currency like \"%s%%\"", 
-					{price_list_name: me.frm.doc.price_list_name});
+				return{
+					filters: {
+						'price_list_name': me.frm.doc.price_list_name,
+						'buying_or_selling': "Buying"
+					}					
+				}
 			});
 		}
 		
 		if(this.frm.fields_dict.supplier) {
-			this.frm.set_query("supplier", erpnext.utils.supplier_query);
+			this.frm.set_query("supplier", function() {
+				return{	query:"controllers.queries.supplier_query" }});
 		}
 		
 		this.frm.set_query("item_code", this.frm.cscript.fname, function() {
 			if(me.frm.doc.is_subcontracted == "Yes") {
-				return erpnext.queries.item({'ifnull(tabItem.is_sub_contracted_item, "No")': "Yes"});
+				 return{
+					query:"controllers.queries.item_query",
+					filters:{ 'is_sub_contracted_item': 'Yes' }
+				}
 			} else {
-				return erpnext.queries.item({'ifnull(tabItem.is_purchase_item, "No")': "Yes"});
+				return{
+					query: "controllers.queries.item_query",
+					filters: { 'is_purchase_item': 'Yes' }
+				}				
 			}
 		});
+	},
+	
+	refresh: function(doc) {
+		this.frm.toggle_display("supplier_name", 
+			(this.supplier_name && this.frm.doc.supplier_name!==this.frm.doc.supplier));
+		this._super();
 	},
 	
 	supplier: function() {
@@ -101,7 +117,8 @@ erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 							plc_conversion_rate: me.frm.doc.plc_conversion_rate,
 							is_subcontracted: me.frm.doc.is_subcontracted,
 							company: me.frm.doc.company,
-							currency: me.frm.doc.currency
+							currency: me.frm.doc.currency,
+							transaction_date: me.frm.doc.transaction_date
 						}
 					},
 					callback: function(r) {
@@ -184,7 +201,7 @@ erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 		var item = wn.model.get_doc(cdt, cdn);
 		if(item.item_code && item.warehouse) {
 			this.frm.call({
-				method: "buying.utils.get_conversion_factor",
+				method: "buying.utils.get_projected_qty",
 				child: item,
 				args: {
 					item_code: item.item_code,
@@ -211,6 +228,21 @@ erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 		// should be the category field of tax table
 		if(cdt != doc.doctype) {
 			this.calculate_taxes_and_totals();
+		}
+	},
+	
+	purchase_other_charges: function() {
+		var me = this;
+		if(this.frm.doc.purchase_other_charges) {
+			this.frm.call({
+				doc: this.frm.doc,
+				method: "get_purchase_tax_details",
+				callback: function(r) {
+					if(!r.exc) {
+						me.calculate_taxes_and_totals();
+					}
+				}
+			});
 		}
 	},
 	
@@ -355,7 +387,7 @@ erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 		
 		var setup_field_label_map = function(fields_list, currency) {
 			$.each(fields_list, function(i, fname) {
-				var docfield = wn.meta.get_docfield(me.frm.doc.doctype, fname);
+				var docfield = wn.meta.docfield_map[me.frm.doc.doctype][fname];
 				if(docfield) {
 					var label = wn._(docfield.label || "").replace(/\([^\)]*\)/g, "");
 					field_label_map[fname] = label.trim() + " (" + currency + ")";
@@ -401,7 +433,7 @@ erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 		var setup_field_label_map = function(fields_list, currency, parentfield) {
 			var grid_doctype = me.frm.fields_dict[parentfield].grid.doctype;
 			$.each(fields_list, function(i, fname) {
-				var docfield = wn.meta.get_docfield(grid_doctype, fname);
+				var docfield = wn.meta.docfield_map[grid_doctype][fname];
 				if(docfield) {
 					var label = wn._(docfield.label || "").replace(/\([^\)]*\)/g, "");
 					field_label_map[grid_doctype + "-" + fname] = 

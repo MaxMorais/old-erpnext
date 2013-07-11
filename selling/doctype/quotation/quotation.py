@@ -37,26 +37,11 @@ class DocType(SellingController):
 	def onload(self):
 		self.add_communication_list()
 		 
-	# Pull Opportunity Details
-	# --------------------
-	def pull_enq_details(self):
-		self.doclist = self.doc.clear_table(self.doclist, 'quotation_details')
-		get_obj('DocType Mapper', 'Opportunity-Quotation').dt_map('Opportunity', 'Quotation', self.doc.enq_no, self.doc, self.doclist, "[['Opportunity', 'Quotation'],['Opportunity Item', 'Quotation Item']]")
-
-		self.get_adj_percent()
-
-		return self.doc.quotation_to
-
 	# Get contact person details based on customer selected
 	# ------------------------------------------------------
 	def get_contact_details(self):
 		return get_obj('Sales Common').get_contact_details(self,0)
 	
-	
-		
-# QUOTATION DETAILS TRIGGER FUNCTIONS
-# ================================================================================		
-
 	# Get Item Details
 	# -----------------
 	def get_item_details(self, args=None):
@@ -83,20 +68,12 @@ class DocType(SellingController):
 	# --------------------------------------------------------------
 	def get_adj_percent(self, arg=''):
 		get_obj('Sales Common').get_adj_percent(self)
-
 	
 		
-
-# OTHER CHARGES TRIGGER FUNCTIONS
-# ====================================================================================
-	
 	# Get Tax rate if account type is TAX
 	# -----------------------------------
 	def get_rate(self,arg):
 		return get_obj('Sales Common').get_rate(arg)
-
-# VALIDATE
-# ==============================================================================================
 	
 	# Fiscal Year Validation
 	# ----------------------
@@ -154,8 +131,11 @@ class DocType(SellingController):
 		super(DocType, self).validate()
 		
 		import utilities
-		utilities.validate_status(self.doc.status, ["Draft", "Submitted", 
-			"Order Confirmed", "Order Lost", "Cancelled"])
+		if not self.doc.status:
+			self.doc.status = "Draft"
+		else:
+			utilities.validate_status(self.doc.status, ["Draft", "Submitted", 
+				"Order Confirmed", "Order Lost", "Cancelled"])
 
 		self.validate_fiscal_year()
 		self.set_last_contact_date()
@@ -247,3 +227,110 @@ class DocType(SellingController):
 		sql("delete from `tabCommunication Log` where parent = '%s'"%self.doc.name)
 		for d in getlist(self.doclist, 'follow_up'):
 			d.save()
+
+@webnotes.whitelist()
+def make_sales_order(source_name, target_doclist=None):
+	return _make_sales_order(source_name, target_doclist)
+	
+def _make_sales_order(source_name, target_doclist=None, ignore_permissions=False):
+	from webnotes.model.mapper import get_mapped_doclist
+	
+	customer = _make_customer(source_name, ignore_permissions)
+	
+	def set_missing_values(source, target):
+		if customer:
+			target[0].customer = customer.doc.name
+			target[0].customer_name = customer.doc.customer_name
+	
+	doclist = get_mapped_doclist("Quotation", source_name, {
+			"Quotation": {
+				"doctype": "Sales Order", 
+				"field_map": {
+					"name": "quotation_no", 
+					"transaction_date": "quotation_date"
+				},
+				"validation": {
+					"docstatus": ["=", 1]
+				}
+			}, 
+			"Quotation Item": {
+				"doctype": "Sales Order Item", 
+				"field_map": {
+					"parent": "prevdoc_docname"
+				}
+			}, 
+			"Sales Taxes and Charges": {
+				"doctype": "Sales Taxes and Charges",
+			}, 
+			"Sales Team": {
+				"doctype": "Sales Team",
+			}
+		}, target_doclist, set_missing_values, ignore_permissions=ignore_permissions)
+		
+	# postprocess: fetch shipping address, set missing values
+		
+	return [d.fields for d in doclist]
+
+def _make_customer(source_name, ignore_permissions=False):
+	quotation = webnotes.conn.get_value("Quotation", source_name, ["lead", "order_type"])
+	if quotation and quotation[0]:
+		lead_name = quotation[0]
+		customer_name = webnotes.conn.get_value("Customer", {"lead_name": lead_name})
+		if not customer_name:
+			from selling.doctype.lead.lead import _make_customer
+			customer_doclist = _make_customer(lead_name, ignore_permissions=ignore_permissions)
+			customer = webnotes.bean(customer_doclist)
+			customer.ignore_permissions = ignore_permissions
+			if quotation[1] == "Shopping Cart":
+				customer.doc.customer_group = webnotes.conn.get_value("Shopping Cart Settings", None,
+					"default_customer_group")
+			
+			try:
+				customer.insert()
+				return customer
+			except NameError, e:
+				if webnotes.defaults.get_global_default('cust_master_name') == "Customer Name":
+					customer.run_method("autoname")
+					customer.doc.name += "-" + lead_name
+					customer.insert()
+					return customer
+				else:
+					raise e
+
+def quotation_details(doctype, txt, searchfield, start, page_len, filters):
+	from controllers.queries import get_match_cond
+
+	if filters.has_key('cust') and filters.has_key('precision'):
+		return webnotes.conn.sql("""select 	item.name, 
+					(select concat('Last Quote @ ', q.currency, ' ', 
+								format(q_item.export_rate, %(precision)s))
+						from `tabQuotation` q, `tabQuotation Item` q_item 
+						where q.name = q_item.parent 
+							and q_item.item_code = item.name
+							and q.docstatus = 1	
+							and q.customer = "%(cust)s"
+						order by q.transaction_date desc 
+						limit 1) as quote_rate,
+					(select concat('Last Sale @ ', si.currency, ' ', 
+								format(si_item.basic_rate, %(precision)s)) 
+						from `tabSales Invoice` si, `tabSales Invoice Item` si_item 
+						where si.name = si_item.parent 
+							and si_item.item_code = item.name
+							and si.docstatus = 1 
+							and si.customer ="%(cust)s"
+						order by si.posting_date desc 
+						limit 1) as sales_rate,
+					item.item_name, item.description
+					from `tabItem` item 
+					where %(cond)s %(mcond)s 
+						and item.%(searchfield)s like '%(txt)s' 
+					order by item.name desc limit %(start)s, %(page_len)s """ % {'precision': filters["precision"], 
+					'cust': filters['cust'], 'cond': filters['cond'], 'searchfield': searchfield, 
+					'txt': "%%%s%%" % txt, 'mcond': get_match_cond(doctype, searchfield), 
+					'start': start, 'page_len': page_len})
+
+	else:
+		return webnotes.conn.sql(""" select name, item_name, description from `tabItem` item 
+			where %s %s and %s like %s order by name desc limit %s, %s""" % 
+		("%s", get_match_cond(doctype, searchfield), searchfield, "%s", "%s", "%s"), 
+		(filters["cond"], "%%%s%%" % txt, start, page_len))

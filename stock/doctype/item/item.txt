@@ -2,7 +2,7 @@
  {
   "creation": "2013-05-03 10:45:46", 
   "docstatus": 0, 
-  "modified": "2013-07-01 11:27:46", 
+  "modified": "2013-07-08 14:05:47", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -14,6 +14,7 @@
   "description": "A Product or a Service that is bought, sold or kept in stock.", 
   "doctype": "DocType", 
   "document_type": "Master", 
+  "icon": "icon-tag", 
   "max_attachments": 1, 
   "module": "Stock", 
   "name": "__common__", 
@@ -43,11 +44,12 @@
  }, 
  {
   "doctype": "DocField", 
-  "fieldname": "item", 
+  "fieldname": "name_and_description_section", 
   "fieldtype": "Section Break", 
-  "label": "Item", 
+  "label": "Name and Description", 
   "no_copy": 0, 
   "oldfieldtype": "Section Break", 
+  "options": "icon-flag", 
   "read_only": 0
  }, 
  {
@@ -187,6 +189,7 @@
   "fieldtype": "Section Break", 
   "label": "Inventory", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-truck", 
   "read_only": 0
  }, 
  {
@@ -198,7 +201,7 @@
   "label": "Is Stock Item", 
   "oldfieldname": "is_stock_item", 
   "oldfieldtype": "Select", 
-  "options": "\nYes\nNo", 
+  "options": "Yes\nNo", 
   "read_only": 0, 
   "reqd": 1
  }, 
@@ -266,7 +269,7 @@
   "label": "Is Asset Item", 
   "oldfieldname": "is_asset_item", 
   "oldfieldtype": "Select", 
-  "options": "\nYes\nNo", 
+  "options": "Yes\nNo", 
   "read_only": 0, 
   "reqd": 1
  }, 
@@ -279,7 +282,7 @@
   "label": "Has Batch No", 
   "oldfieldname": "has_batch_no", 
   "oldfieldtype": "Select", 
-  "options": "\nYes\nNo", 
+  "options": "Yes\nNo", 
   "read_only": 0, 
   "reqd": 1
  }, 
@@ -294,7 +297,7 @@
   "label": "Has Serial No", 
   "oldfieldname": "has_serial_no", 
   "oldfieldtype": "Select", 
-  "options": "\nYes\nNo", 
+  "options": "Yes\nNo", 
   "read_only": 0, 
   "reqd": 1
  }, 
@@ -342,6 +345,7 @@
   "fieldname": "reorder_section", 
   "fieldtype": "Section Break", 
   "label": "Re-order", 
+  "options": "icon-rss", 
   "read_only": 0
  }, 
  {
@@ -366,7 +370,6 @@
   "doctype": "DocField", 
   "fieldname": "section_break_31", 
   "fieldtype": "Section Break", 
-  "options": "Simple", 
   "read_only": 0
  }, 
  {
@@ -383,6 +386,7 @@
   "fieldtype": "Section Break", 
   "label": "Purchase Details", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-shopping-cart", 
   "read_only": 0
  }, 
  {
@@ -394,7 +398,7 @@
   "label": "Is Purchase Item", 
   "oldfieldname": "is_purchase_item", 
   "oldfieldtype": "Select", 
-  "options": "\nYes\nNo", 
+  "options": "Yes\nNo", 
   "read_only": 0, 
   "reqd": 1
  }, 
@@ -507,6 +511,7 @@
   "fieldtype": "Section Break", 
   "label": "Sales Details", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-tag", 
   "read_only": 0
  }, 
  {
@@ -519,7 +524,7 @@
   "label": "Is Sales Item", 
   "oldfieldname": "is_sales_item", 
   "oldfieldtype": "Select", 
-  "options": "\nYes\nNo", 
+  "options": "Yes\nNo", 
   "read_only": 0, 
   "reqd": 1
  }, 
@@ -534,7 +539,7 @@
   "label": "Is Service Item", 
   "oldfieldname": "is_service_item", 
   "oldfieldtype": "Select", 
-  "options": "\nYes\nNo", 
+  "options": "Yes\nNo", 
   "read_only": 0, 
   "reqd": 1
  }, 
@@ -548,7 +553,7 @@
   "label": "Allow Samples", 
   "oldfieldname": "is_sample_item", 
   "oldfieldtype": "Select", 
-  "options": "\nYes\nNo", 
+  "options": "Yes\nNo", 
   "read_only": 0, 
   "reqd": 1
  }, 
@@ -616,6 +621,7 @@
   "fieldtype": "Section Break", 
   "label": "Item Tax", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-money", 
   "read_only": 0
  }, 
  {
@@ -633,6 +639,7 @@
   "fieldname": "price_list_section", 
   "fieldtype": "Section Break", 
   "label": "Price Lists and Rates", 
+  "options": "icon-money", 
   "read_only": 0
  }, 
  {
@@ -652,6 +659,7 @@
   "fieldtype": "Section Break", 
   "label": "Inspection Criteria", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-search", 
   "read_only": 0
  }, 
  {
@@ -685,6 +693,7 @@
   "fieldtype": "Section Break", 
   "label": "Manufacturing", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-cogs", 
   "read_only": 0
  }, 
  {
@@ -696,7 +705,7 @@
   "label": "Allow Bill of Materials", 
   "oldfieldname": "is_manufactured_item", 
   "oldfieldtype": "Select", 
-  "options": "\nYes\nNo", 
+  "options": "Yes\nNo", 
   "read_only": 0, 
   "reqd": 1
  }, 
@@ -722,7 +731,7 @@
   "label": "Allow Production Order", 
   "oldfieldname": "is_pro_applicable", 
   "oldfieldtype": "Select", 
-  "options": "\nYes\nNo", 
+  "options": "Yes\nNo", 
   "read_only": 0, 
   "reqd": 1
  }, 
@@ -735,7 +744,7 @@
   "label": "Is Sub Contracted Item", 
   "oldfieldname": "is_sub_contracted_item", 
   "oldfieldtype": "Select", 
-  "options": "\nYes\nNo", 
+  "options": "Yes\nNo", 
   "read_only": 0, 
   "reqd": 1
  }, 
@@ -755,6 +764,7 @@
   "fieldname": "website_section", 
   "fieldtype": "Section Break", 
   "label": "Website", 
+  "options": "icon-globe", 
   "read_only": 0
  }, 
  {

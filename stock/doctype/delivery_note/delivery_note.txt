@@ -2,7 +2,7 @@
  {
   "creation": "2013-05-24 19:29:09", 
   "docstatus": 0, 
-  "modified": "2013-06-27 11:33:53", 
+  "modified": "2013-07-09 12:48:27", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -12,6 +12,7 @@
   "doctype": "DocType", 
   "document_type": "Transaction", 
   "hide_toolbar": 0, 
+  "icon": "icon-truck", 
   "in_create": 0, 
   "is_submittable": 1, 
   "module": "Stock", 
@@ -40,6 +41,13 @@
  {
   "doctype": "DocType", 
   "name": "Delivery Note"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "delivery_to_section", 
+  "fieldtype": "Section Break", 
+  "label": "Delivery To", 
+  "options": "icon-user"
  }, 
  {
   "doctype": "DocField", 
@@ -94,44 +102,56 @@
   "fieldname": "customer_address", 
   "fieldtype": "Link", 
   "in_filter": 1, 
-  "label": "Select Shipping Address", 
+  "label": "Billing Address Name", 
   "options": "Address", 
   "print_hide": 1, 
   "read_only": 1
  }, 
  {
-  "depends_on": "customer", 
   "doctype": "DocField", 
   "fieldname": "address_display", 
   "fieldtype": "Small Text", 
-  "hidden": 0, 
+  "hidden": 1, 
+  "label": "Billing Address", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "shipping_address_name", 
+  "fieldtype": "Link", 
+  "label": "Shipping Address Name", 
+  "options": "Address", 
+  "print_hide": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "shipping_address", 
+  "fieldtype": "Small Text", 
+  "hidden": 1, 
   "label": "Shipping Address", 
   "read_only": 1
  }, 
  {
-  "depends_on": "customer", 
   "doctype": "DocField", 
   "fieldname": "contact_display", 
   "fieldtype": "Small Text", 
-  "hidden": 0, 
+  "hidden": 1, 
   "label": "Contact", 
   "read_only": 1
  }, 
  {
-  "depends_on": "customer", 
   "doctype": "DocField", 
   "fieldname": "contact_mobile", 
   "fieldtype": "Text", 
-  "hidden": 0, 
+  "hidden": 1, 
   "label": "Mobile No", 
   "read_only": 1
  }, 
  {
-  "depends_on": "customer", 
   "doctype": "DocField", 
   "fieldname": "contact_email", 
   "fieldtype": "Text", 
-  "hidden": 0, 
+  "hidden": 1, 
   "label": "Contact Email", 
   "print_hide": 1, 
   "read_only": 1
@@ -194,32 +214,10 @@
  }, 
  {
   "doctype": "DocField", 
-  "fieldname": "challan_no", 
-  "fieldtype": "Data", 
-  "hidden": 1, 
-  "label": "Challan No", 
-  "oldfieldname": "challan_no", 
-  "oldfieldtype": "Data", 
-  "print_hide": 1, 
-  "read_only": 0
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "challan_date", 
-  "fieldtype": "Date", 
-  "hidden": 1, 
-  "label": "Challan Date", 
-  "oldfieldname": "challan_date", 
-  "oldfieldtype": "Date", 
-  "print_hide": 1, 
-  "read_only": 0
- }, 
- {
-  "doctype": "DocField", 
   "fieldname": "po_no", 
   "fieldtype": "Data", 
   "hidden": 1, 
-  "label": "P.O. No", 
+  "label": "Customer's Purchase Order No", 
   "no_copy": 0, 
   "oldfieldname": "po_no", 
   "oldfieldtype": "Data", 
@@ -234,7 +232,7 @@
   "fieldname": "po_date", 
   "fieldtype": "Data", 
   "hidden": 1, 
-  "label": "P.O. Date", 
+  "label": "Customer's Purchase Order Date", 
   "no_copy": 0, 
   "oldfieldname": "po_date", 
   "oldfieldtype": "Data", 
@@ -247,7 +245,8 @@
   "doctype": "DocField", 
   "fieldname": "sec_break25", 
   "fieldtype": "Section Break", 
-  "label": "Price List and Currency", 
+  "label": "Currency and Price List", 
+  "options": "icon-tag", 
   "read_only": 0
  }, 
  {
@@ -323,6 +322,7 @@
   "fieldtype": "Section Break", 
   "label": "Items", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-shopping-cart", 
   "read_only": 0
  }, 
  {
@@ -345,6 +345,7 @@
   "fieldtype": "Section Break", 
   "label": "Packing List", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-suitcase", 
   "print_hide": 1, 
   "read_only": 0
  }, 
@@ -369,55 +370,27 @@
  }, 
  {
   "doctype": "DocField", 
-  "fieldname": "section_break0", 
-  "fieldtype": "Section Break", 
-  "options": "Simple", 
-  "read_only": 0
- }, 
- {
-  "description": "You can make a delivery note from multiple sales orders. Select sales orders one by one and click on the button below.", 
-  "doctype": "DocField", 
-  "fieldname": "sales_order_no", 
-  "fieldtype": "Link", 
-  "in_list_view": 1, 
-  "label": "Sales Order No", 
-  "no_copy": 0, 
-  "oldfieldname": "sales_order_no", 
-  "oldfieldtype": "Link", 
-  "options": "Sales Order", 
-  "print_hide": 0, 
-  "read_only": 0
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "get_items", 
-  "fieldtype": "Button", 
-  "hidden": 0, 
-  "label": "Get Items", 
-  "oldfieldtype": "Button", 
-  "options": "pull_sales_order_details", 
-  "print_hide": 1, 
-  "read_only": 0
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "col_break24", 
-  "fieldtype": "Column Break", 
-  "read_only": 0
+  "fieldname": "section_break_31", 
+  "fieldtype": "Section Break"
  }, 
  {
   "doctype": "DocField", 
   "fieldname": "net_total_export", 
   "fieldtype": "Currency", 
-  "label": "Net Total (Export)", 
+  "label": "Net Total", 
   "options": "currency", 
   "read_only": 1
  }, 
  {
   "doctype": "DocField", 
+  "fieldname": "column_break_33", 
+  "fieldtype": "Column Break"
+ }, 
+ {
+  "doctype": "DocField", 
   "fieldname": "net_total", 
   "fieldtype": "Currency", 
-  "label": "Net Total*", 
+  "label": "Net Total (Company Currency)", 
   "no_copy": 0, 
   "oldfieldname": "net_total", 
   "oldfieldtype": "Currency", 
@@ -430,18 +403,11 @@
  }, 
  {
   "doctype": "DocField", 
-  "fieldname": "recalculate_values", 
-  "fieldtype": "Button", 
-  "label": "Re-Calculate Values", 
-  "oldfieldtype": "Button", 
-  "read_only": 0
- }, 
- {
-  "doctype": "DocField", 
   "fieldname": "taxes", 
   "fieldtype": "Section Break", 
   "label": "Taxes", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-money", 
   "read_only": 0
  }, 
  {
@@ -504,16 +470,21 @@
   "doctype": "DocField", 
   "fieldname": "other_charges_total_export", 
   "fieldtype": "Currency", 
-  "label": "Taxes and Charges Total (Export)", 
+  "label": "Taxes and Charges Total", 
   "options": "company", 
   "print_hide": 1, 
   "read_only": 1
  }, 
  {
   "doctype": "DocField", 
+  "fieldname": "column_break_47", 
+  "fieldtype": "Column Break"
+ }, 
+ {
+  "doctype": "DocField", 
   "fieldname": "other_charges_total", 
   "fieldtype": "Currency", 
-  "label": "Taxes and Charges Total", 
+  "label": "Taxes and Charges Total (Company Currency)", 
   "oldfieldname": "other_charges_total", 
   "oldfieldtype": "Currency", 
   "options": "Company:company:default_currency", 
@@ -524,24 +495,11 @@
  }, 
  {
   "doctype": "DocField", 
-  "fieldname": "column_break_47", 
-  "fieldtype": "Column Break"
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "calculate_charges", 
-  "fieldtype": "Button", 
-  "label": "Calculate Charges", 
-  "oldfieldtype": "Button", 
-  "print_hide": 1, 
-  "read_only": 0
- }, 
- {
-  "doctype": "DocField", 
   "fieldname": "totals", 
   "fieldtype": "Section Break", 
   "label": "Totals", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-money", 
   "print_hide": 0, 
   "read_only": 0
  }, 
@@ -549,7 +507,7 @@
   "doctype": "DocField", 
   "fieldname": "grand_total_export", 
   "fieldtype": "Currency", 
-  "label": "Grand Total (Export)", 
+  "label": "Grand Total", 
   "no_copy": 0, 
   "oldfieldname": "grand_total_export", 
   "oldfieldtype": "Currency", 
@@ -564,7 +522,7 @@
   "doctype": "DocField", 
   "fieldname": "rounded_total_export", 
   "fieldtype": "Currency", 
-  "label": "Rounded Total (Export)", 
+  "label": "Rounded Total", 
   "no_copy": 0, 
   "oldfieldname": "rounded_total_export", 
   "oldfieldtype": "Currency", 
@@ -579,7 +537,7 @@
   "doctype": "DocField", 
   "fieldname": "in_words_export", 
   "fieldtype": "Data", 
-  "label": "In Words (Export)", 
+  "label": "In Words", 
   "no_copy": 0, 
   "oldfieldname": "in_words_export", 
   "oldfieldtype": "Data", 
@@ -599,7 +557,7 @@
   "doctype": "DocField", 
   "fieldname": "grand_total", 
   "fieldtype": "Currency", 
-  "label": "Grand Total", 
+  "label": "Grand Total (Company Currency)", 
   "no_copy": 0, 
   "oldfieldname": "grand_total", 
   "oldfieldtype": "Currency", 
@@ -614,7 +572,7 @@
   "doctype": "DocField", 
   "fieldname": "rounded_total", 
   "fieldtype": "Currency", 
-  "label": "Rounded Total", 
+  "label": "Rounded Total (Company Currency)", 
   "no_copy": 0, 
   "oldfieldname": "rounded_total", 
   "oldfieldtype": "Currency", 
@@ -629,7 +587,7 @@
   "doctype": "DocField", 
   "fieldname": "in_words", 
   "fieldtype": "Data", 
-  "label": "In Words", 
+  "label": "In Words (Company Currency)", 
   "no_copy": 0, 
   "oldfieldname": "in_words", 
   "oldfieldtype": "Data", 
@@ -644,6 +602,7 @@
   "fieldtype": "Section Break", 
   "label": "Terms and Conditions", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-legal", 
   "read_only": 0
  }, 
  {
@@ -659,25 +618,6 @@
  }, 
  {
   "doctype": "DocField", 
-  "fieldname": "column_break_59", 
-  "fieldtype": "Column Break"
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "get_terms", 
-  "fieldtype": "Button", 
-  "label": "Get Terms and Conditions", 
-  "oldfieldtype": "Button", 
-  "print_hide": 1, 
-  "read_only": 0
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "section_break_61", 
-  "fieldtype": "Section Break"
- }, 
- {
-  "doctype": "DocField", 
   "fieldname": "terms", 
   "fieldtype": "Text Editor", 
   "label": "Terms and Conditions Details", 
@@ -690,6 +630,7 @@
   "fieldname": "transporter_info", 
   "fieldtype": "Section Break", 
   "label": "Transporter Info", 
+  "options": "icon-truck", 
   "print_hide": 1, 
   "read_only": 0
  }, 
@@ -720,7 +661,7 @@
   "doctype": "DocField", 
   "fieldname": "lr_no", 
   "fieldtype": "Data", 
-  "label": "LR No", 
+  "label": "Vehicle No", 
   "no_copy": 0, 
   "oldfieldname": "lr_no", 
   "oldfieldtype": "Data", 
@@ -736,7 +677,7 @@
   "doctype": "DocField", 
   "fieldname": "lr_date", 
   "fieldtype": "Date", 
-  "label": "LR Date", 
+  "label": "Vehicle Dispatch Date", 
   "no_copy": 0, 
   "oldfieldname": "lr_date", 
   "oldfieldtype": "Date", 
@@ -751,6 +692,7 @@
   "fieldname": "contact_info", 
   "fieldtype": "Section Break", 
   "label": "Contact Info", 
+  "options": "icon-bullhorn", 
   "read_only": 0
  }, 
  {
@@ -802,6 +744,7 @@
   "fieldtype": "Section Break", 
   "label": "More Info", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-file-text", 
   "print_hide": 1, 
   "read_only": 0
  }, 
@@ -945,33 +888,6 @@
  }, 
  {
   "depends_on": "eval:!doc.__islocal", 
-  "description": "% of materials billed against this Delivery Note", 
-  "doctype": "DocField", 
-  "fieldname": "per_billed", 
-  "fieldtype": "Percent", 
-  "in_filter": 1, 
-  "in_list_view": 1, 
-  "label": "% Amount Billed", 
-  "no_copy": 1, 
-  "oldfieldname": "per_billed", 
-  "oldfieldtype": "Currency", 
-  "print_hide": 1, 
-  "read_only": 1, 
-  "search_index": 1
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "billing_status", 
-  "fieldtype": "Select", 
-  "hidden": 1, 
-  "label": "Billing Status", 
-  "no_copy": 1, 
-  "options": "\nNot Billed\nPartly Billed\nFully Billed", 
-  "print_hide": 1, 
-  "read_only": 0
- }, 
- {
-  "depends_on": "eval:!doc.__islocal", 
   "description": "% of materials delivered against this Delivery Note", 
   "doctype": "DocField", 
   "fieldname": "per_installed", 
@@ -1040,6 +956,7 @@
   "fieldtype": "Section Break", 
   "label": "Sales Team", 
   "oldfieldtype": "Section Break", 
+  "options": "icon-group", 
   "print_hide": 1, 
   "read_only": 0
  }, 
@@ -1095,7 +1012,6 @@
   "doctype": "DocField", 
   "fieldname": "section_break1", 
   "fieldtype": "Section Break", 
-  "options": "Simple", 
   "print_hide": 1, 
   "read_only": 0
  }, 

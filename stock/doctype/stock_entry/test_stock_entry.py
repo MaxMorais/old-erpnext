@@ -6,6 +6,11 @@ import webnotes, unittest
 from webnotes.utils import flt
 
 class TestStockEntry(unittest.TestCase):
+	def tearDown(self):
+		webnotes.defaults.set_global_default("auto_inventory_accounting", 0)
+		if hasattr(self, "old_default_company"):
+			webnotes.conn.set_default("company", self.old_default_company)
+
 	def test_auto_material_request(self):
 		webnotes.conn.sql("""delete from `tabMaterial Request Item`""")
 		webnotes.conn.sql("""delete from `tabMaterial Request`""")
@@ -72,8 +77,6 @@ class TestStockEntry(unittest.TestCase):
 				["Stock Adjustment - _TC", 5000.0, 0.0]
 			])
 		)
-		
-		webnotes.defaults.set_global_default("auto_inventory_accounting", 0)
 
 	def test_material_issue_gl_entry(self):
 		self._clear_stock()
@@ -115,9 +118,6 @@ class TestStockEntry(unittest.TestCase):
 			])
 		)
 		
-		webnotes.defaults.set_global_default("auto_inventory_accounting", 0)
-		webnotes.conn.set_default("company", self.old_default_company)
-		
 	def test_material_transfer_gl_entry(self):
 		self._clear_stock()
 		webnotes.defaults.set_global_default("auto_inventory_accounting", 1)
@@ -149,10 +149,7 @@ class TestStockEntry(unittest.TestCase):
 		gl_entries = webnotes.conn.sql("""select * from `tabGL Entry` 
 			where voucher_type = 'Stock Entry' and voucher_no=%s""", mtn.doc.name)
 		self.assertFalse(gl_entries)
-		
-		webnotes.defaults.set_global_default("auto_inventory_accounting", 0)
-		webnotes.conn.set_default("company", self.old_default_company)
-	
+			
 	def check_stock_ledger_entries(self, voucher_type, voucher_no, expected_sle):
 		# check stock ledger entries
 		sle = webnotes.conn.sql("""select * from `tabStock Ledger Entry` where voucher_type = %s 
@@ -282,6 +279,8 @@ class TestStockEntry(unittest.TestCase):
 		
 		from stock.doctype.delivery_note.test_delivery_note \
 			import test_records as delivery_note_test_records
+
+		from stock.doctype.delivery_note.delivery_note import make_sales_invoice
 		
 		actual_qty_0 = self._get_actual_qty()
 		
@@ -295,11 +294,7 @@ class TestStockEntry(unittest.TestCase):
 		
 		self.assertEquals(actual_qty_0 - delivered_qty, actual_qty_1)
 		
-		si_doclist = webnotes.map_doclist([
-			["Delivery Note", "Sales Invoice"],
-			["Delivery Note Item", "Sales Invoice Item"],
-			["Sales Taxes and Charges", "Sales Taxes and Charges"],
-			["Sales Team", "Sales Team"]], dn.doc.name)
+		si_doclist = make_sales_invoice(dn.doc.name)
 			
 		si = webnotes.bean(si_doclist)
 		si.doc.posting_date = dn.doc.posting_date
@@ -368,8 +363,8 @@ class TestStockEntry(unittest.TestCase):
 	def _test_delivery_note_return_against_sales_order(self, item_code, delivered_qty, returned_qty):
 		self._insert_material_receipt()
 
-		from selling.doctype.sales_order.test_sales_order \
-			import test_records as sales_order_test_records
+		from selling.doctype.sales_order.test_sales_order import test_records as sales_order_test_records
+		from selling.doctype.sales_order.sales_order import make_sales_invoice, make_delivery_note
 
 		actual_qty_0 = self._get_actual_qty()
 		
@@ -379,11 +374,7 @@ class TestStockEntry(unittest.TestCase):
 		so.insert()
 		so.submit()
 		
-		dn_doclist = webnotes.map_doclist([
-			["Sales Order", "Delivery Note"],
-			["Sales Order Item", "Delivery Note Item"],
-			["Sales Taxes and Charges", "Sales Taxes and Charges"],
-			["Sales Team", "Sales Team"]], so.doc.name)
+		dn_doclist = make_delivery_note(so.doc.name)
 
 		dn = webnotes.bean(dn_doclist)
 		dn.doc.status = "Draft"
@@ -395,11 +386,7 @@ class TestStockEntry(unittest.TestCase):
 
 		self.assertEquals(actual_qty_0 - delivered_qty, actual_qty_1)
 
-		si_doclist = webnotes.map_doclist([
-			["Sales Order", "Sales Invoice"],
-			["Sales Order Item", "Sales Invoice Item"],
-			["Sales Taxes and Charges", "Sales Taxes and Charges"],
-			["Sales Team", "Sales Team"]], so.doc.name)
+		si_doclist = make_sales_invoice(so.doc.name)
 
 		si = webnotes.bean(si_doclist)
 		si.doc.posting_date = dn.doc.posting_date
@@ -433,6 +420,8 @@ class TestStockEntry(unittest.TestCase):
 		
 		from stock.doctype.purchase_receipt.test_purchase_receipt \
 			import test_records as purchase_receipt_test_records
+
+		from stock.doctype.purchase_receipt.purchase_receipt import make_purchase_invoice
 		
 		# submit purchase receipt
 		pr = webnotes.bean(copy=purchase_receipt_test_records[0])
@@ -443,10 +432,7 @@ class TestStockEntry(unittest.TestCase):
 		
 		self.assertEquals(actual_qty_0 + 10, actual_qty_1)
 		
-		pi_doclist = webnotes.map_doclist([
-			["Purchase Receipt", "Purchase Invoice"],
-			["Purchase Receipt Item", "Purchase Invoice Item"],
-			["Purchase Taxes and Charges", "Purchase Taxes and Charges"]], pr.doc.name)
+		pi_doclist = make_purchase_invoice(pr.doc.name)
 			
 		pi = webnotes.bean(pi_doclist)
 		pi.doc.posting_date = pr.doc.posting_date
@@ -459,6 +445,7 @@ class TestStockEntry(unittest.TestCase):
 			d.cost_center = "_Test Cost Center - _TC"
 		
 		pi.run_method("calculate_taxes_and_totals")
+		pi.doc.bill_no = "NA"
 		pi.insert()
 		pi.submit()
 		
@@ -524,6 +511,9 @@ class TestStockEntry(unittest.TestCase):
 		from buying.doctype.purchase_order.test_purchase_order \
 			import test_records as purchase_order_test_records
 		
+		from buying.doctype.purchase_order.purchase_order import \
+			make_purchase_receipt, make_purchase_invoice
+		
 		# submit purchase receipt
 		po = webnotes.bean(copy=purchase_order_test_records[0])
 		po.doc.is_subcontracted = None
@@ -532,10 +522,7 @@ class TestStockEntry(unittest.TestCase):
 		po.insert()
 		po.submit()
 		
-		pr_doclist = webnotes.map_doclist([
-			["Purchase Order", "Purchase Receipt"],
-			["Purchase Order Item", "Purchase Receipt Item"],
-			["Purchase Taxes and Charges", "Purchase Taxes and Charges"]], po.doc.name)
+		pr_doclist = make_purchase_receipt(po.doc.name)
 		
 		pr = webnotes.bean(pr_doclist)
 		pr.doc.posting_date = po.doc.transaction_date
@@ -546,10 +533,7 @@ class TestStockEntry(unittest.TestCase):
 		
 		self.assertEquals(actual_qty_0 + 10, actual_qty_1)
 		
-		pi_doclist = webnotes.map_doclist([
-			["Purchase Order", "Purchase Invoice"],
-			["Purchase Order Item", "Purchase Invoice Item"],
-			["Purchase Taxes and Charges", "Purchase Taxes and Charges"]], po.doc.name)
+		pi_doclist = make_purchase_invoice(po.doc.name)
 			
 		pi = webnotes.bean(pi_doclist)
 		pi.doc.posting_date = pr.doc.posting_date
@@ -561,6 +545,7 @@ class TestStockEntry(unittest.TestCase):
 			d.cost_center = "_Test Cost Center - _TC"
 		
 		pi.run_method("calculate_taxes_and_totals")
+		pi.doc.bill_no = "NA"
 		pi.insert()
 		pi.submit()
 		

@@ -55,14 +55,18 @@ class AccountsController(TransactionBase):
 
 				if self.doc.price_list_currency:
 					if not self.doc.plc_conversion_rate:
-						exchange = self.doc.price_list_currency + "-" + get_company_currency(self.doc.company)
-						self.doc.plc_conversion_rate = flt(webnotes.conn.get_value("Currency Exchange",
-							exchange, "exchange_rate"))
+						company_currency = get_company_currency(self.doc.company)
+						if self.doc.price_list_currency == company_currency:
+							self.doc.plc_conversion_rate = 1.0
+						else:
+							exchange = self.doc.price_list_currency + "-" + company_currency
+							self.doc.plc_conversion_rate = flt(webnotes.conn.get_value("Currency Exchange",
+								exchange, "exchange_rate"))
 						
 					if not self.doc.currency:
 						self.doc.currency = self.doc.price_list_currency
 						self.doc.conversion_rate = self.doc.plc_conversion_rate
-				
+						
 	def set_missing_item_details(self, get_item_details):
 		"""set missing item values"""
 		for item in self.doclist.get({"parentfield": self.fname}):
@@ -71,34 +75,44 @@ class AccountsController(TransactionBase):
 				ret = get_item_details(args)
 				for fieldname, value in ret.items():
 					if self.meta.get_field(fieldname, parentfield=self.fname) and \
-						item.fields.get(fieldname) is None:
+						item.fields.get(fieldname) is None and value is not None:
 							item.fields[fieldname] = value
 							
-	def set_taxes(self, tax_doctype, tax_parentfield, tax_master_field):
+	def set_taxes(self, tax_parentfield, tax_master_field):
 		if not self.meta.get_field(tax_parentfield):
 			return
+			
+		tax_master_doctype = self.meta.get_field(tax_master_field).options
 			
 		if not self.doclist.get({"parentfield": tax_parentfield}):
 			if not self.doc.fields.get(tax_master_field):
 				# get the default tax master
 				self.doc.fields[tax_master_field] = \
-					webnotes.conn.get_value(tax_doctype + " Master", {"is_default": 1})
-				
-			if self.doc.fields.get(tax_master_field):
-				from webnotes.model import default_fields
-				tax_master = webnotes.bean(tax_doctype + " Master", self.doc.fields.get(tax_master_field))
-				
-				for i, tax in enumerate(tax_master.doclist.get({"parentfield": tax_parentfield})):
-					for fieldname in default_fields:
-						tax.fields[fieldname] = None
+					webnotes.conn.get_value(tax_master_doctype, {"is_default": 1})
 					
-					tax.fields.update({
-						"doctype": tax_doctype,
-						"parentfield": tax_parentfield,
-						"idx": i+1
-					})
-					
-					self.doclist.append(tax)
+			self.append_taxes_from_master(tax_parentfield, tax_master_field, tax_master_doctype)
+				
+	def append_taxes_from_master(self, tax_parentfield, tax_master_field, tax_master_doctype=None):
+		if self.doc.fields.get(tax_master_field):
+			if not tax_master_doctype:
+				tax_master_doctype = self.meta.get_field(tax_master_field).options
+			
+			tax_doctype = self.meta.get_field(tax_parentfield).options
+			
+			from webnotes.model import default_fields
+			tax_master = webnotes.bean(tax_master_doctype, self.doc.fields.get(tax_master_field))
+			
+			for i, tax in enumerate(tax_master.doclist.get({"parentfield": tax_parentfield})):
+				for fieldname in default_fields:
+					tax.fields[fieldname] = None
+				
+				tax.fields.update({
+					"doctype": tax_doctype,
+					"parentfield": tax_parentfield,
+					"idx": i+1
+				})
+				
+				self.doclist.append(tax)
 					
 	def calculate_taxes_and_totals(self):
 		self.doc.conversion_rate = flt(self.doc.conversion_rate)
@@ -340,10 +354,27 @@ class AccountsController(TransactionBase):
 				"advance_amount": flt(d.amount),
 				"allocate_amount": 0
 			})
+			
+	def validate_multiple_billing(self, ref_dt, item_ref_dn, based_on):
+		for item in self.doclist.get({"parentfield": "entries"}):
+			if item.fields.get(item_ref_dn):
+				already_billed = webnotes.conn.sql("""select sum(%s) from `tab%s` 
+					where %s=%s and docstatus=1""" % (based_on, self.tname, item_ref_dn, '%s'), 
+					item.fields[item_ref_dn])[0][0]
+				if already_billed:
+					max_allowed_amt = webnotes.conn.get_value(ref_dt + " Item", 
+						item.fields[item_ref_dn], based_on)
+					
+					if flt(already_billed) + flt(item.fields[based_on]) > max_allowed_amt:
+						webnotes.msgprint(_("Row ")+ item.idx + ": " + item.item_code + 
+							_(" will be over-billed against mentioned ") + ref_dt +  
+							_(". Max allowed " + based_on + ": " + max_allowed_amt), 
+							raise_exception=1)
 		
 	def get_company_default(self, fieldname):
 		from accounts.utils import get_company_default
 		return get_company_default(self.doc.company, fieldname)
+			
 		
 	@property
 	def stock_items(self):

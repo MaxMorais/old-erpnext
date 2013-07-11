@@ -22,8 +22,6 @@ from webnotes.model.doc import addchild, make_autoname
 from webnotes import msgprint, _
 
 sql = webnotes.conn.sql
-	
-
 
 class DocType:
 	def __init__(self,doc,doclist=[]):
@@ -95,3 +93,40 @@ class DocType:
 	def validate(self):	 
 		self.check_existing()
 		self.validate_amount()
+		
+@webnotes.whitelist()
+def make_salary_slip(source_name, target_doclist=None):
+	from webnotes.model.mapper import get_mapped_doclist
+	
+	def postprocess(source, target):
+		sal_slip = webnotes.bean(target)
+		sal_slip.run_method("pull_emp_details")
+		sal_slip.run_method("get_leave_details")
+		sal_slip.run_method("calculate_net_pay")
+
+	doclist = get_mapped_doclist("Salary Structure", source_name, {
+		"Salary Structure": {
+			"doctype": "Salary Slip", 
+			"field_map": {
+				"total_earning": "gross_pay"
+			}
+		}, 
+		"Salary Structure Deduction": {
+			"doctype": "Salary Slip Deduction", 
+			"field_map": [
+				["depend_on_lwp", "d_depends_on_lwp"],
+				["d_modified_amt", "d_amount"],
+				["d_modified_amt", "d_modified_amount"]
+			]
+		}, 
+		"Salary Structure Earning": {
+			"doctype": "Salary Slip Earning", 
+			"field_map": [
+				["depend_on_lwp", "e_depends_on_lwp"], 
+				["modified_value", "e_modified_amount"],
+				["modified_value", "e_amount"]
+			]
+		}
+	}, target_doclist, postprocess)
+
+	return [d.fields for d in doclist]

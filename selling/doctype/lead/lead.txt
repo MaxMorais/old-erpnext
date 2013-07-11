@@ -2,7 +2,7 @@
  {
   "creation": "2013-04-10 11:45:37", 
   "docstatus": 0, 
-  "modified": "2013-07-03 10:22:31", 
+  "modified": "2013-07-05 14:44:00", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -10,6 +10,7 @@
   "autoname": "naming_series:", 
   "doctype": "DocType", 
   "document_type": "Master", 
+  "icon": "icon-user", 
   "module": "Selling", 
   "name": "__common__", 
   "search_fields": "lead_name,lead_owner,status"
@@ -313,13 +314,6 @@
   "oldfieldname": "request_type", 
   "oldfieldtype": "Select", 
   "options": "\nProduct Enquiry\nRequest for Information\nSuggestions\nOther"
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "default_price_list", 
-  "fieldtype": "Link", 
-  "label": "Default Price List", 
-  "options": "Price List"
  }, 
  {
   "doctype": "DocField", 

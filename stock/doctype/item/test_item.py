@@ -62,13 +62,15 @@ test_records = [
 		"is_pro_applicable": "No",
 		"is_sub_contracted_item": "No",
 		"stock_uom": "_Test UOM",
-		"default_warehouse": "_Test Warehouse"
+		"default_income_account": "Sales - _TC",
+		"default_warehouse": "_Test Warehouse",
 	}, {
 		"doctype": "Item Reorder",
 		"parentfield": "item_reorder",
 		"warehouse": "_Test Warehouse",
 		"warehouse_reorder_level": 20,
-		"warehouse_reorder_qty": 20
+		"warehouse_reorder_qty": 20,
+		"material_request_type": "Purchase"
 	}, {
 		"doctype": "Item Price",
 		"parentfield": "ref_rate_details",
@@ -85,6 +87,7 @@ test_records = [
 		"description": "_Test Item Home Desktop 100",
 		"item_group": "_Test Item Group Desktops",
 		"default_warehouse": "_Test Warehouse",
+		"default_income_account": "Sales - _TC",
 		"is_stock_item": "Yes",
 		"is_asset_item": "No",
 		"has_batch_no": "No",
@@ -110,6 +113,7 @@ test_records = [
 		"description": "_Test Item Home Desktop 200",
 		"item_group": "_Test Item Group Desktops",
 		"default_warehouse": "_Test Warehouse",
+		"default_income_account": "Sales - _TC",
 		"is_stock_item": "Yes",
 		"is_asset_item": "No",
 		"has_batch_no": "No",
@@ -129,6 +133,7 @@ test_records = [
 		"item_name": "_Test Sales BOM Item",
 		"description": "_Test Sales BOM Item",
 		"item_group": "_Test Item Group Desktops",
+		"default_income_account": "Sales - _TC",
 		"is_stock_item": "No",
 		"is_asset_item": "No",
 		"has_batch_no": "No",
@@ -150,6 +155,7 @@ test_records = [
 		"item_group": "_Test Item Group Desktops",
 		"is_stock_item": "Yes",
 		"default_warehouse": "_Test Warehouse",
+		"default_income_account": "Sales - _TC",
 		"is_asset_item": "No",
 		"has_batch_no": "No",
 		"has_serial_no": "No",

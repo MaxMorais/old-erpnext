@@ -29,11 +29,14 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 	refresh: function(doc, dt, dn) {
 		this._super();
 		
-		if(flt(doc.per_billed, 2) < 100 && doc.docstatus==1) cur_frm.add_custom_button('Make Invoice', cur_frm.cscript['Make Sales Invoice']);
+		if(flt(doc.per_billed, 2) < 100 && doc.docstatus==1) cur_frm.add_custom_button('Make Invoice', this.make_sales_invoice);
 	
-		if(flt(doc.per_installed, 2) < 100 && doc.docstatus==1) cur_frm.add_custom_button('Make Installation Note', cur_frm.cscript['Make Installation Note']);
+		if(flt(doc.per_installed, 2) < 100 && doc.docstatus==1) 
+			cur_frm.add_custom_button('Make Installation Note', this.make_installation_note);
 
-		if (doc.docstatus==1) cur_frm.add_custom_button('Send SMS', cur_frm.cscript.send_sms);
+		if (doc.docstatus==1) {
+			cur_frm.add_custom_button('Send SMS', cur_frm.cscript.send_sms);
+		}
 
 		if(doc.docstatus==0 && !doc.__islocal) {
 			cur_frm.add_custom_button('Make Packing Slip', cur_frm.cscript['Make Packing Slip']);
@@ -45,7 +48,45 @@ erpnext.stock.DeliveryNoteController = erpnext.selling.SellingController.extend(
 		var aii_enabled = cint(sys_defaults.auto_inventory_accounting)
 		cur_frm.fields_dict[cur_frm.cscript.fname].grid.set_column_disp("expense_account", aii_enabled);
 		cur_frm.fields_dict[cur_frm.cscript.fname].grid.set_column_disp("cost_center", aii_enabled);
-	}
+
+		if (this.frm.doc.docstatus===0) {
+			cur_frm.add_custom_button(wn._('From Sales Order'), 
+				function() {
+					wn.model.map_current_doc({
+						method: "selling.doctype.sales_order.sales_order.make_delivery_note",
+						source_doctype: "Sales Order",
+						get_query_filters: {
+							docstatus: 1,
+							status: ["!=", "Stopped"],
+							per_delivered: ["<", 99.99],
+							project_name: cur_frm.doc.project_name || undefined,
+							customer: cur_frm.doc.customer || undefined,
+							company: cur_frm.doc.company
+						}
+					})
+				});
+		}
+
+	}, 
+	
+	make_sales_invoice: function() {
+		wn.model.open_mapped_doc({
+			method: "stock.doctype.delivery_note.delivery_note.make_sales_invoice",
+			source_name: cur_frm.doc.name
+		})
+	}, 
+	
+	make_installation_note: function() {
+		wn.model.open_mapped_doc({
+			method: "stock.doctype.delivery_note.delivery_note.make_installation_note",
+			source_name: cur_frm.doc.name
+		});
+	},
+
+	tc_name: function() {
+		this.get_terms();
+	},
+	
 });
 
 // for backward compatibility: combine new and previous states
@@ -55,23 +96,6 @@ cur_frm.cscript.customer_address = cur_frm.cscript.contact_person = function(doc
 	if(doc.customer) get_server_fields('get_customer_address', JSON.stringify({customer: doc.customer, address: doc.customer_address, contact: doc.contact_person}),'', doc, dt, dn, 1);
 }
 
-
-cur_frm.cscript.get_items = function(doc,dt,dn) {
-	var callback = function(r,rt){
-		var doc = locals[cur_frm.doctype][cur_frm.docname];					
-		if(r.message){							
-			doc.sales_order_no = r.message;			
-			if(doc.sales_order_no) {					
-				unhide_field(['customer_address','contact_person','territory','customer_group']);														
-			}			
-			cur_frm.refresh_fields();
-		}
-	} 
- $c_obj(make_doclist(doc.doctype, doc.name),'pull_sales_order_details','',callback); 
-}
-
-
-//================ create new contact ============================================================================
 cur_frm.cscript.new_contact = function(){
 	tn = wn.model.make_new_doc_and_get_name('Contact');
 	locals['Contact'][tn].is_customer = 1;
@@ -82,28 +106,12 @@ cur_frm.cscript.new_contact = function(){
 
 // ***************** Get project name *****************
 cur_frm.fields_dict['project_name'].get_query = function(doc, cdt, cdn) {
-	var cond = '';
-	if(doc.customer) cond = '(`tabProject`.customer = "'+doc.customer+'" OR IFNULL(`tabProject`.customer,"")="") AND';
-	return repl('SELECT `tabProject`.name FROM `tabProject` \
-		WHERE `tabProject`.status not in ("Completed", "Cancelled") \
-		AND %(cond)s `tabProject`.name LIKE "%s" \
-		ORDER BY `tabProject`.name ASC LIMIT 50', {cond:cond});
-}
-
-
-// *************** Customized link query for SALES ORDER based on customer and currency***************************** 
-cur_frm.fields_dict['sales_order_no'].get_query = function(doc) {
-	doc = locals[this.doctype][this.docname];
-	var cond = '';
-	
-	if(doc.customer) {
-		cond = '`tabSales Order`.customer = "'+doc.customer+'" and';
+	return {
+		query: "controllers.queries.get_project_name",
+		filters: {
+			'customer': doc.customer
+		}
 	}
-
-	if(doc.project_name){
-		cond += '`tabSales Order`.project_name ="'+doc.project_name+'"';
-	}
-	return repl('SELECT DISTINCT `tabSales Order`.`name` FROM `tabSales Order` WHERE `tabSales Order`.company = "%(company)s" and `tabSales Order`.`docstatus` = 1 and `tabSales Order`.`status` != "Stopped" and ifnull(`tabSales Order`.per_delivered,0) < 99.99 and %(cond)s `tabSales Order`.%(key)s LIKE "%s" ORDER BY `tabSales Order`.`name` DESC LIMIT 50', {company:doc.company,cond:cond})
 }
 
 cur_frm.cscript.serial_no = function(doc, cdt, cdn) {
@@ -114,41 +122,9 @@ cur_frm.cscript.serial_no = function(doc, cdt, cdn) {
 }
 
 cur_frm.fields_dict['transporter_name'].get_query = function(doc) {
-	return 'SELECT DISTINCT `tabSupplier`.`name` FROM `tabSupplier` WHERE `tabSupplier`.supplier_type = "transporter" AND `tabSupplier`.docstatus != 2 AND `tabSupplier`.%(key)s LIKE "%s" ORDER BY `tabSupplier`.`name` LIMIT 50';
-}
-
-cur_frm.cscript['Make Sales Invoice'] = function() {
-	var doc = cur_frm.doc
-	n = wn.model.make_new_doc_and_get_name('Sales Invoice');
-	$c('dt_map', args={
-		'docs':wn.model.compress([locals['Sales Invoice'][n]]),
-		'from_doctype':doc.doctype,
-		'to_doctype':'Sales Invoice',
-		'from_docname':doc.name,
-		'from_to_list':"[['Delivery Note','Sales Invoice'],['Delivery Note Item','Sales Invoice Item'],['Sales Taxes and Charges','Sales Taxes and Charges'],['Sales Team','Sales Team']]"
-		}, function(r,rt) {
-			 loaddoc('Sales Invoice', n);
-		}
-	);
-}
-
-cur_frm.cscript['Make Installation Note'] = function() {
-	var doc = cur_frm.doc;
-	if(doc.per_installed < 99.99){
-		n = wn.model.make_new_doc_and_get_name('Installation Note');
-		$c('dt_map', args={
-			'docs':wn.model.compress([locals['Installation Note'][n]]),
-			'from_doctype':doc.doctype,
-			'to_doctype':'Installation Note',
-			'from_docname':doc.name,
-			'from_to_list':"[['Delivery Note','Installation Note'],['Delivery Note Item','Installation Note Item']]"
-			}, function(r,rt) {
-				 loaddoc('Installation Note', n);
-			}
-		);
-	}
-	else if(doc.per_installed >= 100)
-		msgprint("Item installation is already completed")
+	return{
+		filters: { 'supplier_type': "transporter" }
+	}	
 }
 
 cur_frm.cscript['Make Packing Slip'] = function() {
@@ -161,7 +137,9 @@ cur_frm.cscript['Make Packing Slip'] = function() {
 
 //get query select Territory
 cur_frm.fields_dict['territory'].get_query = function(doc,cdt,cdn) {
-	return 'SELECT `tabTerritory`.`name`,`tabTerritory`.`parent_territory` FROM `tabTerritory` WHERE `tabTerritory`.`is_group` = "No" AND `tabTerritory`.`docstatus`!= 2 AND `tabTerritory`.%(key)s LIKE "%s"	ORDER BY	`tabTerritory`.`name` ASC LIMIT 50';
+	return{
+		filters: { 'is_group': "No" }
+	}
 }
 
 var set_print_hide= function(doc, cdt, cdn){
@@ -249,11 +227,11 @@ if (sys_defaults.auto_inventory_accounting) {
 	// expense account
 	cur_frm.fields_dict['delivery_note_details'].grid.get_field('expense_account').get_query = function(doc) {
 		return {
-			"query": "accounts.utils.get_account_list", 
-			"filters": {
+			filters: {
 				"is_pl_account": "Yes",
 				"debit_or_credit": "Debit",
-				"company": doc.company
+				"company": doc.company,
+				"group_or_ledger": "Ledger"
 			}
 		}
 	}
@@ -272,8 +250,11 @@ if (sys_defaults.auto_inventory_accounting) {
 	
 	cur_frm.fields_dict.delivery_note_details.grid.get_field("cost_center").get_query = function(doc) {
 		return {
-			query: "accounts.utils.get_cost_center_list",
-			filters: { company_name: doc.company}
+
+			filters: { 
+				'company_name': doc.company,
+				'group_or_ledger': "Ledger"
+			}
 		}
 	}
 }

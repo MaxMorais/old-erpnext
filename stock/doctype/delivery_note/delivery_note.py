@@ -22,6 +22,8 @@ from webnotes.model.bean import getlist
 from webnotes.model.code import get_obj
 from webnotes import msgprint, _
 import webnotes.defaults
+from webnotes.model.mapper import get_mapped_doclist
+
 
 
 sql = webnotes.conn.sql
@@ -48,9 +50,6 @@ class DocType(SellingController):
 			'keyword': 'Delivered'
 		}]
 		
-	def set_customer_defaults(self):
-		self.get_default_customer_shipping_address()
-
 	def validate_fiscal_year(self):
 		get_obj('Sales Common').validate_fiscal_year(self.doc.fiscal_year,self.doc.posting_date,'Posting Date')
 
@@ -62,19 +61,6 @@ class DocType(SellingController):
 	def get_comm_rate(self, sales_partner):
 		"""Get Commission rate of Sales Partner"""
 		return get_obj('Sales Common').get_comm_rate(sales_partner, self)
-
-
-	def pull_sales_order_details(self):
-		self.validate_prev_docname()
-		self.doclist = self.doc.clear_table(self.doclist,'other_charges')
-
-		if self.doc.sales_order_no:
-			get_obj('DocType Mapper', 'Sales Order-Delivery Note').dt_map('Sales Order', 'Delivery Note', self.doc.sales_order_no, self.doc, self.doclist, "[['Sales Order', 'Delivery Note'],['Sales Order Item', 'Delivery Note Item'],['Sales Taxes and Charges','Sales Taxes and Charges'],['Sales Team','Sales Team']]")
-		else:
-			msgprint("Please select Sales Order No. whose details need to be pulled")
-
-		return cstr(self.doc.sales_order_no)
-
 
 	def validate_prev_docname(self):
 		"""Validates that Sales Order is not pulled twice"""
@@ -124,7 +110,6 @@ class DocType(SellingController):
 		sales_com_obj.check_stop_sales_order(self)
 		sales_com_obj.check_active_sales_items(self)
 		sales_com_obj.get_prevdoc_date(self)
-		self.validate_reference_value()
 		self.validate_for_items()
 		self.validate_warehouse()
 		
@@ -133,11 +118,26 @@ class DocType(SellingController):
 
 		# Set actual qty for each item in selected warehouse
 		self.update_current_stock()
-
+		
+		self.validate_with_previous_doc()
+		
 		self.doc.status = 'Draft'
 		if not self.doc.billing_status: self.doc.billing_status = 'Not Billed'
-		if not self.doc.installation_status: self.doc.installation_status = 'Not Installed'
-
+		if not self.doc.installation_status: self.doc.installation_status = 'Not Installed'	
+		
+	def validate_with_previous_doc(self):
+		super(DocType, self).validate_with_previous_doc(self.tname, {
+			"Sales Order": {
+				"ref_dn_field": "prevdoc_docname",
+				"compare_fields": [["customer", "="], ["company", "="], ["project_name", "="],
+					["currency", "="]],
+			},
+			"Sales Order Item": {
+				"ref_dn_field": "prevdoc_detail_docname",
+				"compare_fields": [["export_rate", "="]],
+				"is_child_table": True
+			}
+		})
 		
 	def validate_proj_cust(self):
 		"""check for does customer belong to same project as entered.."""
@@ -146,17 +146,6 @@ class DocType(SellingController):
 			if not res:
 				msgprint("Customer - %s does not belong to project - %s. \n\nIf you want to use project for multiple customers then please make customer details blank in project - %s."%(self.doc.customer,self.doc.project_name,self.doc.project_name))
 				raise Exception
-
-
-	def validate_reference_value(self):
-		"""Validate values with reference document with previous document"""
-		validate_ref = any([d.prevdoc_docname for d in self.doclist.get({"parentfield": self.fname})
-			if d.prevdoc_doctype == "Sales Order"])
-		
-		if validate_ref:
-			get_obj('DocType Mapper', 'Sales Order-Delivery Note', 
-				with_children = 1).validate_reference_value(self, self.doc.name)
-
 
 	def validate_for_items(self):
 		check_list, chk_dupl_itm = [], []
@@ -391,3 +380,76 @@ class DocType(SellingController):
 		if gl_entries:
 			from accounts.general_ledger import make_gl_entries
 			make_gl_entries(gl_entries, cancel=(self.doc.docstatus == 2))
+
+@webnotes.whitelist()
+def make_sales_invoice(source_name, target_doclist=None):	
+	def update_item(obj, target, source_parent):
+		target.export_amount = flt(obj.amount)
+		target.amount = target.export_amount / flt(source_parent.conversion_rate)
+		target.qty = obj.basic_rate and target.amount / flt(obj.basic_rate) or obj.qty
+		
+	def update_accounts(source, target):
+		si = webnotes.bean(target)
+		si.run_method("update_accounts")
+	
+	doclist = get_mapped_doclist("Delivery Note", source_name, 	{
+		"Delivery Note": {
+			"doctype": "Sales Invoice", 
+			"validation": {
+				"docstatus": ["=", 1]
+			}
+		}, 
+		"Delivery Note Item": {
+			"doctype": "Sales Invoice Item", 
+			"field_map": {
+				"name": "dn_detail", 
+				"parent": "delivery_note", 
+				"prevdoc_detail_docname": "so_detail", 
+				"prevdoc_docname": "sales_order", 
+				"serial_no": "serial_no"
+			},
+			"postprocess": update_item
+		}, 
+		"Sales Taxes and Charges": {
+			"doctype": "Sales Taxes and Charges", 
+		}, 
+		"Sales Team": {
+			"doctype": "Sales Team", 
+			"field_map": {
+				"incentives": "incentives"
+			}
+		}
+	}, target_doclist, update_accounts)
+	
+	return [d.fields for d in doclist]
+	
+@webnotes.whitelist()
+def make_installation_note(source_name, target_doclist=None):
+	def update_item(obj, target, source_parent):
+		target.qty = flt(obj.qty) - flt(obj.installed_qty)
+	
+	doclist = get_mapped_doclist("Delivery Note", source_name, 	{
+		"Delivery Note": {
+			"doctype": "Installation Note Item", 
+			"field_map": {
+				"name": "delivery_note_no", 
+				"posting_date": "prevdoc_date"
+			},
+			"validation": {
+				"docstatus": ["=", 1]
+			}
+		}, 
+		"Delivery Note Item": {
+			"doctype": "Installation Note Item", 
+			"field_map": {
+				"name": "prevdoc_detail_docname", 
+				"parent": "prevdoc_docname", 
+				"parenttype": "prevdoc_doctype", 
+				"serial_no": "serial_no"
+			},
+			"postprocess": update_item,
+			"condition": lambda doc: doc.installed_qty < doc.qty
+		}
+	}, target_doclist)
+	
+	return [d.fields for d in doclist]

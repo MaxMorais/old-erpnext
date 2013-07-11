@@ -53,6 +53,22 @@ wn.module_page["Accounts"] = [
 		]
 	},
 	{
+		title: wn._("Setup"),
+		icon: "icon-wrench",
+		items: [
+			{
+				label: wn._("Company"),
+				description: wn._("Company Master."),
+				doctype:"Company"
+			},
+			{
+				label: wn._("Fiscal Year"),
+				description: wn._("Accounting Year."),
+				doctype:"Fiscal Year"
+			},
+		]
+	},
+	{
 		title: wn._("Tools"),
 		icon: "icon-wrench",
 		items: [
@@ -105,6 +121,11 @@ wn.module_page["Accounts"] = [
 				"label": wn._("Shipping Rules"),
 				"doctype":"Shipping Rule",
 				"description": wn._("Rules to calculate shipping amount for a sale")
+			},
+			{
+				"label": wn._("Currency Exchange"),
+				"doctype":"Currency Exchange",
+				"description": wn._("Manage exchange rates for currency conversion")
 			},
 			{
 				"label": wn._("Point-of-Sale Setting"),
@@ -198,16 +219,6 @@ wn.module_page["Accounts"] = [
 				"label":wn._("Bank Reconciliation Statement"),
 				route: "query-report/Bank Reconciliation Statement",
 				doctype: "Journal Voucher"
-			},
-			{
-				"label":wn._("Delivered Items To Be Billed"),
-				route: "query-report/Delivered Items To Be Billed",
-				doctype: "Sales Invoice"
-			},
-			{
-				"label":wn._("Received Items To Be Billed"),
-				route: "query-report/Received Items To Be Billed",
-				doctype: "Purchase Invoice"
 			},
 			{
 				"label":wn._("Ordered Items To Be Billed"),

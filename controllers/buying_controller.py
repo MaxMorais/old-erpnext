@@ -30,10 +30,13 @@ class BuyingController(StockController):
 	def onload_post_render(self):
 		# contact, address, item details
 		self.set_missing_values()
-		self.set_taxes("Purchase Taxes and Charges", "purchase_tax_details", "purchase_other_charges")
+		self.set_taxes("purchase_tax_details", "purchase_other_charges")
 	
 	def validate(self):
 		super(BuyingController, self).validate()
+		if self.doc.supplier and not self.doc.supplier_name:
+			self.doc.supplier_name = webnotes.conn.get_value("Supplier", 
+				self.doc.supplier, "supplier_name")
 		self.validate_stock_or_nonstock_items()
 		self.validate_warehouse_belongs_to_company()
 		
@@ -47,15 +50,17 @@ class BuyingController(StockController):
 			for fieldname, val in self.get_default_address_and_contact("supplier").items():
 				if not self.doc.fields.get(fieldname) and self.meta.get_field(fieldname):
 					self.doc.fields[fieldname] = val
-		
+
 		self.set_missing_item_details(get_item_details)
-		
+
 	def set_supplier_defaults(self):
-		self.doc.fields.update(self.get_default_supplier_address(self.doc.fields))
+		for fieldname, val in self.get_default_address_and_contact("supplier").items():
+			if self.meta.get_field(fieldname):
+				self.doc.fields[fieldname] = val
 						
 	def get_purchase_tax_details(self):
 		self.doclist = self.doc.clear_table(self.doclist, "purchase_tax_details")
-		self.set_taxes("Purchase Taxes and Charges", "purchase_tax_details", "purchase_other_charges")
+		self.set_taxes("purchase_tax_details", "purchase_other_charges")
 		
 	def validate_warehouse_belongs_to_company(self):
 		for warehouse, company in webnotes.conn.get_values("Warehouse", 

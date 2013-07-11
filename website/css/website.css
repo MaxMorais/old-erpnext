@@ -10,6 +10,10 @@ a {
 	cursor: pointer;
 }
 
+img {
+	max-width: 100%;
+}
+
 .content {
 	padding-bottom: 30px;
 }
@@ -37,6 +41,10 @@ a {
 	margin-left: 5px;
 }
 
+div.web-footer {
+	border-top: 1px solid #dddddd;
+	padding-top: 10px;
+}
 
 .web-footer-menu ul {
 	list-style: none;
@@ -130,4 +138,39 @@ a {
 
 .accordion-heading, .accordion-inner {
 	padding-left: 10px;
+}
+
+fieldset {
+	margin-bottom: 20px;
+}
+
+/* buttons */
+.btn-default {
+  color: #ffffff;
+  background-color: #a7a9aa;
+  border-color: #a7a9aa;
+}
+
+.btn-default:hover,
+.btn-default:focus,
+.btn-default:active,
+.btn-default.active {
+  background-color: #9a9c9d;
+  border-color: #8d9091;
+}
+
+.btn-default.disabled:hover,
+.btn-default[disabled]:hover,
+fieldset[disabled] .btn-default:hover,
+.btn-default.disabled:focus,
+.btn-default[disabled]:focus,
+fieldset[disabled] .btn-default:focus,
+.btn-default.disabled:active,
+.btn-default[disabled]:active,
+fieldset[disabled] .btn-default:active,
+.btn-default.disabled.active,
+.btn-default[disabled].active,
+fieldset[disabled] .btn-default.active {
+  background-color: #a7a9aa;
+  border-color: #a7a9aa;
 }

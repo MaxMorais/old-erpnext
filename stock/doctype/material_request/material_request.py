@@ -21,15 +21,6 @@ class DocType(BuyingController):
 	def get_bin_details(self, arg = ''):
 		return get_obj(dt='Purchase Common').get_bin_details(arg)
 
-	# Pull Sales Order Items
-	# -------------------------
-	def pull_so_details(self):
-		self.check_if_already_pulled()
-		if self.doc.sales_order_no:
-			get_obj('DocType Mapper', 'Sales Order-Material Request', with_children=1).dt_map('Sales Order', 'Material Request', self.doc.sales_order_no, self.doc, self.doclist, "[['Sales Order', 'Material Request'],['Sales Order Item', 'Material Request Item']]")
-		else:
-			msgprint("Please select Sales Order whose details need to pull")
-
 	def check_if_already_pulled(self):
 		pass#if self.[d.sales_order_no for d in getlist(self.doclist, 'indent_details')]
 
@@ -240,3 +231,96 @@ def _update_requested_qty(controller, mr_obj, mr_items):
 			"indented_qty": (se_detail.docstatus==2 and 1 or -1) * add_indented_qty,
 			"posting_date": controller.doc.posting_date,
 		})
+
+def set_missing_values(source, target):
+	po = webnotes.bean(target)
+	po.run_method("set_missing_values")
+
+@webnotes.whitelist()
+def make_purchase_order(source_name, target_doclist=None):
+	from webnotes.model.mapper import get_mapped_doclist
+
+	def update_item(obj, target, source_parent):
+		target.conversion_factor = 1
+		target.qty = flt(obj.qty) - flt(obj.ordered_qty)
+
+	doclist = get_mapped_doclist("Material Request", source_name, 	{
+		"Material Request": {
+			"doctype": "Purchase Order", 
+			"validation": {
+				"docstatus": ["=", 1],
+				"material_request_type": ["=", "Purchase"]
+			}
+		}, 
+		"Material Request Item": {
+			"doctype": "Purchase Order Item", 
+			"field_map": [
+				["name", "prevdoc_detail_docname"], 
+				["parent", "prevdoc_docname"], 
+				["parenttype", "prevdoc_doctype"], 
+				["uom", "stock_uom"],
+				["uom", "uom"]
+			],
+			"postprocess": update_item
+		}
+	}, target_doclist, set_missing_values)
+
+	return [d.fields for d in doclist]
+	
+@webnotes.whitelist()
+def make_supplier_quotation(source_name, target_doclist=None):
+	from webnotes.model.mapper import get_mapped_doclist
+
+	doclist = get_mapped_doclist("Material Request", source_name, {
+		"Material Request": {
+			"doctype": "Supplier Quotation", 
+			"validation": {
+				"docstatus": ["=", 1],
+				"material_request_type": ["=", "Purchase"]
+			}
+		}, 
+		"Material Request Item": {
+			"doctype": "Supplier Quotation Item", 
+			"field_map": {
+				"name": "prevdoc_detail_docname", 
+				"parent": "prevdoc_docname", 
+				"parenttype": "prevdoc_doctype"
+			}
+		}
+	}, target_doclist, set_missing_values)
+
+	return [d.fields for d in doclist]
+	
+@webnotes.whitelist()
+def make_stock_entry(source_name, target_doclist=None):
+	from webnotes.model.mapper import get_mapped_doclist
+
+	def set_purpose(source, target):
+		target[0].purpose = "Material Transfer"
+		
+	def update_item(source, target, source_parent):
+		target.conversion_factor = 1
+		target.qty = flt(source.qty) - flt(source.ordered_qty)
+		
+
+	doclist = get_mapped_doclist("Material Request", source_name, {
+		"Material Request": {
+			"doctype": "Stock Entry", 
+			"validation": {
+				"docstatus": ["=", 1],
+				"material_request_type": ["=", "Transfer"]
+			}
+		}, 
+		"Material Request Item": {
+			"doctype": "Stock Entry Detail", 
+			"field_map": {
+				"name": "material_request_item", 
+				"parent": "material_request", 
+				"uom": "stock_uom", 
+				"warehouse": "t_warehouse"
+			},
+			"postprocess": update_item
+		}
+	}, target_doclist, set_purpose)
+
+	return [d.fields for d in doclist]

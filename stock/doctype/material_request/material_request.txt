@@ -2,7 +2,7 @@
  {
   "creation": "2013-03-07 14:48:38", 
   "docstatus": 0, 
-  "modified": "2013-06-11 16:16:36", 
+  "modified": "2013-07-09 11:39:32", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -11,6 +11,7 @@
   "allow_print": 0, 
   "autoname": "naming_series:", 
   "doctype": "DocType", 
+  "icon": "icon-ticket", 
   "is_submittable": 1, 
   "module": "Stock", 
   "name": "__common__", 
@@ -46,6 +47,13 @@
  }, 
  {
   "doctype": "DocField", 
+  "fieldname": "type_section", 
+  "fieldtype": "Section Break", 
+  "label": "Type", 
+  "options": "icon-pushpin"
+ }, 
+ {
+  "doctype": "DocField", 
   "fieldname": "material_request_type", 
   "fieldtype": "Select", 
   "in_list_view": 1, 
@@ -73,10 +81,40 @@
  }, 
  {
   "doctype": "DocField", 
+  "fieldname": "amended_from", 
+  "fieldtype": "Data", 
+  "label": "Amended From", 
+  "no_copy": 1, 
+  "oldfieldname": "amended_from", 
+  "oldfieldtype": "Data", 
+  "print_hide": 1, 
+  "print_width": "150px", 
+  "read_only": 1, 
+  "width": "150px"
+ }, 
+ {
+  "description": "Select the relevant company name if you have multiple companies", 
+  "doctype": "DocField", 
+  "fieldname": "company", 
+  "fieldtype": "Link", 
+  "in_filter": 1, 
+  "label": "Company", 
+  "oldfieldname": "company", 
+  "oldfieldtype": "Link", 
+  "options": "Company", 
+  "print_hide": 1, 
+  "print_width": "150px", 
+  "reqd": 1, 
+  "search_index": 1, 
+  "width": "150px"
+ }, 
+ {
+  "doctype": "DocField", 
   "fieldname": "items", 
   "fieldtype": "Section Break", 
   "label": "Items", 
-  "oldfieldtype": "Section Break"
+  "oldfieldtype": "Section Break", 
+  "options": "icon-shopping-cart"
  }, 
  {
   "allow_on_submit": 0, 
@@ -90,53 +128,13 @@
   "options": "Material Request Item"
  }, 
  {
-  "doctype": "DocField", 
-  "fieldname": "section_break1", 
-  "fieldtype": "Section Break", 
-  "options": "Simple"
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "column_break4", 
-  "fieldtype": "Column Break", 
-  "print_width": "50%", 
-  "width": "50%"
- }, 
- {
-  "description": "One or multiple Sales Order no which generated this Material Request", 
-  "doctype": "DocField", 
-  "fieldname": "sales_order_no", 
-  "fieldtype": "Link", 
-  "label": "Sales Order No", 
-  "no_copy": 1, 
-  "oldfieldname": "sales_order_no", 
-  "oldfieldtype": "Data", 
-  "options": "Sales Order", 
-  "print_width": "100px", 
-  "width": "100px"
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "column_break5", 
-  "fieldtype": "Column Break", 
-  "print_width": "50%", 
-  "width": "50%"
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "pull_sales_order_details", 
-  "fieldtype": "Button", 
-  "label": "Pull Sales Order Items", 
-  "options": "pull_so_details"
- }, 
- {
-  "default": "Give additional details about the indent.", 
-  "description": "Filing in Additional Information about the Material Request will help you analyze your data better.", 
+  "description": "Give additional details about the indent.", 
   "doctype": "DocField", 
   "fieldname": "more_info", 
   "fieldtype": "Section Break", 
   "label": "More Info", 
-  "oldfieldtype": "Section Break"
+  "oldfieldtype": "Section Break", 
+  "options": "icon-file-text"
  }, 
  {
   "doctype": "DocField", 
@@ -160,22 +158,6 @@
   "reqd": 1, 
   "search_index": 1, 
   "width": "100px"
- }, 
- {
-  "description": "Select the relevant company name if you have multiple companies", 
-  "doctype": "DocField", 
-  "fieldname": "company", 
-  "fieldtype": "Link", 
-  "in_filter": 1, 
-  "label": "Company", 
-  "oldfieldname": "company", 
-  "oldfieldtype": "Link", 
-  "options": "Company", 
-  "print_hide": 1, 
-  "print_width": "150px", 
-  "reqd": 1, 
-  "search_index": 1, 
-  "width": "150px"
  }, 
  {
   "doctype": "DocField", 
@@ -257,19 +239,6 @@
  }, 
  {
   "doctype": "DocField", 
-  "fieldname": "amended_from", 
-  "fieldtype": "Data", 
-  "label": "Amended From", 
-  "no_copy": 1, 
-  "oldfieldname": "amended_from", 
-  "oldfieldtype": "Data", 
-  "print_hide": 1, 
-  "print_width": "150px", 
-  "read_only": 1, 
-  "width": "150px"
- }, 
- {
-  "doctype": "DocField", 
   "fieldname": "remark", 
   "fieldtype": "Small Text", 
   "in_list_view": 0, 
@@ -287,7 +256,8 @@
   "fieldname": "terms_section_break", 
   "fieldtype": "Section Break", 
   "label": "Terms and Conditions", 
-  "oldfieldtype": "Section Break"
+  "oldfieldtype": "Section Break", 
+  "options": "icon-legal"
  }, 
  {
   "doctype": "DocField", 
@@ -299,13 +269,6 @@
   "options": "Terms and Conditions", 
   "print_hide": 1, 
   "report_hide": 1
- }, 
- {
-  "doctype": "DocField", 
-  "fieldname": "get_terms", 
-  "fieldtype": "Button", 
-  "label": "Get Terms and Conditions", 
-  "oldfieldtype": "Button"
  }, 
  {
   "doctype": "DocField", 

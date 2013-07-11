@@ -51,7 +51,6 @@ class DocType(DocListController):
 		self.fill_customer_code()
 		self.check_item_tax()
 		self.validate_barcode()
-		self.check_non_asset_warehouse()
 		self.cant_change()
 		self.validate_item_type_for_reorder()
 
@@ -185,18 +184,7 @@ class DocType(DocListController):
 			if duplicate:
 				msgprint("Barcode: %s already used in item: %s" % 
 					(self.doc.barcode, cstr(duplicate[0][0])), raise_exception = 1)
-					
-	def check_non_asset_warehouse(self):
-		if not self.doc.__islocal and self.doc.is_asset_item == "Yes":
-			existing_qty = webnotes.conn.sql("select t1.warehouse, t1.actual_qty from tabBin t1, tabWarehouse t2 where t1.item_code=%s and (t2.warehouse_type!='Fixed Asset' or t2.warehouse_type is null) and t1.warehouse=t2.name and t1.actual_qty > 0", self.doc.name)
-			for e in existing_qty:
-				msgprint("%s Units exist in Warehouse %s, which is not an Asset Warehouse." % 
-					(e[1],e[0]))
-			if existing_qty:
-				self.doc.is_asset_item = 'No'
-				msgprint(_("""Please transfer the above quantities to an asset warehouse \
-					before changing this item to an asset item"""), raise_exception=1)
-					
+
 	def cant_change(self):
 		if not self.doc.fields.get("__islocal"):
 			vals = webnotes.conn.get_value("Item", self.doc.name, 
@@ -204,7 +192,7 @@ class DocType(DocListController):
 			
 			if vals and ((self.doc.is_stock_item == "No" and vals.is_stock_item == "Yes") or 
 				vals.has_serial_no != self.doc.has_serial_no or 
-				vals.valuation_method != self.doc.valuation_method):
+				cstr(vals.valuation_method) != cstr(self.doc.valuation_method)):
 					if self.check_if_sle_exists() == "exists":
 						webnotes.msgprint(_("As there are existing stock transactions for this \
 							item, you can not change the values of 'Has Serial No', \
@@ -287,8 +275,14 @@ class DocType(DocListController):
 			from webnotes.webutils import clear_cache
 			clear_cache(self.doc.page_name)
 
-	def on_rename(self,newdn,olddn, merge=False):
+	def on_rename(self, newdn, olddn, merge=False):
 		webnotes.conn.sql("update tabItem set item_code = %s where name = %s", (newdn, olddn))
 		if self.doc.page_name:
 			from webnotes.webutils import clear_cache
 			clear_cache(self.doc.page_name)
+			
+		if merge:
+			from stock.stock_ledger import update_entries_after
+			for wh in webnotes.conn.sql("""select warehouse from `tabBin` 
+				where item_code=%s""", newdn):
+					update_entries_after({"item_code": newdn, "warehouse": wh})

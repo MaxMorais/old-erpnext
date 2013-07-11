@@ -16,6 +16,37 @@
 
 wn.require('app/utilities/doctype/sms_control/sms_control.js');
 
+wn.provide("erpnext.selling");
+// TODO commonify this code
+erpnext.selling.Opportunity = wn.ui.form.Controller.extend({
+	customer: function() {
+		var me = this;
+		if(this.frm.doc.customer) {
+			this.frm.call({
+				doc: this.frm.doc,
+				method: "set_customer_defaults",
+				callback: function(r) {
+					if(!r.exc) me.frm.refresh_fields();
+				}
+			});
+			
+			// TODO shift this to depends_on
+			unhide_field(['customer_address', 'contact_person', 'customer_name',
+				'address_display', 'contact_display', 'contact_mobile', 'contact_email', 
+				'territory', 'customer_group']);
+		}
+	}, 
+	
+	create_quotation: function() {
+		wn.model.open_mapped_doc({
+			method: "selling.doctype.opportunity.opportunity.make_quotation",
+			source_name: cur_frm.doc.name
+		})
+	}
+});
+
+$.extend(cur_frm.cscript, new erpnext.selling.Opportunity({frm: cur_frm}));
+
 cur_frm.cscript.refresh = function(doc, cdt, cdn){
 	erpnext.hide_naming_series();
 
@@ -25,14 +56,12 @@ cur_frm.cscript.refresh = function(doc, cdt, cdn){
 			cur_frm.dashboard.set_headline_alert(wn._(doc.status), "alert-success", "icon-ok-sign");
 		} else if(doc.status=="Opportunity Lost") {
 			cur_frm.dashboard.set_headline_alert(wn._(doc.status), "alert-danger", "icon-exclamation-sign");
-		} else {
-			cur_frm.dashboard.set_headline_alert(wn._(doc.status), "alert-info", "icon-exclamation-sign");
 		}
 	}
 	
 	cur_frm.clear_custom_buttons();
 	if(doc.docstatus === 1 && doc.status!=="Opportunity Lost") {
-		cur_frm.add_custom_button('Create Quotation', cur_frm.cscript['Create Quotation']);
+		cur_frm.add_custom_button('Create Quotation', cur_frm.cscript.create_quotation);
 		cur_frm.add_custom_button('Opportunity Lost', cur_frm.cscript['Declare Opportunity Lost']);
 		cur_frm.add_custom_button('Send SMS', cur_frm.cscript.send_sms);
 	}
@@ -80,7 +109,8 @@ cur_frm.cscript.onload = function(doc, cdt, cdn) {
 	}
 	
 	if(cur_frm.fields_dict.contact_by.df.options.match(/^Profile/)) {
-		cur_frm.fields_dict.contact_by.get_query = erpnext.utils.profile_query;
+		cur_frm.fields_dict.contact_by.get_query = function(doc,cdt,cdn) {
+				return { query:"controllers.queries.profile_query" } }
 	}
 	
 	if(doc.customer && !doc.customer_name) cur_frm.cscript.customer(doc);
@@ -119,95 +149,56 @@ cur_frm.cscript.lead_cust_show = function(doc,cdt,cdn){
 	}
 }
 
-// customer
-cur_frm.cscript.customer = function(doc,dt,dn) {
-	cur_frm.toggle_display("contact_info", doc.customer || doc.lead);
-	
-	if(doc.customer) {
-		cur_frm.call({
-			doc: cur_frm.doc,
-			method: "get_default_customer_address",
-			args: { customer: doc.customer },
-			callback: function(r) {
-				if(!r.exc) {
-					cur_frm.refresh();
-				}
-			}
-		});
-		
-		unhide_field(["customer_name", "customer_address", "contact_person",
-			"address_display", "contact_display", "contact_mobile", "contact_email",
-			"territory", "customer_group"]);
-	}
-}
-
 cur_frm.cscript.customer_address = cur_frm.cscript.contact_person = function(doc,dt,dn) {		
 	if(doc.customer) get_server_fields('get_customer_address', JSON.stringify({customer: doc.customer, address: doc.customer_address, contact: doc.contact_person}),'', doc, dt, dn, 1);
 }
 
 cur_frm.fields_dict['customer_address'].get_query = function(doc, cdt, cdn) {
-	return 'SELECT name, address_line1, city FROM tabAddress \
-		WHERE customer = "'+ doc.customer +'" AND docstatus != 2 AND \
-		%(key)s LIKE "%s" ORDER BY name ASC LIMIT 50';
+	return {
+		filters:{'customer':doc.customer}
+	}
 }
 
 cur_frm.fields_dict['contact_person'].get_query = function(doc, cdt, cdn) {
 	if (!doc.customer) msgprint("Please select customer first");
 	else {
-		return 'SELECT name, CONCAT(first_name," ",ifnull(last_name,"")) As FullName, \
-		department, designation FROM tabContact WHERE customer = "'+ doc.customer + 
-		'" AND docstatus != 2 AND %(key)s LIKE "%s" ORDER BY name ASC LIMIT 50';
+		filters:{'customer':doc.customer}
 	}
 }
 
 // lead
 cur_frm.fields_dict['lead'].get_query = function(doc,cdt,cdn){
-	return 'SELECT `tabLead`.name, `tabLead`.lead_name FROM `tabLead` WHERE `tabLead`.%(key)s LIKE "%s"	ORDER BY	`tabLead`.`name` ASC LIMIT 50';
+	return {
+		query: "selling.doctype.opportunity.opportunity.get_lead"
+	}
 }
 
 cur_frm.cscript.lead = function(doc, cdt, cdn) {
 	cur_frm.toggle_display("contact_info", doc.customer || doc.lead);
 	
-	if(doc.lead) {
-		get_server_fields('get_lead_details', doc.lead,'', doc, cdt, cdn, 1);
-		unhide_field(['customer_name', 'address_display','contact_mobile', 'contact_email', 
-			'territory']);	
-	}
+	wn.model.map_current_doc({
+		method: "selling.doctype.lead.lead.make_opportunity",
+		source_name: cur_frm.doc.lead
+	})
+	
+	unhide_field(['customer_name', 'address_display','contact_mobile', 
+		'contact_email', 'territory']);	
 }
 
-
-//item getquery
-//=======================================
 cur_frm.fields_dict['enquiry_details'].grid.get_field('item_code').get_query = function(doc, cdt, cdn) {
-	if (doc.enquiry_type == 'Maintenance')
-	 	return erpnext.queries.item({
-			'ifnull(tabItem.is_service_item, "No")': 'Yes'
-		});
-	else 
- 		return erpnext.queries.item({
-			'ifnull(tabItem.is_sales_item, "No")': 'Yes'
-		});
-}
-
-// Create New Quotation
-cur_frm.cscript['Create Quotation'] = function(){
-	n = wn.model.make_new_doc_and_get_name("Quotation");
-	$c('dt_map', args={
-		'docs':wn.model.compress([locals["Quotation"][n]]),
-		'from_doctype':'Opportunity',
-		'to_doctype':'Quotation',
-		'from_docname':cur_frm.docname,
-		'from_to_list':"[['Opportunity', 'Quotation'],['Opportunity Item','Quotation Item']]"
-	}
-	, function(r,rt) {
-		loaddoc("Quotation", n);
+	if (doc.enquiry_type == 'Maintenance') {
+		return {
+			query:"controllers.queries.item_query",
+			filters:{ 'is_service_item': 'Yes' }
 		}
-	);
+	} else {
+		return {
+			query:"controllers.queries.item_query",
+			filters:{ 'is_sales_item': 'Yes' }
+		}		
+	}
 }
 
-
-// declare enquiry	lost
-//-------------------------
 cur_frm.cscript['Declare Opportunity Lost'] = function(){
 	var dialog = new wn.ui.Dialog({
 		title: "Set as Lost",
@@ -242,8 +233,12 @@ cur_frm.cscript['Declare Opportunity Lost'] = function(){
 
 //get query select Territory
 cur_frm.fields_dict['territory'].get_query = function(doc,cdt,cdn) {
-	return 'SELECT `tabTerritory`.`name`,`tabTerritory`.`parent_territory` FROM `tabTerritory` WHERE `tabTerritory`.`is_group` = "No" AND `tabTerritory`.`docstatus`!= 2 AND `tabTerritory`.%(key)s LIKE "%s"	ORDER BY	`tabTerritory`.`name` ASC LIMIT 50';}
+	return{
+		filters:{'is_group': 'No'}
+	}	
 	
-cur_frm.fields_dict.lead.get_query = erpnext.utils.lead_query;
+cur_frm.fields_dict.lead.get_query = function(doc,cdt,cdn) {
+				return { query:"controllers.queries.lead_query" } }
 
-cur_frm.fields_dict.customer.get_query = erpnext.utils.customer_query;
+cur_frm.fields_dict.customer.get_query = function(doc,cdt,cdn) {
+				return { query:"controllers.queries.customer_query" } }

@@ -8,6 +8,11 @@ wn.module_page["Stock"] = [
 		icon: "icon-copy",
 		items: [
 			{
+				label: wn._("Item"),
+				description: wn._("All Products or Services."),
+				doctype:"Item"
+			},
+			{
 				label: wn._("Material Request"),
 				description: wn._("Requests for items."),
 				doctype:"Material Request"
@@ -33,11 +38,6 @@ wn.module_page["Stock"] = [
 		title: wn._("Masters"),
 		icon: "icon-book",
 		items: [
-			{
-				label: wn._("Item"),
-				description: wn._("All Products or Services."),
-				doctype:"Item"
-			},
 			{
 				label: wn._("Serial No"),
 				description: wn._("Single unit of an Item."),
@@ -111,6 +111,7 @@ wn.module_page["Stock"] = [
 			{
 				"route":"Sales Browser/Item Group",
 				"label": wn._("Item Group"),
+				"doctype": "Item Group",
 				"description": wn._("Item classification.")
 			},
 			{
@@ -122,11 +123,6 @@ wn.module_page["Stock"] = [
 				"doctype":"Brand",
 				"label": wn._("Brand"),
 				"description": wn._("Brand master.")
-			},
-			{
-				"label": wn._("Warehouse Type"),
-				"doctype":"Warehouse Type",
-				"description": wn._("Types of warehouse")
 			}
 		]
 	},

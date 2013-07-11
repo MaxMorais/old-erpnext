@@ -43,6 +43,7 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 		this._super();
 		
 		cur_frm.cscript.is_opening(doc, dt, dn);
+		cur_frm.dashboard.reset();
 
 		if(doc.docstatus==1) {
 			cur_frm.add_custom_button('View Ledger', function() {
@@ -53,6 +54,9 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 				};
 				wn.set_route("general-ledger");
 			});
+			
+			var percent_paid = cint(flt(doc.grand_total - doc.outstanding_amount) / flt(doc.grand_total) * 100);
+			cur_frm.dashboard.add_progress(percent_paid + "% Paid", percent_paid);
 
 			cur_frm.add_custom_button('Send SMS', cur_frm.cscript.send_sms);
 
@@ -62,7 +66,43 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 			if(doc.outstanding_amount!=0)
 				cur_frm.add_custom_button('Make Payment Entry', cur_frm.cscript.make_bank_voucher);
 		}
+
+		if (this.frm.doc.docstatus===0) {
+			cur_frm.add_custom_button(wn._('From Sales Order'), 
+				function() {
+					wn.model.map_current_doc({
+						method: "selling.doctype.sales_order.sales_order.make_sales_invoice",
+						source_doctype: "Sales Order",
+						get_query_filters: {
+							docstatus: 1,
+							status: ["!=", "Stopped"],
+							per_billed: ["<", 99.99],
+							customer: cur_frm.doc.customer || undefined,
+							company: cur_frm.doc.company
+						}
+					})
+				});
+
+			cur_frm.add_custom_button(wn._('From Delivery Note'), 
+				function() {
+					wn.model.map_current_doc({
+						method: "stock.doctype.delivery_note.delivery_note.make_sales_invoice",
+						source_doctype: "Delivery Note",
+						get_query_filters: {
+							docstatus: 1,
+							customer: cur_frm.doc.customer || undefined,
+							company: cur_frm.doc.company
+						}
+					})
+				});
+
+		}
+		
 		cur_frm.cscript.hide_fields(doc, dt, dn);
+	},
+
+	tc_name: function() {
+		this.get_terms();
 	},
 	
 	is_pos: function() {
@@ -118,9 +158,8 @@ $.extend(cur_frm.cscript, new erpnext.accounts.SalesInvoiceController({frm: cur_
 // Hide Fields
 // ------------
 cur_frm.cscript.hide_fields = function(doc, cdt, cdn) {
-	par_flds = ['project_name', 'due_date', 'sales_order_main',
-	'delivery_note_main', 'get_items', 'is_opening', 'conversion_rate',
-	'source', 'cancel_reason', 'total_advance', 'gross_profit',
+	par_flds = ['project_name', 'due_date', 'is_opening', 'conversion_rate',
+	'source', 'total_advance', 'gross_profit',
 	'gross_profit_percent', 'get_advances_received',
 	'advance_adjustment_details', 'sales_partner', 'commission_rate',
 	'total_commission', 'advances'];
@@ -186,34 +225,14 @@ cur_frm.cscript.is_opening = function(doc, dt, dn) {
 	if (doc.is_opening == 'Yes') unhide_field('aging_date');
 }
 
-// Get Items based on SO or DN Selected
-cur_frm.cscript.get_items = function(doc, dt, dn) {
-	var callback = function(r,rt) {
-		unhide_field(['customer_address','contact_person', 'territory','customer_group']);
-		cur_frm.refresh_fields();
-	}
-	get_server_fields('pull_details','','',doc, dt, dn,1,callback);
-}
-
-
-
 //Make Delivery Note Button
 //-----------------------------
 
 cur_frm.cscript['Make Delivery Note'] = function() {
-
-	var doc = cur_frm.doc
-	n = wn.model.make_new_doc_and_get_name('Delivery Note');
-	$c('dt_map', args={
-		'docs':wn.model.compress([locals['Delivery Note'][n]]),
-		'from_doctype':doc.doctype,
-		'to_doctype':'Delivery Note',
-		'from_docname':doc.name,
-		'from_to_list':"[['Sales Invoice','Delivery Note'],['Sales Invoice Item','Delivery Note Item'],['Sales Taxes and Charges','Sales Taxes and Charges'],['Sales Team','Sales Team']]"
-		}, function(r,rt) {
-			 loaddoc('Delivery Note', n);
-		}
-	);
+	wn.model.open_mapped_doc({
+		method: "accounts.doctype.sales_invoice.sales_invoice.make_delivery_note",
+		source_name: cur_frm.doc.name
+	})
 }
 
 cur_frm.cscript.make_bank_voucher = function() {
@@ -230,55 +249,84 @@ cur_frm.cscript.make_bank_voucher = function() {
 }
 
 cur_frm.fields_dict.debit_to.get_query = function(doc) {
-	return 'SELECT tabAccount.name FROM tabAccount WHERE tabAccount.debit_or_credit="Debit" AND tabAccount.is_pl_account = "No" AND tabAccount.group_or_ledger="Ledger" AND tabAccount.docstatus!=2 AND tabAccount.company="'+doc.company+'" AND tabAccount.%(key)s LIKE "%s"'
+	return{
+		filters: {
+			'debit_or_credit': 'Debit',
+			'is_pl_account': 'No',
+			'group_or_ledger': 'Ledger',
+			'company': doc.company
+		}
+	}
 }
 
 cur_frm.fields_dict.cash_bank_account.get_query = function(doc) {
-	return 'SELECT tabAccount.name FROM tabAccount WHERE tabAccount.debit_or_credit="Debit" AND tabAccount.is_pl_account = "No" AND tabAccount.group_or_ledger="Ledger" AND tabAccount.docstatus!=2 AND tabAccount.company="'+doc.company+'" AND tabAccount.%(key)s LIKE "%s"'
+	return{
+		filters: {
+			'debit_or_credit': 'Debit',
+			'is_pl_account': 'No',
+			'group_or_ledger': 'Ledger',
+			'company': doc.company
+		}
+	}	
 }
 
 cur_frm.fields_dict.write_off_account.get_query = function(doc) {
-	return 'SELECT tabAccount.name FROM tabAccount WHERE tabAccount.debit_or_credit="Debit" AND tabAccount.is_pl_account = "Yes" AND tabAccount.group_or_ledger="Ledger" AND tabAccount.docstatus!=2 AND tabAccount.company="'+doc.company+'" AND tabAccount.%(key)s LIKE "%s"'
+	return{
+		filters:{
+			'debit_or_credit': 'Debit',
+			'is_pl_account': 'Yes',
+			'group_or_ledger': 'Ledger',
+			'company': doc.company
+		}
+	}
 }
 
 // Write off cost center
 //-----------------------
 cur_frm.fields_dict.write_off_cost_center.get_query = function(doc) {
-	return 'SELECT `tabCost Center`.name FROM `tabCost Center` WHERE `tabCost Center`.group_or_ledger="Ledger" AND `tabCost Center`.docstatus!=2 AND `tabCost Center`.company_name="'+doc.company+'" AND `tabCost Center`.%(key)s LIKE "%s"'
+	return{
+		filters:{
+			'group_or_ledger': 'Ledger',
+			'company_name': doc.company
+		}
+	}	
 }
 
 //project name
 //--------------------------
 cur_frm.fields_dict['project_name'].get_query = function(doc, cdt, cdn) {
-	var cond = '';
-	if(doc.customer) cond = '(`tabProject`.customer = "'+doc.customer+'" OR IFNULL(`tabProject`.customer,"")="") AND';
-	return repl('SELECT `tabProject`.name FROM `tabProject` \
-		WHERE `tabProject`.status not in ("Completed", "Cancelled") \
-		AND %(cond)s `tabProject`.name LIKE "%s" \
-		ORDER BY `tabProject`.name ASC LIMIT 50', {cond:cond});
+	return{
+		query: "controllers.queries.get_project_name",
+		filters: {'customer': doc.customer}
+	}	
 }
 
 //Territory
 //-----------------------------
 cur_frm.fields_dict['territory'].get_query = function(doc,cdt,cdn) {
-	return 'SELECT `tabTerritory`.`name`,`tabTerritory`.`parent_territory` FROM `tabTerritory` WHERE `tabTerritory`.`is_group` = "No" AND `tabTerritory`.`docstatus`!= 2 AND `tabTerritory`.%(key)s LIKE "%s"	ORDER BY	`tabTerritory`.`name` ASC LIMIT 50';
+	return{
+		filters: {'is_group': 'NO'}
+	}	
 }
 
 // Income Account in Details Table
 // --------------------------------
 cur_frm.set_query("income_account", "entries", function(doc) {
-	return 'SELECT tabAccount.name FROM tabAccount WHERE (tabAccount.debit_or_credit="Credit" OR tabAccount.account_type = "Income Account") AND tabAccount.group_or_ledger="Ledger" AND tabAccount.docstatus!=2 AND tabAccount.company="'+doc.company+'" AND tabAccount.%(key)s LIKE "%s"';	
-})
+	return{
+		query: "accounts.doctype.sales_invoice.sales_invoice.get_income_account",
+		filters: {'company': doc.company}
+	}
+});
 
 // expense account
 if (sys_defaults.auto_inventory_accounting) {
 	cur_frm.fields_dict['entries'].grid.get_field('expense_account').get_query = function(doc) {
 		return {
-			"query": "accounts.utils.get_account_list", 
-			"filters": {
-				"is_pl_account": "Yes",
-				"debit_or_credit": "Debit",
-				"company": doc.company
+			filters: {
+				'is_pl_account': 'Yes',
+				'debit_or_credit': 'Debit',
+				'company': doc.company,
+				'group_or_ledger': 'Ledger'
 			}
 		}
 	}
@@ -288,48 +336,24 @@ if (sys_defaults.auto_inventory_accounting) {
 //----------------------------
 cur_frm.fields_dict['entries'].grid.get_field('warehouse').get_query= function(doc, cdt, cdn) {
 	var d = locals[cdt][cdn];
-	return "SELECT `tabBin`.`warehouse`, `tabBin`.`actual_qty` FROM `tabBin` WHERE `tabBin`.`item_code` = '"+ d.item_code +"' AND ifnull(`tabBin`.`actual_qty`,0) > 0 AND `tabBin`.`warehouse` like '%s' ORDER BY `tabBin`.`warehouse` DESC LIMIT 50";
+	return{
+		filters:[
+			['Bin', 'item_code', '=', d.item_code],
+			['Bin', 'actual_qty', '>', 0]
+		]
+	}	
 }
 
 // Cost Center in Details Table
 // -----------------------------
 cur_frm.fields_dict["entries"].grid.get_field("cost_center").get_query = function(doc) {
 	return {
-		query: "accounts.utils.get_cost_center_list",
-		filters: { company_name: doc.company}
+		filters: { 
+			'company': doc.company,
+			'group_or_ledger': 'Ledger'
+		}	
 	}
 }
-
-// Sales Order
-// -----------
-cur_frm.fields_dict.sales_order_main.get_query = function(doc) {
-	if (doc.customer)
-		return 'SELECT DISTINCT `tabSales Order`.`name` FROM `tabSales Order` WHERE `tabSales Order`.company = "' + doc.company + '" and `tabSales Order`.`docstatus` = 1 and `tabSales Order`.`status` != "Stopped" and ifnull(`tabSales Order`.per_billed,0) < 99.99 and `tabSales Order`.`customer` =	"' + doc.customer + '" and `tabSales Order`.%(key)s LIKE "%s" ORDER BY `tabSales Order`.`name` DESC LIMIT 50';
-	else
-		return 'SELECT DISTINCT `tabSales Order`.`name` FROM `tabSales Order` WHERE `tabSales Order`.company = "' + doc.company + '" and `tabSales Order`.`docstatus` = 1 and `tabSales Order`.`status` != "Stopped" and ifnull(`tabSales Order`.per_billed,0) < 99.99 and `tabSales Order`.%(key)s LIKE "%s" ORDER BY `tabSales Order`.`name` DESC LIMIT 50';
-}
-
-// Delivery Note
-// --------------
-cur_frm.fields_dict.delivery_note_main.get_query = function(doc) {
-	if (doc.customer)
-		return 'SELECT DISTINCT `tabDelivery Note`.`name` FROM `tabDelivery Note` \
-			WHERE `tabDelivery Note`.company = "' + doc.company 
-			+ '" and `tabDelivery Note`.`docstatus` = 1 and \
-			ifnull(`tabDelivery Note`.per_billed,0) < 99.99 and \
-			`tabDelivery Note`.`customer` =	"' 
-			+ doc.customer + '" and `tabDelivery Note`.%(key)s LIKE "%s" \
-			ORDER BY `tabDelivery Note`.`name` DESC LIMIT 50';
-	else
-		return 'SELECT DISTINCT `tabDelivery Note`.`name` FROM `tabDelivery Note` \
-			WHERE `tabDelivery Note`.company = "' + doc.company 
-			+ '" and `tabDelivery Note`.`docstatus` = 1 and \
-			ifnull(`tabDelivery Note`.per_billed,0) < 99.99 and \
-			`tabDelivery Note`.%(key)s LIKE "%s" \
-			ORDER BY `tabDelivery Note`.`name` DESC LIMIT 50';
-}
-
-
 
 cur_frm.cscript.income_account = function(doc, cdt, cdn){
 	cur_frm.cscript.copy_account_in_all_row(doc, cdt, cdn, "income_account");

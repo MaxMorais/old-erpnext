@@ -21,7 +21,6 @@ from webnotes.utils import cstr, flt
 from webnotes.model.bean import getlist
 from webnotes.model.code import get_obj
 from webnotes import msgprint
-from buying.utils import get_last_purchase_details
 
 sql = webnotes.conn.sql
 	
@@ -45,69 +44,44 @@ class DocType(BuyingController):
 		utilities.validate_status(self.doc.status, ["Draft", "Submitted", "Stopped", 
 			"Cancelled"])
 
-		# Step 2:=> get Purchase Common Obj
 		pc_obj = get_obj(dt='Purchase Common')
-		
-
-		# Step 4:=> validate for items
 		pc_obj.validate_for_items(self)
-
-		# Get po date
 		pc_obj.get_prevdoc_date(self)
-		
-		# validate_doc
-		self.validate_doc(pc_obj)
-		
-		# Check for stopped status
 		self.check_for_stopped_status(pc_obj)
-		
-		# sub-contracting
+
+		self.validate_with_previous_doc()
 		self.validate_for_subcontracting()
 		self.update_raw_materials_supplied("po_raw_material_details")
 		
 	def validate_fiscal_year(self):
 		get_obj(dt = 'Purchase Common').validate_fiscal_year(self.doc.fiscal_year,self.doc.transaction_date,'PO Date')
+		
+	def validate_with_previous_doc(self):
+		super(DocType, self).validate_with_previous_doc(self.tname, {
+			"Supplier Quotation": {
+				"ref_dn_field": "supplier_quotation",
+				"compare_fields": [["supplier", "="], ["company", "="], ["currency", "="]],
+			},
+			"Supplier Quotation Item": {
+				"ref_dn_field": "supplier_quotation_item",
+				"compare_fields": [["import_rate", "="], ["project_name", "="], ["item_code", "="], 
+					["uom", "="]],
+				"is_child_table": True
+			}
+		})
 
 	# get available qty at warehouse
 	def get_bin_details(self, arg = ''):
 		return get_obj(dt='Purchase Common').get_bin_details(arg)
 
-	# Pull Material Request
-	def get_indent_details(self):
-		if self.doc.indent_no:
-			get_obj('DocType Mapper','Material Request-Purchase Order').dt_map('Material Request','Purchase Order',self.doc.indent_no, self.doc, self.doclist, "[['Material Request','Purchase Order'],['Material Request Item', 'Purchase Order Item']]")
-			for d in getlist(self.doclist, 'po_details'):
-				if d.item_code and not d.purchase_rate:
-					last_purchase_details = get_last_purchase_details(d.item_code, self.doc.name)
-					if last_purchase_details:
-						conversion_factor = d.conversion_factor or 1.0
-						conversion_rate = self.doc.fields.get('conversion_rate') or 1.0
-						d.purchase_ref_rate = last_purchase_details['purchase_ref_rate'] * conversion_factor
-						d.discount_rate = last_purchase_details['discount_rate']
-						d.purchase_rate = last_purchase_details['purchase_rate'] * conversion_factor
-						d.import_ref_rate = d.purchase_ref_rate / conversion_rate
-						d.import_rate = d.purchase_rate / conversion_rate						
-					else:
-						d.purchase_ref_rate = d.discount_rate = d.purchase_rate = d.import_ref_rate = d.import_rate = 0.0
-						
-	def get_supplier_quotation_items(self):
-		if self.doc.supplier_quotation:
-			get_obj("DocType Mapper", "Supplier Quotation-Purchase Order").dt_map("Supplier Quotation",
-				"Purchase Order", self.doc.supplier_quotation, self.doc, self.doclist,
-				"""[['Supplier Quotation', 'Purchase Order'],
-				['Supplier Quotation Item', 'Purchase Order Item'],
-				['Purchase Taxes and Charges', 'Purchase Taxes and Charges']]""")
-			for d in getlist(self.doclist, 'po_details'):
-				if d.prevdoc_detail_docname and not d.schedule_date:
-					d.schedule_date = webnotes.conn.get_value("Material Request Item",
-							d.prevdoc_detail_docname, "schedule_date")
+	def get_schedule_dates(self):
+		for d in getlist(self.doclist, 'po_details'):
+			if d.prevdoc_detail_docname and not d.schedule_date:
+				d.schedule_date = webnotes.conn.get_value("Material Request Item",
+						d.prevdoc_detail_docname, "schedule_date")
 	
 	def get_last_purchase_rate(self):
 		get_obj('Purchase Common').get_last_purchase_rate(self)
-		
-	def validate_doc(self,pc_obj):
-		# Validate values with reference document
-		pc_obj.validate_reference_value(obj = self)
 
 	# Check for Stopped status 
 	def check_for_stopped_status(self, pc_obj):
@@ -225,3 +199,82 @@ class DocType(BuyingController):
 		
 	def get_rate(self,arg):
 		return get_obj('Purchase Common').get_rate(arg,self)
+
+@webnotes.whitelist()
+def make_purchase_receipt(source_name, target_doclist=None):
+	from webnotes.model.mapper import get_mapped_doclist
+	
+	def set_missing_values(source, target):
+		bean = webnotes.bean(target)
+		bean.run_method("set_missing_values")
+
+	def update_item(obj, target, source_parent):
+		target.conversion_factor = 1
+		target.qty = flt(obj.qty) - flt(obj.received_qty)
+		target.stock_qty = (flt(obj.qty) - flt(obj.received_qty)) * flt(obj.conversion_factor)
+		target.import_amount = (flt(obj.qty) - flt(obj.received_qty)) * flt(obj.import_rate)
+		target.amount = (flt(obj.qty) - flt(obj.received_qty)) * flt(obj.purchase_rate)
+
+	doclist = get_mapped_doclist("Purchase Order", source_name,	{
+		"Purchase Order": {
+			"doctype": "Purchase Receipt", 
+			"validation": {
+				"docstatus": ["=", 1],
+			}
+		}, 
+		"Purchase Order Item": {
+			"doctype": "Purchase Receipt Item", 
+			"field_map": {
+				"name": "prevdoc_detail_docname", 
+				"parent": "prevdoc_docname", 
+				"parenttype": "prevdoc_doctype", 
+			},
+			"postprocess": update_item,
+			"condition": lambda doc: doc.received_qty < doc.qty
+		}, 
+		"Purchase Taxes and Charges": {
+			"doctype": "Purchase Taxes and Charges", 
+		}
+	}, target_doclist, set_missing_values)
+
+	return [d.fields for d in doclist]
+	
+@webnotes.whitelist()
+def make_purchase_invoice(source_name, target_doclist=None):
+	from webnotes.model.mapper import get_mapped_doclist
+	
+	def set_missing_values(source, target):
+		bean = webnotes.bean(target)
+		bean.run_method("set_missing_values")
+		bean.run_method("set_supplier_defaults")
+
+	def update_item(obj, target, source_parent):
+		target.conversion_factor = 1
+		target.import_amount = flt(obj.import_amount) - flt(obj.billed_amt)
+		target.amount = target.import_amount / flt(source_parent.conversion_rate)
+		if flt(obj.purchase_rate):
+			target.qty = target.amount / flt(obj.purchase_rate)
+
+	doclist = get_mapped_doclist("Purchase Order", source_name,	{
+		"Purchase Order": {
+			"doctype": "Purchase Invoice", 
+			"validation": {
+				"docstatus": ["=", 1],
+			}
+		}, 
+		"Purchase Order Item": {
+			"doctype": "Purchase Invoice Item", 
+			"field_map": {
+				"name": "po_detail", 
+				"parent": "purchase_order", 
+				"purchase_rate": "rate"
+			},
+			"postprocess": update_item,
+			"condition": lambda doc: doc.amount==0 or doc.billed_amt < doc.import_amount 
+		}, 
+		"Purchase Taxes and Charges": {
+			"doctype": "Purchase Taxes and Charges", 
+		}
+	}, target_doclist, set_missing_values)
+
+	return [d.fields for d in doclist]

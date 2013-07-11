@@ -52,15 +52,7 @@ class DocType(TransactionBase):
 		sales_com_obj = get_obj(dt = 'Sales Common')
 		sales_com_obj.check_active_sales_items(self)
 		sales_com_obj.get_prevdoc_date(self)
-		self.validate_reference_value()
- 
-	def pull_delivery_note_details(self):
-		self.validate_prev_docname()
-		self.doclist = get_obj('DocType Mapper', 'Delivery Note-Installation Note').dt_map(
-			'Delivery Note', 'Installation Note', self.doc.delivery_note_no, 
-			self.doc, self.doclist, "[['Delivery Note', 'Installation Note'], \
-			['Delivery Note Item', 'Installation Note Item']]")
-	
+ 	
 	def validate_prev_docname(self):
 		for d in getlist(self.doclist, 'installed_item_details'): 
 			if self.doc.delivery_note_no == d.prevdoc_docname:
@@ -70,10 +62,6 @@ class DocType(TransactionBase):
 	def validate_fiscal_year(self):
 		get_obj('Sales Common').validate_fiscal_year(self.doc.fiscal_year, self.doc.inst_date, 
 			'Installation Date')
-
-	def validate_reference_value(self):
-		mapper = get_obj('DocType Mapper', 'Delivery Note-Installation Note', with_children = 1)
-		mapper.validate_reference_value(self, self.doc.name)
 	
 	def is_serial_no_added(self, item_code, serial_no):
 		ar_required = webnotes.conn.get_value("Item", item_code, "has_serial_no")

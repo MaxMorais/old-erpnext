@@ -52,11 +52,6 @@ class DocType(BuyingController):
 	def get_bin_details(self, arg = ''):
 		return get_obj(dt='Purchase Common').get_bin_details(arg)
 
-	# Pull Purchase Order
-	def get_po_details(self):
-		self.validate_prev_docname()
-		get_obj('DocType Mapper', 'Purchase Order-Purchase Receipt').dt_map('Purchase Order', 'Purchase Receipt', self.doc.purchase_order_no, self.doc, self.doclist, "[['Purchase Order','Purchase Receipt'],['Purchase Order Item', 'Purchase Receipt Item'],['Purchase Taxes and Charges','Purchase Taxes and Charges']]")
-
 	# validate if PO has been pulled twice
 	def validate_prev_docname(self):
 		for d in getlist(self.doclist, 'purchase_receipt_details'):
@@ -64,9 +59,6 @@ class DocType(BuyingController):
 				msgprint(cstr(self.doc.purchase_order_no) + " Purchase Order details have already been pulled. ")
 				raise Exception
 
-
-	# validation
-	#-------------------------------------------------------------------------------------------------------------
 	# validate accepted and rejected qty
 	def validate_accepted_rejected_qty(self):
 		for d in getlist(self.doclist, "purchase_receipt_details"):
@@ -75,6 +67,15 @@ class DocType(BuyingController):
 			if flt(d.rejected_qty) and (not self.doc.rejected_warehouse):
 				msgprint("Rejected Warehouse is necessary if there are rejections.")
 				raise Exception
+
+			if not flt(d.received_qty) and flt(d.qty):
+				d.received_qty = flt(d.qty) - flt(d.rejected_qty)
+
+			elif not flt(d.qty) and flt(d.rejected_qty):
+				d.qty = flt(d.received_qty) - flt(d.rejected_qty)
+
+			elif not flt(d.rejected_qty):
+				d.rejected_qty = flt(d.received_qty) -  flt(d.qty)
 
 			# Check Received Qty = Accepted Qty + Rejected Qty
 			if ((flt(d.qty) + flt(d.rejected_qty)) != flt(d.received_qty)):
@@ -93,6 +94,20 @@ class DocType(BuyingController):
 			if exists:
 				webnotes.msgprint("Another Purchase Receipt using the same Challan No. already exists.\
 			Please enter a valid Challan No.", raise_exception=1)
+			
+	def validate_with_previous_doc(self):
+		super(DocType, self).validate_with_previous_doc(self.tname, {
+			"Purchase Order": {
+				"ref_dn_field": "prevdoc_docname",
+				"compare_fields": [["supplier", "="], ["company", "="],	["currency", "="]],
+			},
+			"Purchase Order Item": {
+				"ref_dn_field": "prevdoc_detail_docname",
+				"compare_fields": [["import_rate", "="], ["project_name", "="], ["warehouse", "="], 
+					["uom", "="], ["item_code", "="]],
+				"is_child_table": True
+			}
+		})
 
 	def po_required(self):
 		if webnotes.conn.get_single_value("Buying Settings", "po_required") == 'Yes':
@@ -113,6 +128,7 @@ class DocType(BuyingController):
 		import utilities
 		utilities.validate_status(self.doc.status, ["Draft", "Submitted", "Cancelled"])
 
+		self.validate_with_previous_doc()
 		self.validate_accepted_rejected_qty()
 		self.validate_inspection()						 # Validate Inspection
 		get_obj('Stock Ledger').validate_serial_no(self, 'purchase_receipt_details')
@@ -121,7 +137,6 @@ class DocType(BuyingController):
 		pc_obj = get_obj(dt='Purchase Common')
 		pc_obj.validate_for_items(self)
 		pc_obj.get_prevdoc_date(self)
-		pc_obj.validate_reference_value(self)
 		self.check_for_stopped_status(pc_obj)
 
 		# sub-contracting
@@ -334,3 +349,45 @@ class DocType(BuyingController):
 					flt(item.qty) * flt(item.conversion_factor)
 
 		return total_valuation_amount
+		
+	
+@webnotes.whitelist()
+def make_purchase_invoice(source_name, target_doclist=None):
+	from webnotes.model.mapper import get_mapped_doclist
+	
+	def set_missing_values(source, target):
+		bean = webnotes.bean(target)
+		bean.run_method("set_missing_values")
+		bean.run_method("set_supplier_defaults")
+
+	def update_item(obj, target, source_parent):
+		target.conversion_factor = 1
+		target.import_amount = flt(obj.import_amount)
+		target.amount = target.import_amount / flt(source_parent.conversion_rate)
+		if flt(obj.purchase_rate):
+			target.qty = target.amount / flt(obj.purchase_rate)
+
+	doclist = get_mapped_doclist("Purchase Receipt", source_name,	{
+		"Purchase Receipt": {
+			"doctype": "Purchase Invoice", 
+			"validation": {
+				"docstatus": ["=", 1],
+			}
+		}, 
+		"Purchase Receipt Item": {
+			"doctype": "Purchase Invoice Item", 
+			"field_map": {
+				"name": "pr_detail", 
+				"parent": "purchase_receipt", 
+				"prevdoc_detail_docname": "po_detail", 
+				"prevdoc_docname": "purchase_order", 
+				"purchase_rate": "rate"
+			},
+			"postprocess": update_item
+		}, 
+		"Purchase Taxes and Charges": {
+			"doctype": "Purchase Taxes and Charges", 
+		}
+	}, target_doclist, set_missing_values)
+
+	return [d.fields for d in doclist]

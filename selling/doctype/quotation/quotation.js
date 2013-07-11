@@ -43,8 +43,6 @@ erpnext.selling.QuotationController = erpnext.selling.SellingController.extend({
 				cur_frm.dashboard.set_headline_alert(wn._(doc.status), "alert-success", "icon-ok-sign");
 			} else if(doc.status==="Order Lost") {
 				cur_frm.dashboard.set_headline_alert(wn._(doc.status), "alert-danger", "icon-exclamation-sign");
-			} else {
-				cur_frm.dashboard.set_headline_alert(wn._(doc.status), "alert-info", "icon-exclamation-sign");
 			}
 		}
 		
@@ -55,6 +53,25 @@ erpnext.selling.QuotationController = erpnext.selling.SellingController.extend({
 			}
 			cur_frm.add_custom_button('Send SMS', cur_frm.cscript.send_sms);
 		}
+		
+		if (this.frm.doc.docstatus===0) {
+			cur_frm.add_custom_button(wn._('From Opportunity'), 
+				function() {
+					wn.model.map_current_doc({
+						method: "selling.doctype.opportunity.opportunity.make_quotation",
+						source_doctype: "Opportunity",
+						get_query_filters: {
+							docstatus: 1,
+							status: "Submitted",
+							enquiry_type: cur_frm.doc.order_type,
+							customer: cur_frm.doc.customer || undefined,
+							lead: cur_frm.doc.lead || undefined,
+							company: cur_frm.doc.company
+						}
+					})
+				});
+		}
+		
 
 		if (!doc.__islocal) {
 			cur_frm.communication_view = new wn.views.CommunicationList({
@@ -71,6 +88,10 @@ erpnext.selling.QuotationController = erpnext.selling.SellingController.extend({
 	quotation_to: function() {
 		this.frm.toggle_reqd("lead", this.frm.doc.quotation_to == "Lead");
 		this.frm.toggle_reqd("customer", this.frm.doc.quotation_to == "Customer");
+	},
+
+	tc_name: function() {
+		this.get_terms();
 	},
 	
 	validate_company_and_party: function(party_field) {
@@ -97,67 +118,32 @@ cur_frm.cscript.customer_address = cur_frm.cscript.contact_person = function(doc
 	}),'', doc, dt, dn, 1);
 }
 
-cur_frm.fields_dict.lead.get_query = erpnext.utils.lead_query;
+cur_frm.fields_dict.lead.get_query = function(doc,cdt,cdn) {
+	return{	query:"controllers.queries.lead_query" } }
 
 cur_frm.cscript.lead = function(doc, cdt, cdn) {
 	if(doc.lead) {
-		get_server_fields('get_lead_details', doc.lead,'', doc, cdt, cdn, 1);
+		cur_frm.call({
+			doc: cur_frm.doc,
+			method: "set_lead_defaults",
+			callback: function(r) {
+				if(!r.exc) {
+					cur_frm.refresh_fields();
+				}
+			}
+		});
 		unhide_field('territory');
 	}
 }
 
 
-// =====================================================================================
-cur_frm.fields_dict['enq_no'].get_query = function(doc,cdt,cdn){
-	var cond='';
-	var cond1='';
-	if(doc.order_type) cond = 'ifnull(`tabOpportunity`.enquiry_type, "") = "'+doc.order_type+'" AND';
-	if(doc.customer) cond1 = '`tabOpportunity`.customer = "'+doc.customer+'" AND';
-	else if(doc.lead) cond1 = '`tabOpportunity`.lead = "'+doc.lead+'" AND';
-
-	return repl('SELECT `tabOpportunity`.`name` FROM `tabOpportunity` WHERE `tabOpportunity`.`docstatus` = 1 AND `tabOpportunity`.status = "Submitted" AND %(cond)s %(cond1)s `tabOpportunity`.`name` LIKE "%s" ORDER BY `tabOpportunity`.`name` ASC LIMIT 50', {cond:cond, cond1:cond1});
-}
-
 // Make Sales Order
 // =====================================================================================
 cur_frm.cscript['Make Sales Order'] = function() {
-	var doc = cur_frm.doc;
-
-	if (doc.docstatus == 1) {
-		var n = wn.model.make_new_doc_and_get_name("Sales Order");
-		$c('dt_map', args={
-			'docs':wn.model.compress([locals["Sales Order"][n]]),
-			'from_doctype':'Quotation',
-			'to_doctype':'Sales Order',
-			'from_docname':doc.name,
-			'from_to_list':"[['Quotation', 'Sales Order'], ['Quotation Item', 'Sales Order Item'],['Sales Taxes and Charges','Sales Taxes and Charges'], ['Sales Team', 'Sales Team'], ['TC Detail', 'TC Detail']]"
-		}, function(r,rt) {
-			loaddoc("Sales Order", n);
-		});
-	}
-}
-
-//pull enquiry details
-cur_frm.cscript.pull_enquiry_detail = function(doc,cdt,cdn){
-
-	var callback = function(r,rt){
-		if(r.message){
-			doc.quotation_to = r.message;
-
-			if(doc.quotation_to == 'Lead') {
-					unhide_field('lead');
-			}
-			else if(doc.quotation_to == 'Customer') {
-				unhide_field(['customer','customer_address','contact_person','territory','customer_group']);
-			}
-			refresh_many(['quotation_details','quotation_to','customer','customer_address', 
-				'contact_person', 'lead', 'address_display', 'contact_display', 'contact_mobile', 
-				'contact_email', 'territory', 'customer_group', 'order_type']);
-		}
-	}
-
-	$c_obj(make_doclist(doc.doctype, doc.name),'pull_enq_details','',callback);
-
+	wn.model.open_mapped_doc({
+		method: "selling.doctype.quotation.quotation.make_sales_order",
+		source_name: cur_frm.doc.name
+	})
 }
 
 // declare order lost
@@ -201,45 +187,21 @@ cur_frm.fields_dict['quotation_details'].grid.get_field('item_code').get_query= 
 	if(doc.customer) {
 		var export_rate_field = wn.meta.get_docfield(cdt, 'export_rate', cdn);
 		var precision = (export_rate_field && export_rate_field.fieldtype) === 'Float' ? 6 : 2;
-		return repl("\
-			select \
-				item.name, \
-				( \
-					select concat('Last Quote @ ', q.currency, ' ', \
-						format(q_item.export_rate, %(precision)s)) \
-					from `tabQuotation` q, `tabQuotation Item` q_item \
-					where \
-						q.name = q_item.parent \
-						and q_item.item_code = item.name \
-						and q.docstatus = 1 \
-						and q.customer = \"%(cust)s\" \
-					order by q.transaction_date desc \
-					limit 1 \
-				) as quote_rate, \
-				( \
-					select concat('Last Sale @ ', si.currency, ' ', \
-						format(si_item.basic_rate, %(precision)s)) \
-					from `tabSales Invoice` si, `tabSales Invoice Item` si_item \
-					where \
-						si.name = si_item.parent \
-						and si_item.item_code = item.name \
-						and si.docstatus = 1 \
-						and si.customer = \"%(cust)s\" \
-					order by si.posting_date desc \
-					limit 1 \
-				) as sales_rate, \
-				item.item_name, item.description \
-			from `tabItem` item \
-			where \
-				item.%(key)s like \"%s\" \
-				%(cond)s \
-				limit 25", {
-					cust: doc.customer,
-					cond: cond,
-					precision: precision
-				});
+		return {
+			query: "selling.doctype.quotation.quotation.quotation_details",
+			filters:{
+				cust: doc.customer,
+				cond: cond,
+				precision: precision
+			}
+		}
 	} else {
-		return repl("SELECT name, item_name, description FROM `tabItem` item WHERE item.%(key)s LIKE '%s' %(cond)s ORDER BY item.item_code DESC LIMIT 50", {cond:cond});
+		return {
+			query: 'selling.doctype.quotation.quotation.quotation_details',
+			filters:{
+				cond: cond
+			}		
+		}	
 	}
 }
 

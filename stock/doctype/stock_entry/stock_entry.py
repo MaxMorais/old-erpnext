@@ -25,6 +25,7 @@ from webnotes.model.code import get_obj
 from webnotes import msgprint, _
 from stock.utils import get_incoming_rate
 from stock.stock_ledger import get_previous_sle
+from controllers.queries import get_match_cond
 import json
 
 sql = webnotes.conn.sql
@@ -464,22 +465,32 @@ class DocType(StockController):
 					item_dict = self.get_pending_raw_materials(pro_obj)
 				else:
 					item_dict = self.get_bom_raw_materials(self.doc.fg_completed_qty)
+					for item in item_dict.values():
+						item["from_warehouse"] = pro_obj.doc.wip_warehouse
+						item["to_warehouse"] = ""
 
 				# add raw materials to Stock Entry Detail table
-				self.add_to_stock_entry_detail(self.doc.from_warehouse, self.doc.to_warehouse,
-					item_dict)
+				self.add_to_stock_entry_detail(item_dict)
 					
 			# add finished good item to Stock Entry Detail table -- along with bom_no
 			if self.doc.production_order and self.doc.purpose == "Manufacture/Repack":
-				self.add_to_stock_entry_detail(None, pro_obj.doc.fg_warehouse, {
-					cstr(pro_obj.doc.production_item): 
-						[self.doc.fg_completed_qty, pro_obj.doc.description, pro_obj.doc.stock_uom]
+				self.add_to_stock_entry_detail({
+					cstr(pro_obj.doc.production_item): {
+						"to_warehouse": pro_obj.doc.fg_warehouse,
+						"from_warehouse": "",
+						"qty": self.doc.fg_completed_qty,
+						"description": pro_obj.doc.description,
+						"stock_uom": pro_obj.doc.stock_uom
+					}
 				}, bom_no=pro_obj.doc.bom_no)
 				
 			elif self.doc.purpose in ["Material Receipt", "Manufacture/Repack"]:
+				if self.doc.purpose=="Material Receipt":
+					self.doc.from_warehouse = ""
+					
 				item = webnotes.conn.sql("""select item, description, uom from `tabBOM`
 					where name=%s""", (self.doc.bom_no,), as_dict=1)
-				self.add_to_stock_entry_detail(None, self.doc.to_warehouse, {
+				self.add_to_stock_entry_detail({
 					item[0]["item"] :
 						[self.doc.fg_completed_qty, item[0]["description"], item[0]["uom"]]
 				}, bom_no=self.doc.bom_no)
@@ -492,36 +503,56 @@ class DocType(StockController):
 			child items of sub-contracted and sub assembly items 
 			and sub assembly items itself.
 		"""
-		# item dict = { item_code: [qty, description, stock_uom] }
+		# item dict = { item_code: {qty, description, stock_uom} }
 		item_dict = {}
 		
 		def _make_items_dict(items_list):
 			"""makes dict of unique items with it's qty"""
 			for item in items_list:
 				if item_dict.has_key(item.item_code):
-					item_dict[item.item_code][0] += flt(item.qty)
+					item_dict[item.item_code]["qty"] += flt(item.qty)
 				else:
-					item_dict[item.item_code] = [flt(item.qty), item.description, item.stock_uom]
+					item_dict[item.item_code] = {
+						"qty": flt(item.qty), 
+						"description": item.description, 
+						"stock_uom": item.stock_uom,
+						"from_warehouse": item.default_warehouse
+					}
 		
 		if self.doc.use_multi_level_bom:
 			# get all raw materials with sub assembly childs					
-			fl_bom_sa_child_item = sql("""select fb.item_code, 
-				ifnull(sum(fb.qty_consumed_per_unit),0)*%s as qty, fb.description, fb.stock_uom 
-				from `tabBOM Explosion Item` fb,`tabItem` it 
-				where it.name = fb.item_code and ifnull(it.is_pro_applicable, 'No') = 'No'
-				and ifnull(it.is_sub_contracted_item, 'No') = 'No' and fb.docstatus < 2 
-				and fb.parent=%s group by item_code, stock_uom""", 
+			fl_bom_sa_child_item = sql("""select 
+					fb.item_code, 
+					ifnull(sum(fb.qty_consumed_per_unit),0)*%s as qty, 
+					fb.description, 
+					fb.stock_uom,
+					it.default_warehouse
+				from 
+					`tabBOM Explosion Item` fb,`tabItem` it 
+				where 
+					it.name = fb.item_code 
+					and ifnull(it.is_pro_applicable, 'No') = 'No'
+					and ifnull(it.is_sub_contracted_item, 'No') = 'No' 
+					and fb.docstatus < 2 
+					and fb.parent=%s group by item_code, stock_uom""", 
 				(qty, self.doc.bom_no), as_dict=1)
 			
 			if fl_bom_sa_child_item:
 				_make_items_dict(fl_bom_sa_child_item)
 		else:
-			# Get all raw materials considering multi level BOM, 
-			# if multi level bom consider childs of Sub-Assembly items
-			fl_bom_sa_items = sql("""select item_code,
-				ifnull(sum(qty_consumed_per_unit), 0) *%s as qty,
-				description, stock_uom from `tabBOM Item` 
-				where parent = %s and docstatus < 2 
+			# get only BOM items
+			fl_bom_sa_items = sql("""select 
+					`tabItem`.item_code,
+					ifnull(sum(`tabBOM Item`.qty_consumed_per_unit), 0) *%s as qty,
+					`tabItem`.description, 
+					`tabItem`.stock_uom,
+					`tabItem`.default_warehouse
+				from 
+					`tabBOM Item`, `tabItem`
+				where 
+					`tabBOM Item`.parent = %s and 
+					`tabBOM Item`.item_code = tabItem.name
+					`tabBOM Item`.docstatus < 2 
 				group by item_code""", (qty, self.doc.bom_no), as_dict=1)
 			
 			if fl_bom_sa_items:
@@ -534,30 +565,30 @@ class DocType(StockController):
 			issue (item quantity) that is pending to issue or desire to transfer,
 			whichever is less
 		"""
-		item_qty = self.get_bom_raw_materials(1)
+		item_dict = self.get_bom_raw_materials(1)
 		issued_item_qty = self.get_issued_qty()
 		
 		max_qty = flt(pro_obj.doc.qty)
 		only_pending_fetched = []
 		
-		for item in item_qty:
-			pending_to_issue = (max_qty * item_qty[item][0]) - issued_item_qty.get(item, 0)
-			desire_to_transfer = flt(self.doc.fg_completed_qty) * item_qty[item][0]
+		for item in item_dict:
+			pending_to_issue = (max_qty * item_dict[item]["qty"]) - issued_item_qty.get(item, 0)
+			desire_to_transfer = flt(self.doc.fg_completed_qty) * item_dict[item]["qty"]
 			
 			if desire_to_transfer <= pending_to_issue:
-				item_qty[item][0] = desire_to_transfer
+				item_dict[item]["qty"] = desire_to_transfer
 			else:
-				item_qty[item][0] = pending_to_issue
+				item_dict[item]["qty"] = pending_to_issue
 				if pending_to_issue:
 					only_pending_fetched.append(item)
 		
 		# delete items with 0 qty
-		for item in item_qty.keys():
-			if not item_qty[item][0]:
-				del item_qty[item]
+		for item in item_dict.keys():
+			if not item_dict[item]["qty"]:
+				del item_dict[item]
 		
 		# show some message
-		if not len(item_qty):
+		if not len(item_dict):
 			webnotes.msgprint(_("""All items have already been transferred \
 				for this Production Order."""))
 			
@@ -565,7 +596,7 @@ class DocType(StockController):
 			webnotes.msgprint(_("""Only quantities pending to be transferred \
 				were fetched for the following items:\n""" + "\n".join(only_pending_fetched)))
 
-		return item_qty
+		return item_dict
 
 	def get_issued_qty(self):
 		issued_item_qty = {}
@@ -579,18 +610,20 @@ class DocType(StockController):
 		
 		return issued_item_qty
 
-	def add_to_stock_entry_detail(self, source_wh, target_wh, item_dict, bom_no=None):
+	def add_to_stock_entry_detail(self, item_dict, bom_no=None):
 		for d in item_dict:
 			se_child = addchild(self.doc, 'mtn_details', 'Stock Entry Detail', 
 				self.doclist)
-			se_child.s_warehouse = source_wh
-			se_child.t_warehouse = target_wh
+			se_child.s_warehouse = item_dict[d].get("from_warehouse", self.doc.from_warehouse) 
+			se_child.t_warehouse = item_dict[d].get("to_warehouse", self.doc.to_warehouse)
 			se_child.item_code = cstr(d)
-			se_child.description = item_dict[d][1]
-			se_child.uom = item_dict[d][2]
-			se_child.stock_uom = item_dict[d][2]
-			se_child.qty = flt(item_dict[d][0])
-			se_child.transfer_qty = flt(item_dict[d][0])
+			se_child.description = item_dict[d]["description"]
+			se_child.uom = item_dict[d]["stock_uom"]
+			se_child.stock_uom = item_dict[d]["stock_uom"]
+			se_child.qty = flt(item_dict[d]["qty"])
+			
+			# in stock uom
+			se_child.transfer_qty = flt(item_dict[d]["qty"])
 			se_child.conversion_factor = 1.00
 			
 			# to be assigned for finished item
@@ -632,11 +665,15 @@ class DocType(StockController):
 		return result and result[0] or {}
 		
 	def get_cust_addr(self):
+		from utilities.transaction_base import get_default_address, get_address_display
 		res = sql("select customer_name from `tabCustomer` where name = '%s'"%self.doc.customer)
-		addr = self.get_address_text(customer = self.doc.customer)
+		address_display = None
+		customer_address = get_default_address("customer", self.doc.customer)
+		if customer_address:
+			address_display = get_address_display(customer_address)
 		ret = { 
 			'customer_name'		: res and res[0][0] or '',
-			'customer_address' : addr and addr[0] or ''}
+			'customer_address' : address_display}
 
 		return ret
 
@@ -649,12 +686,17 @@ class DocType(StockController):
 		return result and result[0] or {}
 		
 	def get_supp_addr(self):
+		from utilities.transaction_base import get_default_address, get_address_display
 		res = sql("""select supplier_name from `tabSupplier`
 			where name=%s""", self.doc.supplier)
-		addr = self.get_address_text(supplier = self.doc.supplier)
+		address_display = None
+		supplier_address = get_default_address("customer", self.doc.customer)
+		if supplier_address:
+			address_display = get_address_display(supplier_address)	
+		
 		ret = {
 			'supplier_name' : res and res[0][0] or '',
-			'supplier_address' : addr and addr[0] or ''}
+			'supplier_address' : address_display }
 		return ret
 		
 	def validate_with_material_request(self):
@@ -677,24 +719,31 @@ def get_production_order_details(production_order):
 	return result and result[0] or {}
 	
 def query_sales_return_doc(doctype, txt, searchfield, start, page_len, filters):
+	from controllers.queries import get_match_cond
 	conditions = ""
 	if doctype == "Sales Invoice":
 		conditions = "and update_stock=1"
 	
 	return webnotes.conn.sql("""select name, customer, customer_name
 		from `tab%s` where docstatus = 1
-		and (`%s` like %%(txt)s or `customer` like %%(txt)s) %s
+			and (`%s` like %%(txt)s 
+				or `customer` like %%(txt)s) %s %s
 		order by name, customer, customer_name
-		limit %s""" % (doctype, searchfield, conditions, "%(start)s, %(page_len)s"),
-		{"txt": "%%%s%%" % txt, "start": start, "page_len": page_len}, as_list=True)
+		limit %s""" % (doctype, searchfield, conditions, 
+		get_match_cond(doctype, searchfield), "%(start)s, %(page_len)s"), 
+		{"txt": "%%%s%%" % txt, "start": start, "page_len": page_len}, 
+		as_list=True)
 	
 def query_purchase_return_doc(doctype, txt, searchfield, start, page_len, filters):
+	from controllers.queries import get_match_cond
 	return webnotes.conn.sql("""select name, supplier, supplier_name
 		from `tab%s` where docstatus = 1
-		and (`%s` like %%(txt)s or `supplier` like %%(txt)s)
+			and (`%s` like %%(txt)s 
+				or `supplier` like %%(txt)s) %s
 		order by name, supplier, supplier_name
-		limit %s""" % (doctype, searchfield, "%(start)s, %(page_len)s"),
-		{"txt": "%%%s%%" % txt, "start": start, "page_len": page_len}, as_list=True)
+		limit %s""" % (doctype, searchfield, get_match_cond(doctype, searchfield), 
+		"%(start)s, %(page_len)s"),	{"txt": "%%%s%%" % txt, "start": 
+		start, "page_len": page_len}, as_list=True)
 		
 def query_return_item(doctype, txt, searchfield, start, page_len, filters):
 	txt = txt.replace("%", "")
@@ -719,6 +768,26 @@ def query_return_item(doctype, txt, searchfield, start, page_len, filters):
 					result.append(val)
 
 	return result[start:start+page_len]
+
+def get_batch_no(doctype, txt, searchfield, start, page_len, filters):
+	from controllers.queries import get_match_cond
+
+	return webnotes.conn.sql("""select batch_no from `tabStock Ledger Entry` sle 
+			where item_code = '%(item_code)s' 
+				and warehouse = '%(s_warehouse)s'
+				and ifnull(is_cancelled, 'No') = 'No' 
+				and batch_no like '%(txt)s' 
+				and exists(select * from `tabBatch` 
+						where name = sle.batch_no 
+							and expiry_date >= %(posting_date)s 
+							and docstatus != 2) 
+			%(mcond)s
+			group by batch_no having sum(actual_qty) > 0 
+			order by batch_no desc 
+			limit %(start)s, %(page_len)s """ % {'item_code': filters['item_code'], 
+			's_warehouse': filters['s_warehouse'], 'posting_date': filters['posting_date'], 
+			'txt': "%%%s%%" % txt, 'mcond':get_match_cond(doctype, searchfield), 
+			"start": start, "page_len": page_len})
 
 def get_stock_items_for_return(ref_doclist, parentfields):
 	"""return item codes filtered from doclist, which are stock items"""

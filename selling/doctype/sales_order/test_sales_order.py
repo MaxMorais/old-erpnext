@@ -3,13 +3,68 @@ from webnotes.utils import flt
 import unittest
 
 class TestSalesOrder(unittest.TestCase):
+	def test_make_material_request(self):
+		from selling.doctype.sales_order.sales_order import make_material_request
+		
+		so = webnotes.bean(copy=test_records[0]).insert()
+		
+		self.assertRaises(webnotes.ValidationError, make_material_request, 
+			so.doc.name)
+
+		sales_order = webnotes.bean("Sales Order", so.doc.name)
+		sales_order.submit()
+		mr = make_material_request(so.doc.name)
+		
+		self.assertEquals(mr[0]["material_request_type"], "Purchase")
+		self.assertEquals(len(mr), len(sales_order.doclist))
+
+	def test_make_delivery_note(self):
+		from selling.doctype.sales_order.sales_order import make_delivery_note
+
+		so = webnotes.bean(copy=test_records[0]).insert()
+
+		self.assertRaises(webnotes.ValidationError, make_delivery_note, 
+			so.doc.name)
+
+		sales_order = webnotes.bean("Sales Order", so.doc.name)
+		sales_order.submit()
+		dn = make_delivery_note(so.doc.name)
+		
+		self.assertEquals(dn[0]["doctype"], "Delivery Note")
+		self.assertEquals(len(dn), len(sales_order.doclist))
+
+	def test_make_sales_invoice(self):
+		from selling.doctype.sales_order.sales_order import make_sales_invoice
+
+		so = webnotes.bean(copy=test_records[0]).insert()
+
+		self.assertRaises(webnotes.ValidationError, make_sales_invoice, 
+			so.doc.name)
+
+		sales_order = webnotes.bean("Sales Order", so.doc.name)
+		sales_order.submit()
+		si = make_sales_invoice(so.doc.name)
+		
+		self.assertEquals(si[0]["doctype"], "Sales Invoice")
+		self.assertEquals(len(si), len(sales_order.doclist))
+		self.assertEquals(len([d for d in si if d["doctype"]=="Sales Invoice Item"]), 1)
+		
+		si = webnotes.bean(si)
+		si.insert()
+		si.submit()
+
+		si1 = make_sales_invoice(so.doc.name)
+		self.assertEquals(len([d for d in si1 if d["doctype"]=="Sales Invoice Item"]), 0)
+		
+
 	def create_so(self, so_doclist = None):
 		if not so_doclist:
-			so_doclist =test_records[0]
-			
+			so_doclist = test_records[0]
+		
 		w = webnotes.bean(copy=so_doclist)
 		w.insert()
 		w.submit()
+
 		return w
 		
 	def create_dn_against_so(self, so, delivered_qty=0):
@@ -103,7 +158,7 @@ class TestSalesOrder(unittest.TestCase):
 		self.check_reserved_qty(so.doclist[1].item_code, so.doclist[1].reserved_warehouse, 10.0)
 		
 	def test_reserved_qty_for_so_with_packing_list(self):
-		from stock.doctype.sales_bom.test_sales_bom import test_records as sbom_test_records
+		from selling.doctype.sales_bom.test_sales_bom import test_records as sbom_test_records
 		
 		# change item in test so record
 		test_record = test_records[0][:]
@@ -130,7 +185,7 @@ class TestSalesOrder(unittest.TestCase):
 			so.doclist[1].reserved_warehouse, 0.0)
 			
 	def test_reserved_qty_for_partial_delivery_with_packing_list(self):
-		from stock.doctype.sales_bom.test_sales_bom import test_records as sbom_test_records
+		from selling.doctype.sales_bom.test_sales_bom import test_records as sbom_test_records
 		
 		# change item in test so record
 		
@@ -180,7 +235,7 @@ class TestSalesOrder(unittest.TestCase):
 			so.doclist[1].reserved_warehouse, 20.0)
 			
 	def test_reserved_qty_for_over_delivery_with_packing_list(self):
-		from stock.doctype.sales_bom.test_sales_bom import test_records as sbom_test_records
+		from selling.doctype.sales_bom.test_sales_bom import test_records as sbom_test_records
 		
 		# change item in test so record
 		test_record = webnotes.copy_doclist(test_records[0])
@@ -236,6 +291,7 @@ test_records = [
 			"transaction_date": "2013-02-21",
 			"grand_total": 1000.0, 
 			"grand_total_export": 1000.0, 
+			"naming_series": "_T-Sales Order-"
 		}, 
 		{
 			"description": "CPU", 

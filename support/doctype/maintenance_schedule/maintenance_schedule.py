@@ -20,7 +20,6 @@ import webnotes
 from webnotes.utils import add_days, cstr, getdate
 from webnotes.model.doc import addchild
 from webnotes.model.bean import getlist
-from webnotes.model.code import get_obj
 from webnotes import msgprint
 
 sql = webnotes.conn.sql
@@ -33,15 +32,6 @@ class DocType(TransactionBase):
 		self.doc = doc
 		self.doclist = doclist
 	
-	# pull sales order details
-	#--------------------------
-	def pull_sales_order_detail(self):
-		self.doclist = self.doc.clear_table(self.doclist, 'item_maintenance_detail')
-		self.doclist = self.doc.clear_table(self.doclist, 'maintenance_schedule_detail')
-		self.doclist = get_obj('DocType Mapper', 'Sales Order-Maintenance Schedule').dt_map('Sales Order', 'Maintenance Schedule', self.doc.sales_order_no, self.doc, self.doclist, "[['Sales Order', 'Maintenance Schedule'],['Sales Order Item', 'Maintenance Schedule Item']]")
-	
-	#pull item details 
-	#-------------------
 	def get_item_details(self, item_code):
 		item = sql("select item_name, description from `tabItem` where name = '%s'" %(item_code), as_dict=1)
 		ret = {
@@ -50,8 +40,6 @@ class DocType(TransactionBase):
 		}
 		return ret
 		
-	# generate maintenance schedule
-	#-------------------------------------
 	def generate_schedule(self):
 		self.doclist = self.doc.clear_table(self.doclist, 'maintenance_schedule_detail')
 		count = 0
@@ -75,8 +63,6 @@ class DocType(TransactionBase):
 				
 		self.on_update()
 
-
-
 	def on_submit(self):
 		if not getlist(self.doclist, 'maintenance_schedule_detail'):
 			msgprint("Please click on 'Generate Schedule' to get schedule")
@@ -91,8 +77,8 @@ class DocType(TransactionBase):
 				self.update_amc_date(d.serial_no, d.end_date)
 
 			if d.incharge_name not in email_map:
-				e = sql("select email_id, name from `tabSales Person` where name='%s' " %(d.incharge_name),as_dict=1)[0]
-				email_map[d.incharge_name] = (e['email_id'])
+				email_map[d.incharge_name] = webnotes.bean("Sales Person", 
+					d.incharge_name).run_method("get_email_id")
 
 			scheduled_date =sql("select scheduled_date from `tabMaintenance Schedule Detail` \
 				where incharge_name='%s' and item_code='%s' and parent='%s' " %(d.incharge_name, \
@@ -149,10 +135,6 @@ class DocType(TransactionBase):
 			msgprint("Weekly periodicity can be set for period of atleast 1 week or more")
 			raise Exception
 	
-
-
-	#get count on the basis of periodicity selected
-	#----------------------------------------------------
 	def get_no_of_visits(self, arg):
 		arg1 = eval(arg)		
 		self.validate_period(arg)
@@ -208,11 +190,7 @@ class DocType(TransactionBase):
 					msgprint("Maintenance Schedule against "+d.prevdoc_docname+" already exist")
 					raise Exception
 	
-	# Validate values with reference document
-	#----------------------------------------
-	def validate_reference_value(self):
-		get_obj('DocType Mapper', 'Sales Order-Maintenance Schedule', with_children = 1).validate_reference_value(self, self.doc.name)
-	
+
 	def validate_serial_no(self):
 		for d in getlist(self.doclist, 'item_maintenance_detail'):
 			cur_s_no=[]			
@@ -236,8 +214,6 @@ class DocType(TransactionBase):
 	def validate(self):
 		self.validate_maintenance_detail()
 		self.validate_sales_order()
-		if self.doc.sales_order_no:
-			self.validate_reference_value()
 		self.validate_serial_no()
 		self.validate_start_date()
 	
@@ -331,3 +307,33 @@ class DocType(TransactionBase):
 		
 	def on_trash(self):
 		delete_events(self.doc.doctype, self.doc.name)
+
+@webnotes.whitelist()
+def make_maintenance_visit(source_name, target_doclist=None):
+	from webnotes.model.mapper import get_mapped_doclist
+	
+	def update_status(source, target, parent):
+		target.maintenance_type = "Scheduled"
+	
+	doclist = get_mapped_doclist("Maintenance Schedule", source_name, {
+		"Maintenance Schedule": {
+			"doctype": "Maintenance Visit", 
+			"field_map": {
+				"name": "maintenance_schedule"
+			},
+			"validation": {
+				"docstatus": ["=", 1]
+			},
+			"postprocess": update_status
+		}, 
+		"Maintenance Schedule Item": {
+			"doctype": "Maintenance Visit Purpose", 
+			"field_map": {
+				"parent": "prevdoc_docname", 
+				"parenttype": "prevdoc_doctype",
+				"incharge_name": "service_person"
+			}
+		}
+	}, target_doclist)
+
+	return [d.fields for d in doclist]

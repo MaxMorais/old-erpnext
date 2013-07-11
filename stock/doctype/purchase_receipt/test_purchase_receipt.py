@@ -22,6 +22,25 @@ import webnotes.defaults
 from webnotes.utils import cint
 
 class TestPurchaseReceipt(unittest.TestCase):
+	def test_make_purchase_invoice(self):
+		from stock.doctype.purchase_receipt.purchase_receipt import make_purchase_invoice
+
+		pr = webnotes.bean(copy=test_records[0]).insert()
+		
+		self.assertRaises(webnotes.ValidationError, make_purchase_invoice, 
+			pr.doc.name)
+
+		pr = webnotes.bean("Purchase Receipt", pr.doc.name)
+		pr.submit()
+		pi = make_purchase_invoice(pr.doc.name)
+		
+		self.assertEquals(pi[0]["doctype"], "Purchase Invoice")
+		self.assertEquals(len(pi), len(pr.doclist))
+		
+		# modify import_rate
+		pi[1].import_rate = 200
+		self.assertRaises(webnotes.ValidationError, webnotes.bean(pi).submit)
+		
 	def test_purchase_receipt_no_gl_entry(self):
 		pr = webnotes.bean(copy=test_records[0])
 		pr.run_method("calculate_taxes_and_totals")
@@ -87,6 +106,7 @@ test_records = [
 			"supplier": "_Test Supplier",
 			"net_total": 500.0, 
 			"grand_total": 720.0,
+			"naming_series": "_T-Purchase Receipt-",
 		}, 
 		{
 			"conversion_factor": 1.0, 

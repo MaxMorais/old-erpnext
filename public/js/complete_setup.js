@@ -44,11 +44,11 @@ $.extend(erpnext.complete_setup, {
 				{fieldname:'timezone', label: 'Time Zone', reqd:1,
 					options: "", fieldtype: 'Select'},
 				{fieldname:'industry', label: 'Industry', reqd:1,
-					options: erpnext.complete_setup.industry_list.join('\n'), fieldtype: 'Select'},
+					options: erpnext.complete_setup.domains.join('\n'), fieldtype: 'Select'},
 				{fieldname:'update', label:'Setup',fieldtype:'Button'},
 			],
 		});
-
+		
 		if(user != 'Administrator'){
 			$(d.appframe.$titlebar).find('.close').toggle(false); // Hide close image
 			$('header').toggle(false); // hide toolbar
@@ -75,6 +75,7 @@ $.extend(erpnext.complete_setup, {
 			if(!data) return;
 			$(this).set_working();
 			$c_obj('Setup Control','setup_account',data,function(r, rt){
+				$(this).done_working();
 				if(!r.exc) {
 					sys_defaults = r.message;
 					user_fullname = r.message.user_fullname;
@@ -85,10 +86,15 @@ $.extend(erpnext.complete_setup, {
 					
 					setTimeout(function() { window.location.reload(); }, 3000);
 				}
-				
 			});
 		};
-		
+
+		d.fields_dict.company_name.input.onchange = function() {
+			var parts = d.get_input("company_name").val().split(" ");
+			var abbr = $.map(parts, function(p) { return p ? p.substr(0,1) : null }).join("");
+			d.get_input("company_abbr").val(abbr.toUpperCase());
+		}
+
 		d.fields_dict.country.input.onchange = function() {
 			var country = d.fields_dict.country.input.value;
 			var $timezone = $(d.fields_dict.timezone.input);
@@ -123,16 +129,10 @@ $.extend(erpnext.complete_setup, {
 			}
 		}
 		
-		return d;	
+		return d;
 	},
 	
 	fy_start_list: ['', '1st Jan', '1st Apr', '1st Jul', '1st Oct'],
 
-	industry_list: ['', 'Aerospace and Defence', 'Agriculture', 'Apparel', 'Automobile',
-	'Banking', 'Biotechnology', 'Chemical', 'Communications', 'Consulting', 'Customer Service',
-	'Education', 'Electronics', 'Energy', 'Engineering', 'Entertainment', 'Environmental',
-	'Finance', 'Food and Beverage', 'Government', 'Healthcare', 'Hospitality',
-	'Information Technology', 'Insurance', 'Machinery', 'Manufacturing', 'Media',
-	'Not For Profit', 'Recreation', 'Retail', 'Shipping', 'Technology',
-	'Telecommunications', 'Transportation', 'Trading', 'Utilities', 'Other'],	
+	domains: ['', "Manufacturing", "Retail", "Distribution", "Services"],	
 });
