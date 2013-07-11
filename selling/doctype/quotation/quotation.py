@@ -75,11 +75,6 @@ class DocType(SellingController):
 	def get_rate(self,arg):
 		return get_obj('Sales Common').get_rate(arg)
 	
-	# Fiscal Year Validation
-	# ----------------------
-	def validate_fiscal_year(self):
-		get_obj('Sales Common').validate_fiscal_year(self.doc.fiscal_year,self.doc.transaction_date,'Quotation Date')
-	
 	# Does not allow same item code to be entered twice
 	# -------------------------------------------------
 	def validate_for_items(self):
@@ -137,7 +132,6 @@ class DocType(SellingController):
 			utilities.validate_status(self.doc.status, ["Draft", "Submitted", 
 				"Order Confirmed", "Order Lost", "Cancelled"])
 
-		self.validate_fiscal_year()
 		self.set_last_contact_date()
 		self.validate_order_type()
 		self.validate_for_items()
@@ -245,10 +239,6 @@ def _make_sales_order(source_name, target_doclist=None, ignore_permissions=False
 	doclist = get_mapped_doclist("Quotation", source_name, {
 			"Quotation": {
 				"doctype": "Sales Order", 
-				"field_map": {
-					"name": "quotation_no", 
-					"transaction_date": "quotation_date"
-				},
 				"validation": {
 					"docstatus": ["=", 1]
 				}
@@ -296,41 +286,3 @@ def _make_customer(source_name, ignore_permissions=False):
 					return customer
 				else:
 					raise e
-
-def quotation_details(doctype, txt, searchfield, start, page_len, filters):
-	from controllers.queries import get_match_cond
-
-	if filters.has_key('cust') and filters.has_key('precision'):
-		return webnotes.conn.sql("""select 	item.name, 
-					(select concat('Last Quote @ ', q.currency, ' ', 
-								format(q_item.export_rate, %(precision)s))
-						from `tabQuotation` q, `tabQuotation Item` q_item 
-						where q.name = q_item.parent 
-							and q_item.item_code = item.name
-							and q.docstatus = 1	
-							and q.customer = "%(cust)s"
-						order by q.transaction_date desc 
-						limit 1) as quote_rate,
-					(select concat('Last Sale @ ', si.currency, ' ', 
-								format(si_item.basic_rate, %(precision)s)) 
-						from `tabSales Invoice` si, `tabSales Invoice Item` si_item 
-						where si.name = si_item.parent 
-							and si_item.item_code = item.name
-							and si.docstatus = 1 
-							and si.customer ="%(cust)s"
-						order by si.posting_date desc 
-						limit 1) as sales_rate,
-					item.item_name, item.description
-					from `tabItem` item 
-					where %(cond)s %(mcond)s 
-						and item.%(searchfield)s like '%(txt)s' 
-					order by item.name desc limit %(start)s, %(page_len)s """ % {'precision': filters["precision"], 
-					'cust': filters['cust'], 'cond': filters['cond'], 'searchfield': searchfield, 
-					'txt': "%%%s%%" % txt, 'mcond': get_match_cond(doctype, searchfield), 
-					'start': start, 'page_len': page_len})
-
-	else:
-		return webnotes.conn.sql(""" select name, item_name, description from `tabItem` item 
-			where %s %s and %s like %s order by name desc limit %s, %s""" % 
-		("%s", get_match_cond(doctype, searchfield), searchfield, "%s", "%s", "%s"), 
-		(filters["cond"], "%%%s%%" % txt, start, page_len))

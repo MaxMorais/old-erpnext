@@ -5,11 +5,12 @@
  "Against Sales Invoice", 
  "Cost Center", 
  "Account Balance", 
+ "Is Advance", 
  "Credit", 
  "Accounts", 
  "Debit", 
  "Journal Voucher Detail", 
- "Is Advance", 
+ "If Income or Expense", 
  "Yes", 
  "Against Purchase Invoice", 
  "Against Account"

@@ -1,6 +1,5 @@
 [
- "Select Budget Distribution to unevenly distribute targets across months.", 
- "Trash Reason", 
+ "rgt", 
  "Sales Person", 
  "Select company name first.", 
  "No", 
@@ -9,7 +8,7 @@
  "Has Child Node", 
  "Sales Person Targets", 
  "Target Distribution", 
- "rgt", 
+ "Name and Employee ID", 
  "old_parent", 
  "lft", 
  "Target Details1", 
@@ -17,5 +16,6 @@
  "All Sales Transactions can be tagged against multiple **Sales Persons** so that you can set and monitor targets.", 
  "Yes", 
  "Parent Sales Person", 
- "Sales Person Name"
+ "Sales Person Name", 
+ "Select Budget Distribution to unevenly distribute targets across months."
 ]

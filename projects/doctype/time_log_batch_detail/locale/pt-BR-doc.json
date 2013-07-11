@@ -1,5 +1,8 @@
 {
  "Activity Type": "Tipo da Atividade", 
+ "Created By": "Criado por", 
  "Hours": "Horas", 
- "Projects": "Projetos"
+ "Projects": "Projetos", 
+ "Time Log": "Tempo Log", 
+ "Time Log Batch Detail": "Tempo Log Detail Batch"
 }

@@ -17,12 +17,13 @@
  "First Responded On", 
  "Customer", 
  "Support Ticket", 
+ "Messages", 
  "Contact", 
  "Waiting for Customer", 
+ "Reference", 
  "Resolution Date", 
  "Opening Date", 
  "Customer Name", 
  "Open", 
- "Additional Info", 
  "Subject"
 ]

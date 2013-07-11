@@ -1,5 +1,7 @@
 {
  "Activity Type": "Tipo da Atividade", 
+ "Batch Time Logs for billing.": "Tempo lote Logs para o faturamento.", 
+ "Daily Time Log Summary": "Resumo Di\u00e1rio Log Tempo", 
  "Documents": "Documentos", 
  "Gantt Chart": "Gr\u00e1fico de Gantt", 
  "Gantt chart of all tasks.": "Gr\u00e1fico de Gantt de todas as tarefas.", 
@@ -7,10 +9,15 @@
  "Project": "Projeto", 
  "Project activity / task.": "Atividade / tarefa do projeto.", 
  "Project master.": "Cadastro de Projeto.", 
+ "Project wise Stock Tracking": "Projeto s\u00e1bios Stock Rastreamento", 
  "Reports": "Relat\u00f3rios", 
  "Task": "Tarefa", 
+ "Time Log": "Tempo Log", 
+ "Time Log Batch": "Tempo Batch Log", 
+ "Time Log for tasks.": "Tempo de registro para as tarefas.", 
  "Timesheet": "Quadro de Hor\u00e1rios", 
  "Timesheet for tasks.": "Quadro de Hor\u00e1rios para as tarefas.", 
  "Tools": "Ferramentas", 
+ "Top": "Topo", 
  "Types of activities for Time Sheets": "Tipos de atividades para quadro de hor\u00e1rios"
 }

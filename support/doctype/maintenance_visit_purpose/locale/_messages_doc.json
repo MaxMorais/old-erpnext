@@ -5,9 +5,10 @@
  "Support", 
  "Against Document No", 
  "Serial No", 
+ "Sales Person", 
  "Against Document Detail No", 
  "Work Done", 
- "Service Person", 
+ "Work Details", 
  "Document Type", 
  "Item Code"
 ]

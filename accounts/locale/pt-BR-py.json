@@ -1,5 +1,10 @@
 {
+ "' in Company: ": "&#39;Na empresa:", 
+ "Auto Inventory Accounting": "Contabilidade Invent\u00e1rio de Auto", 
  "Disabled": "Desativado", 
  "Enabled": "Habilitado", 
+ "Following Journal Vouchers have been created automatically": "Seguindo Vouchers Journal ter sido criado automaticamente", 
+ "Journal Entry for inventory that is received but not yet invoiced": "Journal Entry para o invent\u00e1rio que \u00e9 recebido, mas ainda n\u00e3o facturados", 
+ "Please mention default value for '": "Por favor, mencione o valor padr\u00e3o para &#39;", 
  "not within Fiscal Year": "n\u00e3o est\u00e1 dentro do Ano Fiscal"
 }

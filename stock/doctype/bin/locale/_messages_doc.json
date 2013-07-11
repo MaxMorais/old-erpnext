@@ -1,12 +1,11 @@
 [
  "Bin", 
  "Moving Average Rate", 
- "Planned Qty", 
  "FCFS Rate", 
  "Projected Qty", 
  "Stock Value", 
  "Ordered Quantity", 
- "Warehouse Type", 
+ "Planned Qty", 
  "Actual Quantity", 
  "Warehouse", 
  "Reserved Quantity", 

@@ -1,12 +1,14 @@
 [
+ "Item Prices", 
+ "Selling", 
  "Price List Name", 
- "Valid for all countries", 
+ "Valid for Buying or Selling?", 
  "Price List Master", 
  "Setup", 
- "A list of Countries, for which, this Price List is valid", 
  "Currency", 
+ "Valid for Territories", 
  "How to upload", 
- "Valid for the following countries", 
- "Item Prices", 
+ "Specify a list of Territories, for which, this Price List is valid", 
+ "Buying", 
  "Price List"
 ]

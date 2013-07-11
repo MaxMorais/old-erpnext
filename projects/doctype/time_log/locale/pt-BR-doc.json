@@ -1,15 +1,26 @@
 {
  "Activity Type": "Tipo da Atividade", 
  "Amended From": "Corrigido De", 
+ "Batched for Billing": "Agrupadas para Billing", 
+ "Billable": "Fatur\u00e1vel", 
  "Billed": "Faturado", 
  "Cancelled": "Cancelado", 
  "Draft": "Rascunho", 
+ "From Time": "From Time", 
  "Hours": "Horas", 
+ "Log of Activities performed by users against Tasks that can be used for tracking time, billing.": "Log das atividades realizadas pelos usu\u00e1rios contra as tarefas que podem ser usados \u200b\u200bpara controlar o tempo, de faturamento.", 
  "Naming Series": "S\u00e9ries nomeadas", 
+ "Note": "Nota", 
  "Project": "Projeto", 
  "Projects": "Projetos", 
  "Sales Invoice": "Nota Fiscal de Venda", 
  "Status": "Estado", 
  "Submitted": "Enviado", 
- "Task": "Tarefa"
+ "TL-": "TL-", 
+ "Task": "Tarefa", 
+ "Time Log": "Tempo Log", 
+ "Time Log Batch": "Tempo Batch Log", 
+ "To Time": "Para Tempo", 
+ "Will be updated when batched.": "Ser\u00e1 atualizado quando agrupadas.", 
+ "Will be updated when billed.": "Ser\u00e1 atualizado quando faturado."
 }

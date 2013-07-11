@@ -152,8 +152,7 @@ def gl_entry_details(doctype, txt, searchfield, start, page_len, filters):
 			    	and (ifnull(gle.against_voucher, '') = '' 
 			    		or ifnull(gle.against_voucher, '') = gle.voucher_no ) 
 					and ifnull(gle.%(account_type)s, 0) > 0 
-			   		and (select ifnull(abs(sum(ifnull(debit, 0)) 
-			   				- sum(ifnull(credit, 0))), 0) 
+	   		and (select ifnull(abs(sum(ifnull(debit, 0)) - sum(ifnull(credit, 0))), 0) 
 						from `tabGL Entry` 
 			        	where against_voucher_type = '%(dt)s' 
 			        		and against_voucher = gle.voucher_no 
@@ -163,6 +162,12 @@ def gl_entry_details(doctype, txt, searchfield, start, page_len, filters):
 						) 
 					%(mcond)s
 			    ORDER BY gle.posting_date desc, gle.voucher_no desc 
-			    limit %(start)s, %(page_len)s""" %  {dt:filters["dt"], acc:filters["acc"], 
-			    account_type: filters['account_type'], 'mcond':get_match_cond(doctype, searchfield),
-			    'txt': "%%%s%%" % txt,"start": start, "page_len": page_len})
+	    limit %(start)s, %(page_len)s""" % {
+			"dt":filters["dt"], 
+			"acc":filters["acc"], 
+			"account_type": filters['account_type'], 
+			'mcond':get_match_cond(doctype, searchfield), 
+			'txt': "%%%s%%" % txt, 
+			"start": start, 
+			"page_len": page_len
+		})

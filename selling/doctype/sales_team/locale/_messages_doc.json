@@ -1,11 +1,11 @@
 [
- "Allocated (%)", 
  "Selling", 
  "Designation", 
  "Contact No.", 
  "Incentives", 
  "Parenttype", 
+ "Contribution to Net Total", 
  "Sales Team", 
  "Sales Person", 
- "Allocated Amount"
+ "Contribution (%)"
 ]

@@ -1,6 +1,6 @@
 [
  "BOM Replace Tool", 
- "Production Order", 
+ "Bill of Materials", 
  "Masters", 
  "Documents", 
  "Bill of Materials (BOM)", 
@@ -11,10 +11,10 @@
  "Where manufacturing operations are carried out.", 
  "Item", 
  "Issued Items Against Production Order", 
- "Replace Item / BOM in all BOMs", 
+ "Production Order", 
  "Workstation", 
- "Utility", 
+ "Replace Item / BOM in all BOMs", 
  "All Products or Services.", 
  "Production Planning Tool", 
- "Bill of Materials"
+ "Utility"
 ]

@@ -1,12 +1,20 @@
 {
  "Amended From": "Corrigido De", 
+ "Batch Time Logs for Billing.": "Tempo lote Logs para o faturamento.", 
  "Billed": "Faturado", 
  "Cancelled": "Cancelado", 
  "Draft": "Rascunho", 
+ "For Sales Invoice": "Para fatura de vendas", 
+ "In Hours": "Em Horas", 
  "Naming Series": "S\u00e9ries nomeadas", 
  "Projects": "Projetos", 
  "Rate": "Taxa", 
  "Sales Invoice": "Nota Fiscal de Venda", 
  "Status": "Estado", 
- "Submitted": "Enviado"
+ "Submitted": "Enviado", 
+ "TLB-": "TLB-", 
+ "Time Log Batch": "Tempo Batch Log", 
+ "Time Log Batch Details": "Tempo de registro de detalhes de lote", 
+ "Total Hours": "Total de Horas", 
+ "Will be updated after Sales Invoice is Submitted.": "Ser\u00e1 atualizado ap\u00f3s a factura de venda \u00e9 submetido."
 }

@@ -93,6 +93,10 @@ class DocType:
 					"url": "blog"
 				})
 				website_settings.save()
+				style_settings = webnotes.bean("Style Settings", "Style Settings")
+				style_settings.doc.top_bar_background = "F2F2F2"
+				style_settings.doc.font_size = "15px"
+				style_settings.save()
 
 	def create_default_accounts(self):
 		self.fld_dict = {'account_name':0,'parent_account':1,'group_or_ledger':2,'is_pl_account':3,'account_type':4,'debit_or_credit':5,'company':6,'tax_rate':7}
@@ -156,8 +160,8 @@ class DocType:
 				['Indirect Income','Income','Group','Yes','Income Account','Credit',self.doc.name,''],
 			['Source of Funds (Liabilities)','','Group','No','','Credit',self.doc.name,''],
 				['Capital Account','Source of Funds (Liabilities)','Group','No','','Credit',self.doc.name,''],
-					['Reserves and Surplus','Capital Account','Group','No','','Credit',self.doc.name,''],
-					['Shareholders Funds','Capital Account','Group','No','','Credit',self.doc.name,''],
+					['Reserves and Surplus','Capital Account','Ledger','No','','Credit',self.doc.name,''],
+					['Shareholders Funds','Capital Account','Ledger','No','','Credit',self.doc.name,''],
 				['Current Liabilities','Source of Funds (Liabilities)','Group','No','','Credit',self.doc.name,''],
 					['Accounts Payable','Current Liabilities','Group','No','','Credit',self.doc.name,''],
 					['Stock Liabilities','Current Liabilities','Group','No','','Credit',self.doc.name,''],

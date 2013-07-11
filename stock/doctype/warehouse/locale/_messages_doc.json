@@ -18,7 +18,6 @@
  "Mobile No", 
  "For Reference Only.", 
  "If set, data entry is only allowed for specified users. Else, entry is allowed for all users with requisite permissions.", 
- "Warehouse Type", 
  "Merge Into", 
  "Warehouse Users", 
  "Email Id"

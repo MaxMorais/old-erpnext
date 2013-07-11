@@ -1,9 +1,11 @@
 [
  "Trash Reason", 
+ "Communication History", 
  "Is Primary Contact", 
  "First Name", 
  "Unsubscribed", 
  "Department", 
+ "Supplier", 
  "Supplier Name", 
  "Status", 
  "Designation", 
@@ -17,9 +19,10 @@
  "Mobile No", 
  "Sales Partner", 
  "Replied", 
- "Supplier", 
+ "Reference", 
  "Last Name", 
  "Communication HTML", 
+ "More Info", 
  "Contact Details", 
  "Open", 
  "Email Id"

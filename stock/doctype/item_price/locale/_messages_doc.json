@@ -1,11 +1,10 @@
 [
- "Allow this price in purchase related forms", 
+ "Selling", 
  "Price List Name", 
+ "Valid for Buying or Selling?", 
  "Item Price", 
  "Currency", 
  "Ref Rate", 
- "Valid For Buying", 
- "Allow this price in sales related forms", 
- "Valid For Selling", 
+ "Buying", 
  "Stock"
 ]

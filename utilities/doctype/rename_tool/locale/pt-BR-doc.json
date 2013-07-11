@@ -8,10 +8,12 @@
  "New Name": "Novo nome", 
  "Profile": "Perfil", 
  "Rename": "Renomear", 
+ "Rename Log": "Renomeie Entrar", 
  "Rename Tool": "Ferramenta de Renomear", 
  "Select DocType": "Selecione o DocType", 
  "Serial No": "N\u00ba de S\u00e9rie", 
  "Supplier": "Fornecedor", 
+ "Type of document to rename.": "Tipo de documento a ser renomeado.", 
  "Upload HTML": "Carregar HTML", 
  "Utilities": "Utilit\u00e1rios", 
  "Warehouse": "Almoxarifado"

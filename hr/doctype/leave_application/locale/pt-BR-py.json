@@ -5,8 +5,10 @@
  "For Employee": "Para o Funcion\u00e1rio", 
  "Holiday": "Feriado", 
  "Leave Application": "Solicita\u00e7\u00e3o de Licen\u00e7as", 
+ "Leave Approver can be one of": "Adicione Approver pode ser um dos", 
  "Leave Blocked": "Deixe Bloqueados", 
  "Leave by": "Deixe por", 
  "New Leave Application": "Aplica\u00e7\u00e3o deixar Nova", 
- "Warning: Leave application contains following block dates": "Aviso: pedido de f\u00e9rias cont\u00e9m as datas de blocos seguintes"
+ "Warning: Leave application contains following block dates": "Aviso: pedido de f\u00e9rias cont\u00e9m as datas de blocos seguintes", 
+ "does not have role 'Leave Approver'": "n\u00e3o tem papel de &#39;Leave aprovador&#39;"
 }
