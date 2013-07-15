@@ -242,7 +242,26 @@ cur_frm.toggle_enable('tc_name', false);
 cur_frm.toggle_enable('terms', false);
 
 cur_frm.cscript.refresh = function(){
+	var doc = locals[cur_frm.doctype][cur_frm.docname];
 	this.get_terms();
+	
+	delete cur_frm.cscript.order_type;
+
+	if (!window.DBChooser.initialized && $('input[data-fieldname="project_files"]').length){
+        window.DBChooser.element = $('input[data-fieldname="project_files"]');
+        window.DBChooser.element.css('display','none');
+        if (doc.__islocal || doc.workflow_state=='Rascunho'){
+            window.DBChooser();
+        } else {
+            if (doc.project_files&&doc.project_files_name){
+                 window.DBChooser.show_selected(
+                    doc.project_files.split(';'),
+                    doc.project_files_name.split(';')
+                );
+           }        
+        }
+        window.DBChooser.initialized = true;
+    }
 }
 
 cur_frm.cscript.get_revision_details = function(){
