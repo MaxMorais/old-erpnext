@@ -145,9 +145,9 @@ class TransactionBase(StatusUpdater):
 			'customer_address' : args["address"],
 			'address_display' : get_address_display(args["address"]),
 		}
+		if args.get('contact'):
+			ret.update(map_party_contact_details(args['contact']))
 		
-		ret.update(map_party_contact_details(args['contact']))
-
 		return ret
 
 	# TODO deprecate this - used only in sales_order.js
@@ -277,12 +277,18 @@ class TransactionBase(StatusUpdater):
 		for key, val in ref.items():
 			is_child = val.get("is_child_table")
 			ref_doc = {}
+			item_ref_dn = []
 			for d in self.doclist.get({"doctype": source_dt}):
 				ref_dn = d.fields.get(val["ref_dn_field"])
 				if ref_dn:
 					if is_child:
 						self.compare_values({key: [ref_dn]}, val["compare_fields"], d)
-					elif ref_dn:								
+						if ref_dn not in item_ref_dn:
+							item_ref_dn.append(ref_dn)
+						else:
+							webnotes.msgprint(_("Row ") + cstr(d.idx + 1) + 
+								_(": Duplicate row from same ") + key, raise_exception=1)
+					elif ref_dn:
 						ref_doc.setdefault(key, [])
 						if ref_dn not in ref_doc[key]:
 							ref_doc[key].append(ref_dn)
@@ -347,7 +353,7 @@ def get_default_contact(party_field, party_name):
 	
 def get_address_display(address_dict):
 	if not isinstance(address_dict, dict):
-		address_dict = webnotes.conn.get_value("Address", address_dict, "*", as_dict=True)
+		address_dict = webnotes.conn.get_value("Address", address_dict, "*", as_dict=True) or {}
 	
 	meta = webnotes.get_doctype("Address")
 	sequence = (("", "address_line1"), ("\n", "address_line2"), ("\n", "city"),
@@ -386,23 +392,23 @@ def map_party_contact_details(contact_name=None, party_field=None, party_name=No
 	
 	if not contact_name:
 		contact_name = get_default_contact(party_field, party_name)
+	if party_field:
+		contact = webnotes.conn.sql("""select * from `tabContact` where `%s`=%s
+			order by is_primary_contact desc, name asc limit 1""" % (party_field, "%s"), 
+			(party_name,), as_dict=True)
 
-	contact = webnotes.conn.sql("""select * from `tabContact` where `%s`=%s
-		order by is_primary_contact desc, name asc limit 1""" % (party_field, "%s"), 
-		(party_name,), as_dict=True)
-
-	if contact:
-		contact = contact[0]
-		out.update({
-			"contact_person": contact.get("name"),
-			"contact_display": " ".join(filter(None, 
-				[contact.get("first_name"), contact.get("last_name")])),
-			"contact_email": contact.get("email_id"),
-			"contact_mobile": contact.get("mobile_no"),
-			"contact_phone": contact.get("phone"),
-			"contact_designation": contact.get("designation"),
-			"contact_department": contact.get("department")
-		})
+		if contact:
+			contact = contact[0]
+			out.update({
+				"contact_person": contact.get("name"),
+				"contact_display": " ".join(filter(None, 
+					[contact.get("first_name"), contact.get("last_name")])),
+				"contact_email": contact.get("email_id"),
+				"contact_mobile": contact.get("mobile_no"),
+				"contact_phone": contact.get("phone"),
+				"contact_designation": contact.get("designation"),
+				"contact_department": contact.get("department")
+			})
 	
 	return out
 	

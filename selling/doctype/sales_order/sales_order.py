@@ -80,27 +80,11 @@ class DocType(SellingController):
 	def validate_for_items(self):
 		check_list, flag = [], 0
 		chk_dupl_itm = []
-		# Sales Order Items Validations
 		for d in getlist(self.doclist, 'sales_order_details'):
-			if self.doc.quotation_no and cstr(self.doc.quotation_no) == cstr(d.prevdoc_docname):
-				flag = 1
-			if d.prevdoc_docname:
-				if self.doc.quotation_date and getdate(self.doc.quotation_date) > getdate(self.doc.transaction_date):
-					msgprint("Sales Order Date cannot be before Quotation Date")
-					raise Exception
-				# validates whether quotation no in doctype and in table is same
-				if not cstr(d.prevdoc_docname) == cstr(self.doc.quotation_no):
-					msgprint("Items in table does not belong to the Quotation No mentioned.")
-					raise Exception
-
-			# validates whether item is not entered twice
 			e = [d.item_code, d.description, d.reserved_warehouse, d.prevdoc_docname or '']
 			f = [d.item_code, d.description]
 
-			#check item is stock item
-			st_itm = sql("select is_stock_item from `tabItem` where name = %s", d.item_code)
-
-			if st_itm and st_itm[0][0] == 'Yes':
+			if webnotes.conn.get_value("Item", d.item_code, "is_stock_item") == 'Yes':
 				if not d.reserved_warehouse:
 					msgprint("""Please enter Reserved Warehouse for item %s 
 						as it is stock Item""" % d.item_code, raise_exception=1)
@@ -109,7 +93,7 @@ class DocType(SellingController):
 					msgprint("Item %s has been entered twice." % d.item_code)
 				else:
 					check_list.append(e)
-			elif st_itm and st_itm[0][0]== 'No':
+			else:
 				if f in chk_dupl_itm:
 					msgprint("Item %s has been entered twice." % d.item_code)
 				else:
@@ -122,9 +106,6 @@ class DocType(SellingController):
 				where item_code = '%s' and warehouse = '%s'" % (d.item_code,d.reserved_warehouse))
 			d.projected_qty = tot_avail_qty and flt(tot_avail_qty[0][0]) or 0
 		
-		if getlist(self.doclist, 'sales_order_details') and self.doc.quotation_no and flag == 0:
-			msgprint("There are no items of the quotation selected", raise_exception=1)
-
 	def validate_sales_mntc_quotation(self):
 		for d in getlist(self.doclist, 'sales_order_details'):
 			if d.prevdoc_docname:
@@ -359,6 +340,10 @@ def get_currency_and_number_format():
 			from tabCurrency where ifnull(enabled,0)=1""")))
 	}
 
+def set_missing_values(source, target):
+	bean = webnotes.bean(target)
+	bean.run_method("onload_post_render")
+	
 @webnotes.whitelist()
 def make_material_request(source_name, target_doclist=None):	
 	def postprocess(source, doclist):
@@ -414,11 +399,13 @@ def make_delivery_note(source_name, target_doclist=None):
 		}, 
 		"Sales Taxes and Charges": {
 			"doctype": "Sales Taxes and Charges", 
+			"add_if_empty": True
 		}, 
 		"Sales Team": {
 			"doctype": "Sales Team", 
+			"add_if_empty": True
 		}
-	}, target_doclist)
+	}, target_doclist, set_missing_values)
 	
 	return [d.fields for d in doclist]
 
@@ -429,10 +416,6 @@ def make_sales_invoice(source_name, target_doclist=None):
 		target.amount = target.export_amount / flt(source_parent.conversion_rate)
 		target.qty = obj.basic_rate and target.amount / flt(obj.basic_rate) or obj.qty
 		
-	def update_accounts(source, target):
-		si = webnotes.bean(target)
-		si.run_method("update_accounts")
-	
 	doclist = get_mapped_doclist("Sales Order", source_name, {
 		"Sales Order": {
 			"doctype": "Sales Invoice", 
@@ -452,11 +435,13 @@ def make_sales_invoice(source_name, target_doclist=None):
 		}, 
 		"Sales Taxes and Charges": {
 			"doctype": "Sales Taxes and Charges", 
+			"add_if_empty": True
 		}, 
 		"Sales Team": {
 			"doctype": "Sales Team", 
+			"add_if_empty": True
 		}
-	}, target_doclist, update_accounts)
+	}, target_doclist, set_missing_values)
 	
 	return [d.fields for d in doclist]
 	
@@ -481,7 +466,8 @@ def make_maintenance_schedule(source_name, target_doclist=None):
 				"doctype": "Maintenance Schedule Item", 
 				"field_map": {
 					"parent": "prevdoc_docname"
-				}
+				},
+				"add_if_empty": True
 			}
 		}, target_doclist)
 	
@@ -510,7 +496,8 @@ def make_maintenance_visit(source_name, target_doclist=None):
 				"field_map": {
 					"parent": "prevdoc_docname", 
 					"parenttype": "prevdoc_doctype"
-				}
+				},
+				"add_if_empty": True
 			}
 		}, target_doclist)
 	

@@ -58,14 +58,6 @@ class DocType(SellingController):
 		"""Get Commission rate of Sales Partner"""
 		return get_obj('Sales Common').get_comm_rate(sales_partner, self)
 
-	def validate_prev_docname(self):
-		"""Validates that Sales Order is not pulled twice"""
-		for d in getlist(self.doclist, 'delivery_note_details'):
-			if self.doc.sales_order_no == d.prevdoc_docname:
-				msgprint(cstr(self.doc.sales_order_no) + " sales order details have already been pulled. ")
-				raise Exception, "Validation Error. "
-
-
 	def set_actual_qty(self):
 		for d in getlist(self.doclist, 'delivery_note_details'):
 			if d.item_code and d.warehouse:
@@ -144,22 +136,19 @@ class DocType(SellingController):
 	def validate_for_items(self):
 		check_list, chk_dupl_itm = [], []
 		for d in getlist(self.doclist,'delivery_note_details'):
-			ch = sql("select is_stock_item from `tabItem` where name = '%s'"%d.item_code)
-			if d.prevdoc_doctype and d.prevdoc_detail_docname and ch and ch[0][0]=='Yes':
-				self.validate_items_with_prevdoc(d)
-
-			# validates whether item is not entered twice
 			e = [d.item_code, d.description, d.warehouse, d.prevdoc_docname or '', d.batch_no or '']
 			f = [d.item_code, d.description, d.prevdoc_docname or '']
 
-			if ch and ch[0][0] == 'Yes':
+			if webnotes.conn.get_value("Item", d.item_code, "is_stock_item") == 'Yes':
 				if e in check_list:
-					msgprint("Please check whether item %s has been entered twice wrongly." % d.item_code)
+					msgprint("Please check whether item %s has been entered twice wrongly." 
+						% d.item_code)
 				else:
 					check_list.append(e)
-			elif ch and ch[0][0] == 'No':
+			else:
 				if f in chk_dupl_itm:
-					msgprint("Please check whether item %s has been entered twice wrongly." % d.item_code)
+					msgprint("Please check whether item %s has been entered twice wrongly." 
+						% d.item_code)
 				else:
 					chk_dupl_itm.append(f)
 
@@ -169,16 +158,6 @@ class DocType(SellingController):
 				if not d['warehouse']:
 					msgprint("Please enter Warehouse for item %s as it is stock item"
 						% d['item_code'], raise_exception=1)
-
-	def validate_items_with_prevdoc(self, d):
-		"""check if same item, warehouse present in prevdoc"""
-		prev_item_dt = (d.prevdoc_doctype == 'Sales Order') and 'Sales Order Item' or 'Purchase Receipt Item'
-		data = sql("select item_code from `tab%s` where parent = '%s' and name = '%s'"\
-		 	% (prev_item_dt, d.prevdoc_docname, d.prevdoc_detail_docname))
-		if not data or data[0][0] != d.item_code:
-			msgprint("Item: %s is not matching with Sales Order: %s. Sales Order might be modified after \
-				fetching data from it. Please delete items and fetch again." \
-				% (d.item_code, d.prevdoc_docname), raise_exception=1)
 
 
 	def update_current_stock(self):
@@ -246,7 +225,6 @@ class DocType(SellingController):
 					d.fields.get('packed_qty', 0)
 				])
 		if packing_error_list:
-			from webnotes.utils import cstr
 			err_msg = "\n".join([("Item: " + d[0] + ", Qty: " + cstr(d[1]) \
 				+ ", Packed: " + cstr(d[2])) for d in packing_error_list])
 			webnotes.msgprint("Packing Error:\n" + err_msg, raise_exception=1)
@@ -384,7 +362,7 @@ def make_sales_invoice(source_name, target_doclist=None):
 		
 	def update_accounts(source, target):
 		si = webnotes.bean(target)
-		si.run_method("update_accounts")
+		si.run_method("onload_post_render")
 	
 	doclist = get_mapped_doclist("Delivery Note", source_name, 	{
 		"Delivery Note": {
@@ -406,12 +384,14 @@ def make_sales_invoice(source_name, target_doclist=None):
 		}, 
 		"Sales Taxes and Charges": {
 			"doctype": "Sales Taxes and Charges", 
+			"add_if_empty": True
 		}, 
 		"Sales Team": {
 			"doctype": "Sales Team", 
 			"field_map": {
 				"incentives": "incentives"
-			}
+			},
+			"add_if_empty": True
 		}
 	}, target_doclist, update_accounts)
 	
