@@ -243,3 +243,115 @@ cur_frm.cscript.get_project_costs = function(doc, cdt, cdn){
 }
 
 cur_frm.toggle_enable('project_cost', (user_roles.indexOf('Accounts Manager')=== -1 || user_roles.indexOf('System Manager')=== -1 ) );
+cur_frm.toggle_enable('tc_name', false);
+cur_frm.toggle_enable('terms', false);
+
+cur_frm.cscript.refresh = function(){
+	this.get_terms();
+}
+
+cur_frm.cscript.get_revision_details = function(){
+	var doc = locals[cur_frm.doctype][cur_frm.docname];
+	if (!doc.__islocal){
+		cur_frm.call({
+			method: 'has_revisions',
+			args: {
+				sales_name: doc.name
+			},
+			callback: function(r){
+				var show = false, out, project=0, items=0, total=0;
+				if (!r.exc){
+					show = r.message.qty > 0
+					cur_frm.toggle_display('sales_order_revisions_sectionbreak', show);
+					if (!show){
+						return
+					}
+					$(cur_frm.fields_dict.sales_order_revisions_html.wrapper).empty();
+					out = '<table class="table table-striped table-bordered">'
+						+'<thead><tr>'
+							+'<th>' + wn._('Sr.') + '</th>'
+							+'<th>' + wn._('Revision') + '</th>'
+							+'<th>' + wn._('Date') + '</th>'
+							+'<th>' + wn._('Revised By') + '</th>'
+							+'<th>' + wn._('Project') + '</th>'
+							+'<th>' + wn._('Items') + '</th>'
+							+'<th>' + wn._('Total') + '</th>'
+						+'</tr></thead>'
+						+'<tbody>' 
+					+ $.map(r.message.revisions, function(d, i){
+						project += (d.project_cost || 0);
+						items += (d.addtional_items || 0);
+						total += (d.net_total || 0);
+						return '<tr>\
+							<td style="tex-align: center;">' + (i+1).toString() + '</td>'
+							+'<td><a href="#Form/' + encodeURIComponent('Sales Order/' + d.name ) + '">' + d.name + '</a></td>'
+							+'<td style="text-align: right;">' + wn.datetime.str_to_usr(d.transaction_date) + '</td>'
+							+'<td style="text-align: right;">' + d.owner +'</td>'
+							+'<td style="text-align: right;">' + format_currency(d.project_cost, user_defaults.currency) + '</td>'
+							+'<td style="text-align: right;">' + format_currency(d.addtional_items, user_defaults.currency) + '</td>'
+							+'<td style="text-align: right;">' + format_currency(d.net_total, user_defaults.currency) + '</td>'
+						+'</tr>';
+					}).join("\n") 
+					+ '</tbody><tfoot><tr>'
+						+'<th colspan="4" style="text-align:center;">' + wn._('Total') + '</th>'
+						+'<th style="text-align: right">' + format_currency(project, user_defaults.currency) + '</th>'
+						+'<th style="text-align: rigth">' + format_currency(items, user_defaults.currency) + '</th>'
+						+'<th style="text-align: rigth">' + fotmat_currency(total, user_defaults.currency) + '</th>'
+					+'</tfoot></table>';
+					$(out).appendTo($(cur_frm.fields_dict.sales_order_revisions_html.wrapper));
+				}
+			}
+		})
+	}
+}
+
+cur_frm.cscript.is_scheduled_delivery = function(doc, cdt, cdn){
+	cur_frm.toggle_reqd('delivery_date', doc.is_scheduled_delivery)
+	if (doc.is_scheduled_delivery) {
+		doc.tc_name = 'TERMO DE VENDA PROGRAMADA'	
+	} else {
+		doc.tc_name = 'TERMO DE VENDA IMEDIATA'
+	}
+	this.get_terms();
+	cur_frm.refresh_fields();
+}
+
+cur_frm.cscript.is_additional_sales_order = function(doc, cdt, cdn){
+	cur_frm.toggle_reqd('modo_complemento', doc.is_additional_sales_order);	
+	if (!doc.is_additional_sales_order){
+		doc.modo_complemento = null;
+	}
+}
+
+cur_frm.cscript.modo_complemento = function(doc, cdn, cdt){
+	doc.parent_sales_order = null;
+	cur_frm.toggle_reqd('parent_sales_order', doc.modo_complemento ? true : false);
+	cur_frm.toggle_enable('project_discount', doc.modo_complemento === 'Vinculo' );
+	cur_frm.toggle_enable('project_discount_value', doc.modo_complemento === 'Vinculo' );
+	cur_frm.toggle_enable('project_amount', doc.modo_complemento === 'Vinculo' );
+	cur_frm.refresh_fields();
+}
+
+cur_frm.cscript.parent_sales_order = function(doc, cdt, cdn){
+	if (doc.modo_complemento==='Vinculo'){
+		wn.call({
+			method: 'webnotes.client.get_value',
+			args: {
+				doctype: 'Sales Order',
+				filters: {
+					name: doc.parent_sales_order
+				},
+				fieldname: ['project_cost', 'project_increase', 'project_discount']
+			},
+			callback: function(r){
+				if (!r.exc){
+					doc.project_cost_parent = r.message.project_cost;
+					doc.project_increase = r.message.project_increase;
+					doc.project_discount = r.message.project_discount;
+					doc.cscript.project_discount(doc, cdt, cdn);
+					cur_frm.refresh_fields();
+				}
+			}
+		});
+	}
+}

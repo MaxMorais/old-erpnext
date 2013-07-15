@@ -27,7 +27,6 @@ from webnotes import msgprint
 from webnotes.model.mapper import get_mapped_doclist
 
 sql = webnotes.conn.sql
-	
 
 from controllers.selling_controller import SellingController
 
@@ -623,4 +622,32 @@ def get_project_costs(filenames):
 		'items': items
 	}
 
-
+@webnotes.whitelist()
+def has_revision(sales_name):
+	revisions = {'qty': sql(
+		"""
+			SELECT count(`tabSales Order`.`name`) as `qty` FROM `tabSales Order`
+			WHERE `tabSales Order`.`parent_sales_order`="%s" AND
+			`tabSales Order`.docstatus != 2 AND
+			`tabSales Order`.modo_complemento == "Revisão"
+		"""%sales_name, as_dict=True
+		)[0]['qty'],
+		'revisions': sql(
+		"""
+			SELECT 
+				`tabSales Order`.`name`,
+				`tabSales Order`.`transaction_date`,
+				`tabSales Order`.`owner`,
+				`tabSales Order`.`project_cost`,
+				`tabSales Order`.`net_total`-`Sales Order`.`project_amount` as `additional_items`,
+				`tabSales Order`.`net_total`
+			FROM `tabSales Order`
+			WHERE 
+				`tabSales Order`.`parent_sales_order` = "%s" AND
+				`tabSales Order`.`docstatus` != 2
+				`tabSales Order`.`modo_complemento` == "Revisão"
+			ORDER BY `tabSales Order`.`created_on` ASC
+		"""%sales_name, as_dict=True
+		)
+	}
+	return revisions
