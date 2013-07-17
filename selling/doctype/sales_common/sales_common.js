@@ -202,7 +202,7 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 					},
 					callback: function(r) {
 						if(!r.exc) {
-							me.ref_rate(me.frm.doc, cdt, cdn);
+							me.frm.script_manager.trigger("ref_rate", cdt, cdn);
 						}
 					}
 				});
@@ -489,6 +489,21 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 					}
 				}
 			});
+		}
+	},
+	
+	shipping_rule: function() {
+		var me = this;
+		if(this.frm.doc.shipping_rule) {
+			this.frm.call({
+				doc: this.frm.doc,
+				method: "apply_shipping_rule",
+				callback: function(r) {
+					if(!r.exc) {
+						me.calculate_taxes_and_totals();
+					}
+				}
+			})
 		}
 	},
 	

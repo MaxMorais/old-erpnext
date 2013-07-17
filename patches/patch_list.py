@@ -16,11 +16,13 @@
 
 from __future__ import unicode_literals
 patch_list = [
-	"execute:webnotes.reload_doc('core', 'doctype', 'docfield')",
-	"execute:webnotes.reload_doc('core', 'doctype', 'docperm') # 2013-04-07",
-	"execute:webnotes.reload_doc('core', 'doctype', 'report')",
-	"execute:webnotes.reload_doc('core', 'doctype', 'doctype') # 2013-07-08",
-	"execute:webnotes.reload_doc('core', 'doctype', 'page') # 2013-07-11",
+	"execute:webnotes.reload_doc('core', 'doctype', 'doctype', force=True) #2013-07-15",
+	"execute:webnotes.reload_doc('core', 'doctype', 'docfield', force=True) #2013-07-15",
+	"execute:webnotes.reload_doc('core', 'doctype', 'doctype', force=True) #2013-07-16",
+	"execute:webnotes.reload_doc('core', 'doctype', 'docfield', force=True) #2013-07-16",
+	"execute:webnotes.reload_doc('core', 'doctype', 'docperm') #2013-07-16",
+	"execute:webnotes.reload_doc('core', 'doctype', 'page') #2013-07-16",
+	"execute:webnotes.reload_doc('core', 'doctype', 'report') #2013-07-16",
 	"patches.mar_2012.clean_property_setter", 
 	"patches.april_2012.naming_series_patch", 
 	"patches.mar_2012.cleanup_control_panel", 
@@ -197,7 +199,6 @@ patch_list = [
 	"execute:webnotes.reload_doc('website', 'doctype', 'blog_post') #2013-03-25",
 	"execute:webnotes.reload_doc('website', 'doctype', 'web_page') #2013-03-25",
 	"execute:webnotes.reload_doc('setup', 'doctype', 'sales_partner') #2013-06-25",
-	"execute:webnotes.bean('Style Settings').save() #2013-03-25",
 	"execute:webnotes.conn.set_value('Email Settings', None, 'send_print_in_body_and_attachment', 1)",
 	"patches.march_2013.p09_unset_user_type_partner",
 	"patches.march_2013.p10_set_fiscal_year_for_stock",
@@ -251,4 +252,7 @@ patch_list = [
 	"execute:webnotes.delete_doc('Report', 'Received Items To Be Billed')",
 	"patches.july_2013.p02_copy_shipping_address",
 	"patches.july_2013.p03_cost_center_company",
+	"execute:webnotes.bean('Style Settings').save() #2013-07-16",
+	"patches.july_2013.p04_merge_duplicate_leads",
+	"patches.july_2013.p05_custom_doctypes_in_list_view",
 ]

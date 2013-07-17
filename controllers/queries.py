@@ -166,14 +166,31 @@ def account_query(doctype, txt, searchfield, start, page_len, filters):
 	if not filters.group_or_ledger:
 		filters.group_or_ledger = "Ledger"
 	
-	return webnotes.conn.sql("""select tabAccount.name, tabAccount.parent_account, 
-		tabAccount.debit_or_credit from tabAccount 
+	return webnotes.conn.sql("""
+		select tabAccount.name, tabAccount.parent_account, tabAccount.debit_or_credit 
+		from tabAccount 
 		where tabAccount.docstatus!=2 
+			and 
 			and tabAccount.%(key)s LIKE "%(txt)s" 
 		 	%(fcond)s %(mcond)s 
 		limit %(start)s, %(page_len)s""" % {'key': searchfield, 
 		'txt': "%%%s%%" % txt, 'fcond': get_filters_cond(doctype, filters, conditions), 
 		'mcond':get_match_cond(doctype, searchfield), 'start': start, 'page_len': page_len})
+		
+def tax_account_query(doctype, txt, searchfield, start, page_len, filters):
+	return webnotes.conn.sql("""select name, parent_account, debit_or_credit 
+		from tabAccount 
+		where tabAccount.docstatus!=2 
+			and (account_type in (%s) or 
+				(ifnull(is_pl_account, 'No') = 'Yes' and debit_or_credit = %s) )
+			and group_or_ledger = 'Ledger'
+			and company = %s
+			and `%s` LIKE %s
+		limit %s, %s""" % 
+		(", ".join(['%s']*len(filters.get("account_type"))), 
+			"%s", "%s", searchfield, "%s", "%s", "%s"), 
+		tuple(filters.get("account_type") + [filters.get("debit_or_credit"), 
+			filters.get("company"), "%%%s%%" % txt, start, page_len]))
 
 def item_query(doctype, txt, searchfield, start, page_len, filters):
 	conditions = []
@@ -218,3 +235,11 @@ def get_project_name(doctype, txt, searchfield, start, page_len, filters):
 		order by `tabProject`.name asc 
 		limit %(start)s, %(page_len)s """ % {'cond': cond,'txt': "%%%s%%" % txt, 
 		'mcond':get_match_cond(doctype, searchfield),'start': start, 'page_len': page_len})
+		
+def get_price_list_currency(doctype, txt, searchfield, start, page_len, filters):
+	return webnotes.conn.sql("""select ref_currency from `tabItem Price` 
+		where price_list_name = %s and buying_or_selling = %s
+		and `%s` like %s order by ref_currency asc limit %s, %s""" %
+		("%s", "%s", searchfield, "%s", "%s", "%s"), 
+		(filters["price_list_name"], filters['buying_or_selling'], "%%%s%%" % txt, 
+			start, page_len))

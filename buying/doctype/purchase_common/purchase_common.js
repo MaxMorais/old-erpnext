@@ -25,6 +25,7 @@ wn.require("app/js/transaction.js");
 erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 	onload: function() {
 		this.setup_queries();
+		this._super();
 	},
 	
 	setup_queries: function() {
@@ -39,6 +40,7 @@ erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 			
 			this.frm.set_query("price_list_currency", function() {
 				return{
+					query: "controllers.queries.get_price_list_currency",
 					filters: {
 						'price_list_name': me.frm.doc.price_list_name,
 						'buying_or_selling': "Buying"
@@ -127,7 +129,7 @@ erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 					},
 					callback: function(r) {
 						if(!r.exc) {
-							me.import_ref_rate(me.frm.doc, cdt, cdn);
+							me.frm.script_manager.trigger("import_ref_rate", cdt, cdn);
 						}
 					}
 				});

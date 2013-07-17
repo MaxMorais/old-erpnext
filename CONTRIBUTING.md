@@ -1,5 +1,12 @@
 # Contributing to ERPNext
 
+### Reporting issues
+
+We only accept issues that are bug reports or feature requests. Bugs must be isolated and reproducible problems. Please read the following guidelines before opening any issue.
+
+1. **Search for existing issues.** We want to avoid duplication, and you'd help us out a lot by first checking if someone else has reported the same issue. Moreover, the issue may have already been resolved with a fix available.
+1. **Share as much information as possible.** Include operating system and version, browser and version, when did you last update ERPNext, how is it customized, etc. where appropriate. Also include steps to reproduce the bug.
+
 ### New Features
 
 #### Don't Repeat Yourself (DRY)
@@ -19,10 +26,4 @@ Tabs!
 
 ### Copyright
 
-The ERPNext code is licensed as GNU General Public License (v3) and the Documentation is licensed as Creative Commons (CC-BY-SA-3.0) and the copyright is owned by Web Notes Technologies Pvt Ltd (Web Notes). Unless otherwise asserted in the code files, Web Notes will own the copyright of all contributions too. That means Web Notes holds the rights to change the license in the future or offer Commercial Licenses.
-
-We will only accept copyright assertions in case of a significant contribution like a whole new functionality or a major rewrite. We believe if your contribution is significant then you should have a say in what license Web Notes selects in the future and/or have a right to any revenue Web Notes gets from a Commercial License. Either ways Web Notes will have the right to decide what is a "significant" contribution.
-
-Note: At the moment, Web Notes does not give Commercial License for ERPNext nor has specific plans do so in the future.
-
-The brand name ERPNext and the logo are trademarks of Web Notes Technologies Pvt. Ltd.
+Please see README.md
