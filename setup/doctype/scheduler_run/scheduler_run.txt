@@ -1,0 +1,83 @@
+[
+ {
+  "creation": "2013-07-15 12:07:05", 
+  "docstatus": 0, 
+  "modified": "2013-07-15 12:07:05", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "autoname": "[SCHED-RUN.#####]", 
+  "description": "Scheduler Run", 
+  "doctype": "DocType", 
+  "document_type": "Master", 
+  "istable": 1, 
+  "module": "Setup", 
+  "name": "__common__", 
+  "name_case": "UPPER CASE"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Scheduler Run", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Scheduler Run"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "scheduler_task", 
+  "fieldtype": "Long Text", 
+  "label": "Task", 
+  "options": "Scheduler Task", 
+  "read_only": 0, 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "run_status", 
+  "fieldtype": "Select", 
+  "label": "Status", 
+  "options": "\nRunning\nCompleted\nFailed\nTimeout\nStopped"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "run_start_time", 
+  "fieldtype": "Datetime", 
+  "label": "Start Time"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "run_stop_time", 
+  "fieldtype": "Datetime", 
+  "label": "Stop Time"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "run_output", 
+  "fieldtype": "Small Text", 
+  "label": "Output"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "run_result", 
+  "fieldtype": "Small Text", 
+  "label": "Result"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "run_traceback", 
+  "fieldtype": "Small Text", 
+  "label": "Traceback"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "worker_name", 
+  "fieldtype": "Data", 
+  "label": "Worker Name"
+ }
+]

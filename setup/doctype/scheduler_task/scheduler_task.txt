@@ -1,0 +1,215 @@
+[
+ {
+  "creation": "2013-07-15 11:52:26", 
+  "docstatus": 0, 
+  "modified": "2013-07-16 10:23:40", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "autoname": "[SCHED-TASK.######]", 
+  "description": "Scheduler Task", 
+  "doctype": "DocType", 
+  "module": "Setup", 
+  "name": "__common__", 
+  "name_case": "UPPER CASE"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Scheduler Task", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0
+ }, 
+ {
+  "amend": 0, 
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "name": "__common__", 
+  "parent": "Scheduler Task", 
+  "parentfield": "permissions", 
+  "parenttype": "DocType", 
+  "permlevel": 0, 
+  "read": 1, 
+  "report": 1, 
+  "write": 1
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Scheduler Task"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "task_info_sb", 
+  "fieldtype": "Section Break", 
+  "label": "Task"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "doctype_name", 
+  "fieldtype": "Link", 
+  "label": "DocType", 
+  "options": "DocType", 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "function_name", 
+  "fieldtype": "Data", 
+  "in_list_view": 1, 
+  "label": "Function Name", 
+  "reqd": 1
+ }, 
+ {
+  "default": "{}", 
+  "doctype": "DocField", 
+  "fieldname": "function_vars", 
+  "fieldtype": "Small Text", 
+  "label": "Vars", 
+  "read_only": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "task_cb", 
+  "fieldtype": "Column Break"
+ }, 
+ {
+  "default": "Queued", 
+  "doctype": "DocField", 
+  "fieldname": "task_status", 
+  "fieldtype": "Select", 
+  "in_list_view": 1, 
+  "label": "status", 
+  "options": "\nQueued\nRunning\nCompleted\nFailed\nTimeout\nStopped\nExpired", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "task_uuid", 
+  "fieldtype": "Data", 
+  "label": "UUID", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "default": "Yes", 
+  "doctype": "DocField", 
+  "fieldname": "task_is_enabled", 
+  "fieldtype": "Select", 
+  "in_list_view": 1, 
+  "label": "Is Enabled?", 
+  "options": "\nYes\nNo", 
+  "reqd": 1
+ }, 
+ {
+  "depends_on": "eval:doc.task_is_enabled==='Yes'", 
+  "doctype": "DocField", 
+  "fieldname": "task_schedule_sb", 
+  "fieldtype": "Section Break", 
+  "label": "Schedule Info"
+ }, 
+ {
+  "default": "Today", 
+  "doctype": "DocField", 
+  "fieldname": "task_start_time", 
+  "fieldtype": "Datetime", 
+  "label": "Start Time", 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "task_next_run_time", 
+  "fieldtype": "Datetime", 
+  "label": "Next Run Time", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "task_stop_time", 
+  "fieldtype": "Datetime", 
+  "label": "Stop Time"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "task_schedule_cb", 
+  "fieldtype": "Column Break"
+ }, 
+ {
+  "default": "Daily", 
+  "doctype": "DocField", 
+  "fieldname": "task_execution_interval", 
+  "fieldtype": "Select", 
+  "label": "Execution Interval", 
+  "options": "\nAll\nHourly\nDaily\nWeekly\nMonthly", 
+  "reqd": 1
+ }, 
+ {
+  "default": "1", 
+  "description": "(0=unlimited)", 
+  "doctype": "DocField", 
+  "fieldname": "task_maximun_repeats", 
+  "fieldtype": "Int", 
+  "label": "Repeats"
+ }, 
+ {
+  "default": "0", 
+  "description": "(-1=unlimited, 0=Never)", 
+  "doctype": "DocField", 
+  "fieldname": "task_max_retry", 
+  "fieldtype": "Int", 
+  "label": "Retry on Fail"
+ }, 
+ {
+  "default": "60", 
+  "description": "in seconds", 
+  "doctype": "DocField", 
+  "fieldname": "task_execution_timeout", 
+  "fieldtype": "Int", 
+  "label": "Timeout"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "task_execution_information_sb", 
+  "fieldtype": "Section Break", 
+  "label": "Execution Information"
+ }, 
+ {
+  "default": "0", 
+  "doctype": "DocField", 
+  "fieldname": "task_times_run_qty", 
+  "fieldtype": "Int", 
+  "in_list_view": 0, 
+  "label": "Times Run", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "default": "0", 
+  "doctype": "DocField", 
+  "fieldname": "task_times_failed_qty", 
+  "fieldtype": "Int", 
+  "label": "Times Failed", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "assigned_worker_name", 
+  "fieldtype": "Data", 
+  "label": "Assigned Worker Name", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "Administrator", 
+  "submit": 0
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "System Manager"
+ }
+]

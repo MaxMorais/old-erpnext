@@ -1,0 +1,72 @@
+[
+ {
+  "creation": "2013-07-15 12:13:38", 
+  "docstatus": 0, 
+  "modified": "2013-07-15 12:13:38", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "autoname": "[SCHED-WRK.#####]", 
+  "description": "Scheduler Worker", 
+  "doctype": "DocType", 
+  "document_type": "Master", 
+  "module": "Setup", 
+  "name": "__common__", 
+  "name_case": "UPPER CASE"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Scheduler Worker", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Scheduler Worker"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "worker_name", 
+  "fieldtype": "Data", 
+  "in_list_view": 1, 
+  "label": "Worker Name", 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "worker_first_heartbeat", 
+  "fieldtype": "Datetime", 
+  "in_list_view": 1, 
+  "label": "First Heartbeat", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "worker_last_heatbeat", 
+  "fieldtype": "Datetime", 
+  "label": "Last Heartbeat", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "worker_status", 
+  "fieldtype": "Select", 
+  "in_list_view": 1, 
+  "label": "Status", 
+  "options": "\nActive\nDisabled\nTerminate\nKill", 
+  "reqd": 1
+ }, 
+ {
+  "default": "No", 
+  "doctype": "DocField", 
+  "fieldname": "worker_is_ticker", 
+  "fieldtype": "Select", 
+  "label": "Is Ticker?", 
+  "options": "\nYes\nNo", 
+  "read_only": 1
+ }
+]
