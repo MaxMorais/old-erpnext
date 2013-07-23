@@ -2,7 +2,7 @@
  {
   "creation": "2013-03-07 18:50:32", 
   "docstatus": 0, 
-  "modified": "2013-07-10 18:46:40", 
+  "modified": "2013-07-23 12:01:16", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -29,9 +29,9 @@
   "parent": "Warehouse", 
   "parentfield": "permissions", 
   "parenttype": "DocType", 
+  "permlevel": 0, 
   "read": 1, 
-  "report": 1, 
-  "submit": 0
+  "report": 1
  }, 
  {
   "doctype": "DocType", 
@@ -205,16 +205,8 @@
   "cancel": 1, 
   "create": 1, 
   "doctype": "DocPerm", 
-  "permlevel": 0, 
   "role": "Material Master Manager", 
-  "write": 1
- }, 
- {
-  "cancel": 1, 
-  "create": 1, 
-  "doctype": "DocPerm", 
-  "permlevel": 0, 
-  "role": "System Manager", 
+  "submit": 0, 
   "write": 1
  }, 
  {
@@ -222,26 +214,20 @@
   "cancel": 0, 
   "create": 0, 
   "doctype": "DocPerm", 
-  "permlevel": 0, 
-  "role": "Material Manager", 
-  "write": 0
- }, 
- {
-  "amend": 0, 
-  "cancel": 0, 
-  "create": 0, 
-  "doctype": "DocPerm", 
-  "permlevel": 0, 
   "role": "Material User", 
+  "submit": 0, 
   "write": 0
  }, 
  {
-  "amend": 0, 
-  "cancel": 0, 
-  "create": 0, 
   "doctype": "DocPerm", 
-  "permlevel": 2, 
-  "role": "System Manager", 
-  "write": 1
+  "role": "Sales User"
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "Purchase User"
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "Accounts User"
  }
 ]

@@ -2,7 +2,7 @@
  {
   "creation": "2013-05-03 10:45:46", 
   "docstatus": 0, 
-  "modified": "2013-07-08 14:05:47", 
+  "modified": "2013-07-23 11:54:52", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -36,7 +36,7 @@
   "parenttype": "DocType", 
   "permlevel": 0, 
   "read": 1, 
-  "submit": 0
+  "report": 1
  }, 
  {
   "doctype": "DocType", 
@@ -881,12 +881,21 @@
   "read_only": 0
  }, 
  {
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "role": "Material Master Manager", 
+  "submit": 0, 
+  "write": 1
+ }, 
+ {
   "amend": 0, 
   "cancel": 0, 
   "create": 0, 
   "doctype": "DocPerm", 
   "report": 1, 
   "role": "Material Manager", 
+  "submit": 0, 
   "write": 0
  }, 
  {
@@ -896,30 +905,19 @@
   "doctype": "DocPerm", 
   "report": 1, 
   "role": "Material User", 
+  "submit": 0, 
   "write": 0
  }, 
  {
-  "cancel": 1, 
-  "create": 1, 
   "doctype": "DocPerm", 
-  "report": 1, 
-  "role": "Material Master Manager", 
-  "write": 1
+  "role": "Sales User"
  }, 
  {
-  "cancel": 1, 
-  "create": 1, 
   "doctype": "DocPerm", 
-  "report": 1, 
-  "role": "System Manager", 
-  "write": 1
+  "role": "Purchase User"
  }, 
  {
-  "cancel": 1, 
-  "create": 1, 
   "doctype": "DocPerm", 
-  "match": "owner", 
-  "role": "Sales User", 
-  "write": 1
+  "role": "Accounts User"
  }
 ]

@@ -58,17 +58,25 @@ def get_item_details(args):
 	
 	_validate_item_details(args, item_bean.doc)
 	
-	out = _get_basic_details(args, item_bean)
-	
 	meta = webnotes.get_doctype(args.doctype)
+
+	# hack! for Sales Order Item
+	warehouse_fieldname = "warehouse"
+	if meta.get_field("reserved_warehouse", parentfield=args.parentfield):
+		warehouse_fieldname = "reserved_warehouse"
+	
+	out = _get_basic_details(args, item_bean, warehouse_fieldname)
+	
 	if meta.get_field("currency"):
 		out.base_ref_rate = out.basic_rate = out.ref_rate = out.export_rate = 0.0
 		
 		if args.price_list_name and args.price_list_currency:
 			out.update(_get_price_list_rate(args, item_bean, meta))
+			
+	out.update(_get_item_discount(out.item_group, args.customer))
 	
-	if out.warehouse or out.reserved_warehouse:
-		out.update(get_available_qty(args.item_code, out.warehouse or out.reserved_warehouse))
+	if out.get(warehouse_fieldname):
+		out.update(get_available_qty(args.item_code, out.get(warehouse_fieldname)))
 	
 	out.customer_item_code = _get_customer_item_code(args, item_bean)
 	
@@ -106,20 +114,19 @@ def _validate_item_details(args, item):
 		msgprint(_("Item") + (" %s: " % item.name) + _("not a sales item"),
 			raise_exception=True)
 			
-def _get_basic_details(args, item_bean):
+def _get_basic_details(args, item_bean, warehouse_fieldname):
 	item = item_bean.doc
+	
 	out = webnotes._dict({
 			"item_code": item.name,
 			"description": item.description_html or item.description,
-			"reserved_warehouse": item.default_warehouse or args.warehouse or args.reserved_warehouse,
-			"warehouse": item.default_warehouse or args.warehouse,
+			warehouse_fieldname: item.default_warehouse or args.get(warehouse_fieldname),
 			"income_account": item.default_income_account or args.income_account \
 				or webnotes.conn.get_value("Company", args.company, "default_income_account"),
 			"expense_account": item.purchase_account or args.expense_account \
 				or webnotes.conn.get_value("Company", args.company, "default_expense_account"),
 			"cost_center": item.default_sales_cost_center or args.cost_center,
 			"qty": 1.0,
-			"adj_rate": 0.0,
 			"export_amount": 0.0,
 			"amount": 0.0,
 			"batch_no": None,
@@ -147,6 +154,23 @@ def _get_price_list_rate(args, item_bean, meta):
 	validate_currency(args, item_bean.doc, meta)
 	
 	return {"ref_rate": flt(base_ref_rate[0].ref_rate * args.plc_conversion_rate / args.conversion_rate)}
+	
+def _get_item_discount(item_group, customer):
+	parent_item_groups = [x[0] for x in webnotes.conn.sql("""SELECT parent.name 
+		FROM `tabItem Group` AS node, `tabItem Group` AS parent 
+		WHERE parent.lft <= node.lft and parent.rgt >= node.rgt and node.name = %s
+		GROUP BY parent.name 
+		ORDER BY parent.lft desc""", item_group)]
+		
+	discount = 0
+	for d in parent_item_groups:
+		res = webnotes.conn.sql("""select discount, name from `tabCustomer Discount` 
+			where parent = %s and item_group = %s""", (customer, d))
+		if res:
+			discount = flt(res[0][0])
+			break
+			
+	return {"adj_rate": discount}
 
 @webnotes.whitelist()
 def get_available_qty(item_code, warehouse):
@@ -162,7 +186,7 @@ def _get_customer_item_code(args, item_bean):
 def get_pos_settings(company):
 	pos_settings = webnotes.conn.sql("""select * from `tabPOS Setting` where user = %s 
 		and company = %s""", (webnotes.session['user'], company), as_dict=1)
-		
+	
 	if not pos_settings:
 		pos_settings = webnotes.conn.sql("""select * from `tabPOS Setting` 
 			where ifnull(user,'') = '' and company = %s""", company, as_dict=1)
