@@ -135,10 +135,7 @@ class TransactionBase(StatusUpdater):
 		
 	def set_lead_defaults(self):
 		self.doc.fields.update(self.get_lead_defaults())
-			
 	
-	# Get Customer Address
-	# -----------------------
 	def get_customer_address(self, args):
 		args = load_json(args)		
 		ret = {
@@ -149,7 +146,10 @@ class TransactionBase(StatusUpdater):
 			ret.update(map_party_contact_details(args['contact']))
 		
 		return ret
-
+		
+	def set_customer_address(self, args):
+		self.doc.fields.update(self.get_customer_address(args))
+		
 	# TODO deprecate this - used only in sales_order.js
 	def get_shipping_address(self, name):
 		shipping_address = get_default_address("customer", name, is_shipping_address=True)
@@ -183,6 +183,9 @@ class TransactionBase(StatusUpdater):
 		}
 		ret.update(map_party_contact_details(contact_name=args['contact']))
 		return ret
+		
+	def set_supplier_address(self, args):
+		self.doc.fields.update(self.get_supplier_address(args))
 	
 	# Get Supplier Details
 	# -----------------------
@@ -389,13 +392,13 @@ def map_party_contact_details(contact_name=None, party_field=None, party_name=No
 	for fieldname in ["contact_person", "contact_display", "contact_email",
 		"contact_mobile", "contact_phone", "contact_designation", "contact_department"]:
 			out[fieldname] = None
-	
-	if not contact_name:
+			
+	if not contact_name and party_field:
 		contact_name = get_default_contact(party_field, party_name)
-	if party_field:
-		contact = webnotes.conn.sql("""select * from `tabContact` where `%s`=%s
-			order by is_primary_contact desc, name asc limit 1""" % (party_field, "%s"), 
-			(party_name,), as_dict=True)
+	
+	if contact_name:
+		contact = webnotes.conn.sql("""select * from `tabContact` where name=%s""", 
+			contact_name, as_dict=True)
 
 		if contact:
 			contact = contact[0]
@@ -409,7 +412,7 @@ def map_party_contact_details(contact_name=None, party_field=None, party_name=No
 				"contact_designation": contact.get("designation"),
 				"contact_department": contact.get("department")
 			})
-	
+
 	return out
 	
 def get_address_territory(address_doc):
