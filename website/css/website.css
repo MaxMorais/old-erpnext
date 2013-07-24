@@ -1,6 +1,6 @@
-.container {
+/*.container {
 	max-width: 728px !important;
-}
+}*/
 
 h1, h2, h3, h4, h5 {
 	font-weight: bold;
@@ -86,6 +86,7 @@ div.web-footer {
 	-moz-border-radius: 30px;
 	-webkit-border-radius: 30px;
 }
+
 .avatar-small img {
 	width: 30px; 
 }
@@ -98,6 +99,7 @@ div.web-footer {
 	-moz-border-radius: 48px;
 	-webkit-border-radius: 48px;
 }
+
 .avatar-medium img {
 	width: 48px; 
 }

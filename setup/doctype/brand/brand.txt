@@ -2,11 +2,12 @@
  {
   "creation": "2013-02-22 01:27:54", 
   "docstatus": 0, 
-  "modified": "2013-07-23 12:06:41", 
+  "modified": "2013-07-23 15:38:13", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
  {
+  "allow_rename": 1, 
   "autoname": "field:brand", 
   "doctype": "DocType", 
   "document_type": "Master", 
@@ -32,7 +33,8 @@
   "parenttype": "DocType", 
   "permlevel": 0, 
   "read": 1, 
-  "report": 1
+  "report": 1, 
+  "submit": 0
  }, 
  {
   "doctype": "DocType", 
@@ -57,11 +59,12 @@
   "width": "300px"
  }, 
  {
-  "cancel": 1, 
-  "create": 1, 
+  "amend": 0, 
+  "cancel": 0, 
+  "create": 0, 
   "doctype": "DocPerm", 
-  "role": "Material Master Manager", 
-  "write": 1
+  "role": "Material Manager", 
+  "write": 0
  }, 
  {
   "amend": 0, 
@@ -69,19 +72,20 @@
   "create": 0, 
   "doctype": "DocPerm", 
   "role": "Material User", 
-  "submit": 0, 
   "write": 0
  }, 
  {
+  "cancel": 1, 
+  "create": 1, 
   "doctype": "DocPerm", 
-  "role": "Sales User"
+  "role": "Material Master Manager", 
+  "write": 1
  }, 
  {
+  "cancel": 1, 
+  "create": 1, 
   "doctype": "DocPerm", 
-  "role": "Purchase User"
- }, 
- {
-  "doctype": "DocPerm", 
-  "role": "Accounts User"
+  "role": "System Manager", 
+  "write": 1
  }
 ]
