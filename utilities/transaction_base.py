@@ -17,7 +17,7 @@
 from __future__ import unicode_literals
 import webnotes
 from webnotes import msgprint, _
-from webnotes.utils import load_json, cstr, flt, now_datetime
+from webnotes.utils import load_json, cstr, flt, now_datetime, cint
 from webnotes.model.doc import addchild
 
 from controllers.status_updater import StatusUpdater
@@ -94,7 +94,9 @@ class TransactionBase(StatusUpdater):
 			webnotes.conn.get_value("Customer Group", self.doc.customer_group, "default_price_list") or \
 			self.doc.price_list
 			
-		self.doc.fields.update(customer_defaults)
+		for fieldname, val in customer_defaults.items():
+			if not self.doc.fields.get(fieldname) and self.meta.get_field(fieldname):
+				self.doc.fields[fieldname] = val
 		
 		if self.meta.get_field("sales_team"):
 			self.set_sales_team_for_customer()
@@ -122,6 +124,20 @@ class TransactionBase(StatusUpdater):
 			# add child
 			self.doclist.append(sales_person)
 	
+	def get_supplier_defaults(self):
+		out = self.get_default_address_and_contact("supplier")
+
+		supplier = webnotes.doc("Supplier", self.doc.supplier)
+		out["supplier_name"] = supplier.supplier_name
+		out["currency"] = supplier.default_currency
+		
+		return out
+		
+	def set_supplier_defaults(self):
+		for fieldname, val in self.get_supplier_defaults().items():
+			if not self.doc.fields.get(fieldname) and self.meta.get_field(fieldname):
+				self.doc.fields[fieldname] = val
+				
 	def get_lead_defaults(self):
 		out = self.get_default_address_and_contact("lead")
 		
@@ -275,6 +291,9 @@ class TransactionBase(StatusUpdater):
 				})
 			
 			webnotes.bean(event_doclist).insert()
+			
+	def validate_uom_is_integer(self, uom_field, qty_fields):
+		validate_uom_is_integer(self.doclist, uom_field, qty_fields)
 			
 	def validate_with_previous_doc(self, source_dt, ref):
 		for key, val in ref.items():
@@ -479,3 +498,26 @@ def validate_currency(args, item, meta=None):
 			get_field_precision(meta.get_field("plc_conversion_rate"), 
 				webnotes._dict({"fields": args})))
 	
+def delete_events(ref_type, ref_name):
+	webnotes.delete_doc("Event", webnotes.conn.sql_list("""select name from `tabEvent` 
+		where ref_type=%s and ref_name=%s""", (ref_type, ref_name)), for_reload=True)
+
+def validate_uom_is_integer(doclist, uom_field, qty_fields):
+	if isinstance(qty_fields, basestring):
+		qty_fields = [qty_fields]
+	
+	integer_uoms = filter(lambda uom: webnotes.conn.get_value("UOM", uom, 
+		"must_be_whole_number") or None, doclist.get_distinct_values(uom_field))
+		
+	if not integer_uoms:
+		return
+
+	for d in doclist:
+		if d.fields.get(uom_field) in integer_uoms:
+			for f in qty_fields:
+				if d.fields.get(f):
+					if cint(d.fields[f])!=d.fields[f]:
+						webnotes.msgprint(_("For UOM") + " '" + d.fields[uom_field] \
+							+ "': " + _("Quantity cannot be a fraction.") \
+							+ " " + _("In Row") + ": " + str(d.idx),
+							raise_exception=True)

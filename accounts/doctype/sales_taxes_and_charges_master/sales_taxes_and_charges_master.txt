@@ -2,7 +2,7 @@
  {
   "creation": "2013-01-10 16:34:09", 
   "docstatus": 0, 
-  "modified": "2013-07-22 15:22:14", 
+  "modified": "2013-07-25 16:42:45", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -24,16 +24,13 @@
   "permlevel": 0
  }, 
  {
-  "amend": 0, 
   "doctype": "DocPerm", 
   "name": "__common__", 
   "parent": "Sales Taxes and Charges Master", 
   "parentfield": "permissions", 
   "parenttype": "DocType", 
   "permlevel": 0, 
-  "read": 1, 
-  "report": 1, 
-  "submit": 0
+  "read": 1
  }, 
  {
   "doctype": "DocType", 
@@ -98,24 +95,46 @@
   "reqd": 1
  }, 
  {
+  "amend": 0, 
   "cancel": 0, 
   "create": 0, 
   "doctype": "DocPerm", 
+  "report": 1, 
   "role": "Sales User", 
+  "submit": 0, 
   "write": 0
  }, 
  {
+  "amend": 0, 
   "cancel": 1, 
   "create": 1, 
   "doctype": "DocPerm", 
+  "report": 1, 
   "role": "Accounts Manager", 
+  "submit": 0, 
   "write": 1
  }, 
  {
   "cancel": 1, 
   "create": 1, 
   "doctype": "DocPerm", 
-  "role": "Sales Master Manager", 
+  "report": 1, 
+  "role": "System Manager", 
+  "submit": 0, 
   "write": 1
+ }, 
+ {
+  "amend": 0, 
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "report": 1, 
+  "role": "Sales Master Manager", 
+  "submit": 0, 
+  "write": 1
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "All"
  }
 ]

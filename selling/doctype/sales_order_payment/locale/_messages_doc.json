@@ -1,5 +1,4 @@
 [
- "Reduction Rate Value", 
  "Mode of Payment", 
  "Rate (%)", 
  "Selling", 
@@ -7,9 +6,10 @@
  "Payment Amount (Net)", 
  "Data da \u00daltima Parcela", 
  "Customer's Payment Code", 
- "Data da Primeira Parcela", 
+ "Reduction Rate Value", 
  "Sub-Total", 
  "N\u00famero de Parcelas", 
+ "Data da Primeira Parcela", 
  "Service Rate (%)", 
  "Rate Value", 
  "Service Rate Value", 

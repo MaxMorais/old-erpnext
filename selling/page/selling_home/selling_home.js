@@ -174,27 +174,33 @@ wn.module_page["Selling"] = [
 		items: [
 			{
 				"label":wn._("Customer Addresses And Contacts"),
-				route: "query-report/Customer Addresses And Contacts"
+				route: "query-report/Customer Addresses And Contacts",
+				doctype: "Contact"
 			},
 			{
 				"label":wn._("Ordered Items To Be Delivered"),
 				route: "query-report/Ordered Items To Be Delivered",
+				doctype: "Sales Order"
 			},
 			{
 				"label":wn._("Sales Person-wise Transaction Summary"),
-				route: "query-report/Sales Person-wise Transaction Summary"
+				route: "query-report/Sales Person-wise Transaction Summary",
+				doctype: "Sales Order"
 			},
 			{
 				"label":wn._("Item-wise Sales History"),
-				route: "query-report/Item-wise Sales History"
+				route: "query-report/Item-wise Sales History",
+				doctype: "Item"
 			},
 			{
 				"label":wn._("Territory Target Variance (Item Group-Wise)"),
-				route: "query-report/Territory Target Variance Item Group-Wise"
+				route: "query-report/Territory Target Variance Item Group-Wise",
+				doctype: "Territory"
 			},
 			{
 				"label":wn._("Sales Person Target Variance (Item Group-Wise)"),
-				route: "query-report/Sales Person Target Variance Item Group-Wise"
+				route: "query-report/Sales Person Target Variance Item Group-Wise",
+				doctype: "Sales Person",
 			},
 			{
 				"label":wn._("Customers Not Buying Since Long Time"),
@@ -202,7 +208,27 @@ wn.module_page["Selling"] = [
 				doctype: "Sales Order"
 			},
 			{
-				"label": wn._("Cheques Pendding to Receive"),
+				
+				"label":wn._("Quotation Trend"),
+				route: "query-report/Quotation Trends",
+				doctype: "Quotation"
+			},
+			{
+				"label":wn._("Sales Order Trend"),
+				route: "query-report/Sales Order Trends",
+				doctype: "Sales Order"
+			},
+			{
+				"label":wn._("Available Stock for Packing Items"),
+				route: "query-report/Available Stock for Packing Items",
+				doctype: "Item",
+			},
+			{
+				"label":wn._("Pending SO Items For Purchase Request"),
+				route: "query-report/Pending SO Items For Purchase Request",
+				doctype: "Sales Order"
+			},
+                        {       "label": wn._("Cheques Pendding to Receive"),
 				route: "query-report/Cheques Pendding to Receive"
 			}
 		]
@@ -212,3 +238,4 @@ wn.module_page["Selling"] = [
 pscript['onload_selling-home'] = function(wrapper) {
 	wn.views.moduleview.make(wrapper, "Selling");
 }
+

@@ -15,12 +15,12 @@
  "Gross Weight UOM", 
  "Items", 
  "Package Item Details", 
- "Generate packing slips for packages to be delivered. Used to notify package number, package contents and its weight.", 
  "Net Weight UOM", 
+ "Indicates that the package is a part of this delivery", 
  "Package Weight Details", 
  "Series", 
  "Packing Slip", 
  "Delivery Note", 
  "Misc Details", 
- "Indicates that the package is a part of this delivery"
+ "Generate packing slips for packages to be delivered. Used to notify package number, package contents and its weight."
 ]

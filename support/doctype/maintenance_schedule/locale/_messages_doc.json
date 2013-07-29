@@ -1,7 +1,7 @@
 [
  "Maintenance Schedule Item", 
  "Customer Address", 
- "Customer Details", 
+ "Support", 
  "Draft", 
  "Territory", 
  "Status", 
@@ -12,7 +12,7 @@
  "Maintenance Schedule", 
  "Address", 
  "Maintenance Schedule Detail", 
- "Support", 
+ "Customer Details", 
  "Customer", 
  "Items", 
  "Submitted", 

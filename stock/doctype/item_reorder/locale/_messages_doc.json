@@ -1,9 +1,9 @@
 [
+ "Transfer", 
  "Purchase", 
  "Re-order Level", 
- "Material Request Type", 
  "Item Reorder", 
- "Transfer", 
+ "Material Request Type", 
  "Warehouse", 
  "Re-order Qty", 
  "Stock"

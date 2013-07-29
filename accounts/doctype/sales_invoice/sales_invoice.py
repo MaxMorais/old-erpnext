@@ -60,6 +60,8 @@ class DocType(SellingController):
 		self.so_dn_required()
 		self.validate_proj_cust()
 		self.validate_with_previous_doc()
+		self.validate_uom_is_integer("stock_uom", "qty")
+
 		sales_com_obj = get_obj('Sales Common')
 		sales_com_obj.check_stop_sales_order(self)
 		sales_com_obj.check_active_sales_items(self)
@@ -91,7 +93,7 @@ class DocType(SellingController):
 		self.validate_c_form()
 		self.validate_time_logs_are_submitted()
 		self.validate_recurring_invoice()
-		self.validate_multiple_billing("Delivered Note", "dn_detail", "export_amount")
+		self.validate_multiple_billing("Delivery Note", "dn_detail", "export_amount")
 
 	def on_submit(self):
 		if cint(self.doc.update_stock) == 1:

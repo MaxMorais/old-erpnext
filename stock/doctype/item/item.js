@@ -53,6 +53,21 @@ cur_frm.cscript.refresh = function(doc) {
 		}
 		$c_obj(make_doclist(doc.doctype, doc.name),'check_if_sle_exists','',callback);
 	}
+	
+	
+	//define that Sales User and Sales Manager can't see the Standard Buying
+	if (user_roles.indexOf("Sales User")>=0 || user_roles.indexOf("Sales Manager")>=0){
+		 childrens = wn.model.get_children("Item Price",cur_frm.docname,"ref_rate_details").filter(
+		 	function(d){ return (d.price_list_name=="Standard") }
+		 )
+		 if (childrens.length){
+		 	child = childrens[0];
+		 	$(cur_frm.fields_dict.item_price.wrapper).html("<h4>" + wn._("Item Price") + "</h4><h2>"+format_currency(child.ref_rate, user_defaults.currency)+"</h2>");	
+		 }
+       cur_frm.toggle_display('ref_rate_details',false);
+		
+	}
+
 }
 
 cur_frm.cscript.make_dashboard = function() {

@@ -4,6 +4,7 @@
  "Capacity", 
  "Description", 
  "Hour Rate", 
+ "Hour Rate Rent", 
  "Trash Reason", 
  "Hour Rate Consumable", 
  "Capacity Units", 
@@ -13,7 +14,6 @@
  "Hour Rate Electricity", 
  "Warehouse", 
  "Manufacturing", 
- "Hour Rate Rent", 
  "Workstation Name", 
  "Hour Rate Labour"
 ]

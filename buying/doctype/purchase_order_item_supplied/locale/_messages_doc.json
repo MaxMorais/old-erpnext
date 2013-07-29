@@ -1,13 +1,13 @@
 [
  "Reference Name", 
  "Raw Material Item Code", 
- "Amount", 
  "Conversion Factor", 
  "Required Qty", 
- "Rate", 
- "Purchase Order Item Supplied", 
- "BOM Detail No", 
+ "Amount", 
  "Stock Uom", 
+ "Purchase Order Item Supplied", 
+ "Rate", 
+ "BOM Detail No", 
  "Item Code", 
  "Buying"
 ]

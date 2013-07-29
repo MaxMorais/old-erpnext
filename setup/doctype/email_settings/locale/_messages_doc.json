@@ -1,5 +1,6 @@
 [
  "Support Email", 
+ "Your support email id - must be a valid email - this is where your emails will come!", 
  "Autoreply when a new mail is received", 
  "POP3 mail server (e.g. pop.gmail.com)", 
  "Outgoing Mail Server", 
@@ -8,8 +9,6 @@
  "Email Settings", 
  "Auto Email Id", 
  "Email Settings for Outgoing and Incoming Emails.", 
- "Your support email id - must be a valid email - this is where your emails will come!", 
- "POP3 Mail Server", 
  "User Name", 
  "Set your outgoing mail SMTP settings here. All system generated notifications, emails will go from this mail server. If you are not sure, leave this blank to use ERPNext servers (emails will still be sent from your email id) or contact your email provider.", 
  "Signature to be appended at the end of every email", 
@@ -27,6 +26,7 @@
  "Incoming / Support Mail Setting", 
  "Check this if you want to send emails as this id only (in case of restriction by your email provider).", 
  "To automatically create Support Tickets from your incoming mail, set your POP3 settings here. You must ideally create a separate email id for the erp system so that all emails will be synced into the system from that mail id. If you are not sure, please contact your EMail Provider.", 
+ "POP3 Mail Server", 
  "Send Autoreply", 
  "Mail Password", 
  "Custom Autoreply Message", 

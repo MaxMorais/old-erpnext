@@ -1,10 +1,10 @@
 [
- "Amount", 
  "Description", 
  "BOM Explosion Item", 
  "Stock UOM", 
- "Rate", 
+ "Amount", 
  "Qty", 
+ "Rate", 
  "Qty Consumed Per Unit", 
  "Manufacturing", 
  "Item Code"

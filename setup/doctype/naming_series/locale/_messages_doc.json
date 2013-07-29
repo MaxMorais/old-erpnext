@@ -1,6 +1,5 @@
 [
  "Current Value", 
- "Update Series Number", 
  "Change the starting / current sequence number of an existing series.", 
  "Series List for this Transaction", 
  "Setup Series", 
@@ -8,6 +7,7 @@
  "Setup", 
  "Prefix", 
  "Update", 
+ "Update Series Number", 
  "Select Transaction", 
  "Update Series", 
  "User must always select", 

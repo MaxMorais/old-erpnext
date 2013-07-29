@@ -197,80 +197,163 @@ cur_frm.cscript['Unstop Sales Order'] = function() {
 	}
 }
 
-cur_frm.fields_dict['territory'].get_query = function(doc,cdt,cdn) {
-	return{
-		filters:{ 'is_group': "No"}
-	}
-}
-
 cur_frm.cscript.on_submit = function(doc, cdt, cdn) {
 	if(cint(wn.boot.notification_settings.sales_order)) {
 		cur_frm.email_doc(wn.boot.notification_settings.sales_order_message);
 	}
 };
 
-cur_frm.cscript.get_project_costs = function(doc, cdt, cdn){
-	if (!DBChooser.cache){
-		DBChooser.cache = {};
-	} 
-	if (!DBChooser.cache[doc.name]){
-		DBChooser.cache[doc.name] = {};
+cur_frm.cscript['DBChooser'] = function(){
+	var self = cur_frm.cscript.DBChooser;
+    self.db_choose_key = 'e6sxh3ayfd4bj49',
+    self.db_choose_url = 'https://www.dropbox.com/static/api/1/dropins.js',
+    self.element = cur_frm.fields_dict['project_files'].wrapper,
+    self.CACHE = new Object();
+    self.create_script()
+    self.create_chooser()
+}
+
+cur_frm.cscript['DBChooser'].initialized = false;
+
+cur_frm.cscript['DBChooser'].create_script = function(){
+	var self = cur_frm.cscript.DBChooser;
+	self.script = document.createElement('script');
+	self.script.type = 'text/javascript';
+	self.script.id='dropboxjs';
+	self.script.setAttribute('data-app-key', self.db_choose_key);
+	self.script.src = self.db_choose_url;
+	document.body.appendChild(self.script);
+}
+
+cur_frm.cscript['DBChooser'].create_chooser = function(){
+	var html = '<input type="dropbox-chooser" name="db-selected-files"'
+	    +'style="visibility: hidden;" data-multiselect="true"'
+	    +'data-link-type="direct" id="db-chooser">',
+	    self = cur_frm.cscript.DBChooser;
+	self.db_element = $(html);
+	self.db_element.insertAfter($(self.element));
+	document.getElementById("db-chooser").addEventListener('DbxChooserSuccess', self.DbxChooserSuccess, false)
+	cur_frm.toggle_display('project_files', false);
+}
+
+cur_frm.cscript['DBChooser'].DbxChooserSuccess = function(event){
+	var files = event.files, i=0, fname, flink, ext='.promob',
+	self = cur_frm.cscript.DBChooser;
+	for (; i< files.length; i++){
+		fname = files[i].name;
+		flink = files[i].link;
+		if (fname.indexOf(ext, fname.length-ext.length)!==-1){
+			if (!self.CACHE[cur_frm.docname]) {
+				self.CACHE[cur_frm.docname] = {
+					selected_names: [],
+					selected_files: [],
+					items: new Object()
+				};
+			}
+			if (!self.CACHE[cur_frm.docname].selected_names.indexOf(fname)>=0){
+				self.CACHE[cur_frm.docname].selected_names.push(fname);	
+				self.CACHE[cur_frm.docname].selected_files.push(flink);
+			}
+		}
 	}
-	if (DBChooser.selected_files){
+	if (self.CACHE[cur_frm.docname] && self.CACHE[cur_frm.docname].selected_names.length){
+		self.show_selected(
+			self.CACHE[cur_frm.docname].selected_names,
+			self.CACHE[cur_frm.docname].selected_files
+		);
+	}
+}
+cur_frm.cscript['DBChooser'].show_selected = function(fnames, flinks){
+	var i=0, html="<ul style='list-style:none'>";
+	for (; i < fnames.length; i++){
+		html += "\t<li><a href='" + flinks[i] + "'><i class='icon-file'></i> " + fnames[i] + "</a></li>\n";
+	}
+	html += "</ul>;'"
+	$(html).insertAfter($('div.dropbox-chooser'));
+}
+
+cur_frm.cscript.get_project_costs = function(doc, cdt, cdn){
+	if (!doc.customer) {
+		var msg = 'Voce deve selecionar primeiro o cliente!';
+		msgprint(msg);
+		throw msg;
+	}
+	if (cur_frm.cscript.DBChooser.CACHE[doc.name].selected_files){
 		cur_frm.call({
 			method: 'get_project_costs',
 			args: {
-				filenames: DBChooser.selected_files.join(';')
+				filenames: cur_frm.cscript.DBChooser.CACHE[doc.name].selected_files.join(';')
 			}, 
 			callback: function(r){
 				var i;
 				if (!r.exc){
 					for (i = 0; i<r.message.items.length; i++) {
-						if (!DBChooser.cache[doc.name][r.message.items[i]]){
+						if (!cur_frm.cscript.DBChooser.CACHE[doc.name]['items'][r.message.items[i]]){
 							name = wn.model.make_new_doc_and_get_name('Sales Order Item');
-							DBChooser.cache[doc.name][r.message.items[i]] = name;
+							cur_frm.cscript.DBChooser.CACHE[doc.name]['items'][r.message.items[i]] = name;
 						} else {
-							name = DBChooser.cache[doc.name][r.message.items[i]];
+							name = cur_frm.cscript.DBChooser.CACHE[doc.name]['items'][r.message.items[i]];
 						}
 						item = locals['Sales Order Item'][name];
+						item.idx = i+1;
 						item.parent = doc.name;
 						item.parenttype = doc.doctype;
 						item.parentfield = "sales_order_details";
 						item.item_code = r.message.items[i];
 						item.customer_item_code = doc.customer;
+						item.item_classification='Wood';
 						cur_frm.cscript.item_code(doc, 'Sales Order Item', name);
 					}
 					cur_frm.refresh_fields();
 				}
 			}
 		});
+	} else {
+		msgprint('Voce deve selecionar primeiro os arquivos de projeto!', 'Ops...')
 	}
 }
 
-cur_frm.toggle_enable('project_cost', (user_roles.indexOf('Accounts Manager')=== -1 || user_roles.indexOf('System Manager')=== -1 ) );
-cur_frm.toggle_enable('tc_name', false);
-cur_frm.toggle_enable('terms', false);
-
 cur_frm.cscript.refresh = function(){
-	var doc = locals[cur_frm.doctype][cur_frm.docname];
+	var doc = locals[cur_frm.doctype][cur_frm.docname],
+		display = ((user_roles.indexOf('Accounts User')>=0)||
+			       (user_roles.indexOf('Accounts Manager')>=0)||
+			       (user_roles.indexOf('Administrator')>=0||
+			       (user_roles.indexOf('System Manager')>=0))
+			      );
 	this.get_terms();
 	
 	delete cur_frm.cscript.order_type;
+	
+	cur_frm.toggle_enable('project_cost', display);
+	cur_frm.toggle_enable('letter_head', display);
+	cur_frm.toggle_enable('transaction_date', display);
+	cur_frm.toggle_enable('select_print_heading', display);
 
-	if (!window.DBChooser.initialized && $('input[data-fieldname="project_files"]').length){
-        window.DBChooser.element = $('input[data-fieldname="project_files"]');
-        window.DBChooser.element.css('display','none');
+	cur_frm.toggle_display('project_cost_net', display);
+	cur_frm.toggle_display('project_increase', display);
+	cur_frm.toggle_display('project_estimate', display);
+	cur_frm.toggle_display('project_amount_net', display);
+	cur_frm.toggle_display('payment_amount_net', display);
+	cur_frm.toggle_display('commission_rate', display);
+	cur_frm.toggle_display('total_comission', display);
+	cur_frm.toggle_display('sales_team', display);
+	cur_frm.toggle_display('fiscal_year', display);
+
+	cur_frm.toggle_enable('tc_name', display);
+	cur_frm.toggle_enable('terms', display);
+
+	if (!cur_frm.cscript.DBChooser.initialized && $('input[data-fieldname="project_files"]').length){
         if (doc.__islocal || doc.workflow_state=='Rascunho'){
-            window.DBChooser();
+            cur_frm.cscript.DBChooser();
         } else {
             if (doc.project_files&&doc.project_files_name){
-                 window.DBChooser.show_selected(
+                 cur_frm.cscript.DBChooser.show_selected(
                     doc.project_files.split(';'),
                     doc.project_files_name.split(';')
                 );
            }        
         }
-        window.DBChooser.initialized = true;
+        cur_frm.cscript.DBChooser.initialized = true;
     }
 }
 
@@ -340,6 +423,17 @@ cur_frm.cscript.is_scheduled_delivery = function(doc, cdt, cdn){
 	cur_frm.refresh_fields();
 }
 
+cur_frm.cscript.delivery_date = function(doc, cdt, cdn){
+    if ((doc.delivery_date) && 
+        (doc.delivery_date<
+         wn.datetime.add_months(wn.datetime.str_to_obj(doc.transaction_date), 3)
+        )
+    ) {
+        msgprint('A data da entrega deve ser superior a 90 dias a contar da data do pedido!', title="Ops...");
+        doc.delivery_date = null;
+        cur_frm.refresh_field('delivery_date');
+    }
+}
 cur_frm.cscript.is_additional_sales_order = function(doc, cdt, cdn){
 	cur_frm.toggle_reqd('modo_complemento', doc.is_additional_sales_order);	
 	if (!doc.is_additional_sales_order){
@@ -378,4 +472,402 @@ cur_frm.cscript.parent_sales_order = function(doc, cdt, cdn){
 			}
 		});
 	}
+}
+
+// Adiciona uma validacao customizada a 'Sales Order'
+cur_frm.cscript.custom_validate = function(doc, cdt, cdn){
+	var payment_total = 0, msg='';
+    
+    if (doc.__islocal){
+        doc.project_files = cur_frm.cscript.DBChooser.CACHE[doc.name].selected_files.join(';');
+        doc.project_files_name = cur_frm.cscript.DBChooser.CACHE[doc.name].selected_names.join(';');
+        refresh_field('project_files');
+    }
+
+    if (!wn.model.get_children('Sales Order Payment', doc.name, 'sales_order_payments')){
+    	validated = false;
+    	msg = msg + "Informe a forma de pagamento do pedido!<br>"
+    } else {
+    	$.map(wn.model.get_children('Sales Order Payment', doc.name, 'sales_order_payments'), function(d){payment_total += d.gross_payment_amount;});
+    	if (payment_total!==doc.net_total_export){
+    		validated = false;
+    		msg = msg + "A soma de pagamentos difere do total do pedido!<br>"
+    			+ "Dica: <br>\t<b>Soma de Pagamentos: </b>"+format_currency(total, user_defaults.currency)
+    			+ "<b>Total do Pedido: </b>" + format_currency(doc.net_total_export, user_defaults.currency);
+    	}
+    }
+
+    // A data de uma nova ordem de vendas nao pode ser diferente da data atual.
+    if (wn.datetime.get_day_diff(new Date(), wn.datetime.str_to_obj(doc.transaction_date)) > 0) {
+        validated = false;
+        msg = msg + 'A data da Ordem de Venda nao pode uma data passada<br>'
+    }
+    // A data prevista de entrega prevista deve ser preenchida caso 'naming_series' seja 'VP'
+    if ((doc.is_scheduled_delivery) && (!doc.delivery_date)){
+        validated = false;
+        msg = msg + 'A Data Prevista de Entrega deve ser informada, no caso de vendas programadas!<br>';
+    }
+    // A data prevista de entrega deve ser superior a 90 dias a contar da data atual
+    if (doc.is_scheduled_delivery && wn.datetime.get_day(wn.datetime.str_to_obj(doc.delivery_date)<wn.datetime.add_months(doc.transaction_date, 3))){
+        validated = false;
+        msg = msg + 'A Data Prevista de Entrega deve ser superior a 90 dias a contar da data do pedido'
+    }
+    // Dispara a mensagem de validacao caso o doc nao seja validado e haja uma mensagem
+    if ((validated === false) && (msg !== '')) {
+        msgprint(msg);
+    }
+    // Verificar se o total pago e igual ao total do pedido
+}
+
+// Atualiza os valores da forma de pagamento e deflaciona
+function update_payment_values(doc, so){
+    var i, fl, period=0, ldate, total=0, pays = [], debug=false;
+    if (!doc.payment_value || !doc.number_of_payments) {
+        return;
+    }
+    doc.gross_payment_amount = doc.payment_value*doc.number_of_payments;
+    refresh_field('gross_payment_amount', doc.name, 'payments');
+    doc.service_rate_value = doc.gross_payment_amount*doc.service_rate/100.0;
+    refresh_field('service_rate_value', doc.name, 'payments');
+    if (debug){
+        console.log('DEBUG START HERE');
+        console.log('Transaction Date: ' + date.str_to_user(so.transaction_date));
+        console.log('Gross Payment Amoun: ' + doc.gross_payment_amount.toString());
+        console.log('Service Rate Value: ' + doc.service_rate_value.toString());
+        console.log('Is At Sight? ' + ((doc.is_at_sight) ? 'Yes': 'No'));
+    }
+    if (doc.is_at_sight){
+        // Pagamentos a vista
+        doc.net_payment_amount=doc.gross_payment_amount;
+        refresh_field('net_payment_amount', doc.name, 'payments');
+        if (debug) {console.log('  + Net Payment Amount: ' + doc.net_payment_amount.toString());}
+    } else if (!so.is_scheduled_delivery && !so.delivery_date){
+        // Vendas Imediatas
+        if (debug){
+            console.log('Is Scheduled Delivery? ' + ((so.is_scheduled_delivery)? 'Yes': 'No'));
+            console.log('   + First Payment Date: ' + date.str_to_user(doc.first_payment_date));
+            console.log('   + Last Payment Date: ' + date.str_to_user(doc.last_payment_date));
+            console.log('     + Time from Start to End: ' + wn.datetime.get_diff(wn.datetime.add_months(doc.first_payment_date, doc.number_of_payments), doc.first_payment_date).toString());
+        }
+        if ((wn.datetime.get_day_diff(
+                wn.datetime.str_to_obj(doc.first_payment_date), 
+                wn.datetime.str_to_obj(so.transaction_date)
+            ))<=15){
+            // Com Entrada
+            if (debug){
+                console.log('   + Has Entry Value:');
+                console.log('     + Entry Value Gross: ' + doc.payment_value.toString());
+                console.log('     + Entry Value Net: ' + (doc.payment_value*(1-(doc.service_rate/100))).toString())
+                console.log('     + # Payments: 1');
+                console.log('     + With Deduction Rate: ' + doc.deduction_rate.toString())
+            }
+            pays.push({
+                tag: 'entrada', 
+                value: doc.payment_value * (1 - (doc.service_rate/100)),
+                qty: 1,
+                tax: doc.deduction_rate
+            });
+            if (doc.number_of_payments-1 > 0){
+                if (debug) {
+                    console.log('   Has Founded Value:');
+                    console.log('     Founded Value Gross: ' + doc.payment_value);
+                    console.log('     Founded Value Net: ' + (doc.payment_value  * (1 - (doc.service_rate/100))).toString());
+                    console.log('     + # Payments: ' + (doc.number_of_payments-1).toString());
+                    console.log('     + With Deduction Rate: ' + doc.deduction_rate.toString());
+                }
+                pays.push({
+                    tag:'financeira',
+                    value: doc.payment_value  * (1 - (doc.service_rate/100)),
+                    qty: doc.number_of_payments - 1,
+                    tax: doc.deduction_rate
+                });
+            }
+            //console.log(pays);
+        } else {
+            // Sem Entrada
+            if (debug){
+                console.log('   + Has Founded Value:');
+                console.log('     + Founded Value Gross: ' + doc.payment_value);
+                console.log('     + Founded Value Net: ' + (doc.payment_value  * (1 - (doc.service_rate/100))).toString());
+                console.log('     + # Payments: ' + (doc.number_of_payments).toString());
+                console.log('     + With Deduction Rate: ' + doc.deduction_rate.toString());
+            }
+            pays.push({
+                tag: 'financeira',
+                value: doc.payment_value * (1 - (doc.service_rate/100)),
+                qty: doc.number_of_payments,
+                tax: doc.deduction_rate
+            });
+            //console.log(pays);
+        }
+    } else {
+        // Vendas Programadas
+        if (debug){
+            console.log('Is Scheduled Delivery? ' + ((so.is_scheduled_delivery)? 'Yes': 'No'));
+            console.log('Scheduled Delivery Date: ' + date.str_to_user(so.delivery_date));
+            console.log('   + First Payment Date: ' + date.str_to_user(doc.first_payment_date));
+            console.log('   + Last Payment Date: ' + date.str_to_user(doc.last_payment_date));
+            console.log('     + Time from Start to End: ' + wn.datetime.get_diff(wn.datetime.add_months(doc.first_payment_date, doc.number_of_payments), doc.first_payment_date).toString());
+            console.log('     + Time from Start to Delivery: ' + wn.datetime.get_diff(so.transaction_date, doc.first_payment_date).toString());        
+        }
+        period = 0;
+        while ((wn.datetime.get_diff(
+                so.delivery_date,
+                wn.datetime.add_months(doc.first_payment_date,period)
+            ) > 0)  && (period <= doc.number_of_payments)
+        ){
+            if (debug){
+                console.log('       + In ' + wn.datetime.add_months(doc.first_payment_date, period) + ' months ' +
+                        ' is elapsed ' + wn.datetime.get_day_diff(
+                                date.str_to_obj(so.delivery_date),
+                                date.str_to_obj(wn.datetime.add_months(doc.first_payment_date, period))
+                            ) + 
+                        ' days'
+                        );
+            }
+            period++;
+        }
+        if (debug){
+            console.log('   + Has Entry Value:');
+            console.log('     + Entry Value Gross: ' + doc.payment_value.toString());
+            console.log('     + Entry Value Net: ' + (doc.payment_value*(1-(doc.service_rate/100))).toString())
+            console.log('     + # Payments: ' + period.toString());
+            console.log('     + With Deduction Rate: ' + doc.deduction_rate.toString())
+        }
+        pays.push({
+            tag: 'avista',
+            value: doc.payment_value  * (1 - (doc.service_rate/100)),
+            qty: period,
+            tax: doc.deduction_rate
+        });
+        if ((doc.number_of_payments - period) > 0){
+            if (debug) {
+                console.log('   + Has Founded Value:');
+                console.log('     + Founded Value Gross: ' + doc.payment_value);
+                console.log('     + Founded Value Net: ' + (doc.payment_value  * (1 - (doc.service_rate/100))).toString());
+                console.log('     + # Payments: ' + (doc.number_of_payments-period).toString());
+                console.log('     + With Deduction Rate: ' + doc.deduction_rate.toString());
+            }
+            pays.push({
+                tag: 'financeira',
+                value: doc.payment_value  * (1 - (doc.service_rate/100)),
+                qty: doc.number_of_payments - period,
+                tax: doc.deduction_rate
+            });
+        }
+    }
+    if (debug) { console.log('Pays:'); }
+    $.each(pays, function(i, pmt){
+        if (debug) {
+            console.log('   + #: ' + i.toString());
+            console.log('     + Payment Tag: ' + pmt.tag.toString());
+            console.log('     + Payment Qty: ' + pmt.qty.toString());
+            console.log('     + Payment Tax: ' + pmt.tax.toString());
+            console.log('     + Payment Val: ' + pmt.value.toString());
+            if (pmt.tag==='financeira'){
+                console.log('     + Payment Sbt: ' + ((pmt.qty*pmt.value)/(1+(pmt.qty*pmt.tax))).toString());
+                console.log('     + Expression : ' + '(' + pmt.qty.toString() + '*' + 
+                        pmt.value.toString() + ')/(1+(' + pmt.qty.toString() + '*' + 
+                        pmt.tax.toString() + ')))'
+                );
+            } else {
+                console.log('     + Payment Sbt: ' + (pmt.qty*pmt.value).toString());
+                console.log('     + Expression : ' + '(' + pmt.qty.toString() + '*' + pmt.value.toString() +')');            
+            }
+        }
+        if (pmt.tag==='financeira'){
+            doc.net_payment_amount = (doc.net_payment_amount||0) + ((pmt.qty*pmt.value)/(1+(pmt.qty*pmt.tax)));
+        } else {
+            doc.net_payment_amount = (doc.net_payment_amount||0) + (pmt.qty*pmt.value);
+        }
+        total += doc.gross_payment_amount;
+        if (total>so.net_total_export){
+        	msgprint('A soma de pagamentos ultrapassa o valor do pedido!', 'Ops...');
+        }
+        refresh_field('net_payment_amount', doc.name, 'payments');
+    }); 
+        
+    doc.rate_value = doc.gross_payment_amount - doc.net_payment_amount;
+    refresh_field('rate_value', doc.name, 'payments');
+    doc.rate = (doc.rate_value / doc.gross_payment_amount) * 100;
+    refresh_field('rate', doc.name, 'payments');
+    doc.deduction_rate_value = (doc.gross_payment_amount - doc.service_rate_value - doc.net_payment_amount);
+    refresh_field('deduction_rate_value', doc.name, 'payments');
+    
+    var value = 0.0;
+    $.each(wn.model.get('Sales Order Payment', {parent: 'New Sales Order 1'}), function(i,dt){ value += dt.net_payment_amount; });
+    so.payment_amount_net = value;
+    cur_frm.refresh_field('payment_amount_net');
+}
+
+// Insere automaticamente o valor da taxa de servico
+cur_frm.add_fetch('mode_of_payment', 'service_rate', 'service_rate');
+
+// Insere automaticamente a taxa de deducao
+cur_frm.add_fetch('mode_of_payment', 'deduction_rate', 'deduction_rate');
+
+// Insere automaticamente a informacao se a forma de pagamento eh avista
+cur_frm.add_fetch('mode_of_payment', 'is_at_sight', 'is_at_sight');
+
+// Libera/Bloqueia a quantidade de parcelas baseado na forma de pagamento
+cur_frm.cscript.mode_of_payment = function(doc, cdt, cdn){
+    var d = locals[cdt][cdn], i=0, options = [], field, msg;
+    // Nao podem haver boletos em vendas imediatas
+    if (d.mode_of_payment=="Boleto"){
+        if (!doc.delivery_date){
+            d.mode_of_payment = null;
+            refresh_field('mode_of_payment', d.name, 'payments');
+            msg = 'Voce nao pode incluir boletos em uma Venda Imediata!';
+            msgprint(msg, title='Ops...');
+            throw msg;
+        } 
+    }
+    //Se o pagamento for avista o numero de parcelas devera ser igual a 1
+    if (d.is_at_sight){
+        cur_frm.fields_dict['payments'].frm.set_df_property(
+            'number_of_payments', 
+            'read_only', 
+            true
+        );
+        d.number_of_payments=1;
+        refresh_field('number_of_payments', d.name, 'payments');
+        cur_frm.cscript.first_payment_date(doc, cdt, cdn);
+    } 
+    if (d.payment_value && d.number_of_payments){
+        update_payment_values(d, doc);
+    }
+}
+
+// Atualiza a data ultima parcela com base na data da primeira parcela
+cur_frm.cscript.first_payment_date = function(doc, cdt, cdn){
+    var d = locals[cdt][cdn];
+    //Se houver o numero de parcelas 
+    if (d.number_of_payments){
+        d.last_payment_date = wn.datetime.obj_to_str(
+            wn.datetime.add_months(
+                wn.datetime.str_to_obj(d.first_payment_date),
+                (d.number_of_payments - 1)
+            )
+        );
+        refresh_field('last_payment_date', d.name, 'payments');
+    }
+}
+
+// Atualiza a data da ultima parcela com base no numero de parcelas
+cur_frm.cscript.number_of_payments = function(doc, cdt, cdn){
+    var d = locals[cdt][cdn], allowed = 0;
+    // Nao podem haver boletos em vendas imediatas
+    if(d.mode_of_payment=="Boleto"){
+        if (!doc.delivery_date){
+            d.number_of_payments = 0;
+            refresh_field('number_of_payments', d.name, 'payments');
+            msgprint('Voce nao pode incluir boletos em uma Venda Imediata!', title='Ops...');
+        } 
+        while (wn.datetime.get_diff(
+            wn.datetime.add_months(d.first_payment_date,allowed),
+            doc.delivery_date
+        ) < 0 ) {
+            allowed++;
+        }
+        if (allowed<d.number_of_payments){
+            doc.number_of_payments = 0;
+            refresh_field('number_of_payments', d.name, 'payments');
+            msgprint("O numero maximo de parcelas permitidas para esta forma de pagamento e de <strong>" + allowed + "</strong> parcelas.", title="Ops...");
+        }
+    } 
+    
+    //Se houver a data do primeiro vencimento
+    if (d.first_payment_date){
+        d.last_payment_date = wn.datetime.obj_to_str(
+            wn.datetime.add_months(
+                wn.datetime.str_to_obj(d.first_payment_date),
+                (d.number_of_payments - 1)
+            )
+        );
+        refresh_field('last_payment_date', d.name, 'payments');
+    }
+    // Se houver o valor das parcelas
+    if (d.payment_value){
+        update_payment_values(d, doc);
+    }
+}
+//Atualiza o sub-total com base no valor da parcela
+cur_frm.cscript.payment_value = function(doc, cdt, cdn){
+    var d = locals[cdt][cdn];    
+    // Se houver o numero de parcelas
+    if(d.number_of_payments){
+        update_payment_values(d, doc);
+    }   
+}
+
+// Adiciona um gatilho para atualizacao de valores de projeto.
+function value_calculation_decorated(caller){
+    return function(doc, cdt, cdn){
+        var cost, cache, item, key;
+        if (doc.is_additional_sales_order && (doc.modo_complemento==='Revis\u00E3o')){
+            cost = doc.project_cost_parent - doc.project_cost;
+        } else {
+            cost = doc.project_cost;
+        }
+        if (caller && doc.project_cost){
+            switch(caller){
+                case 'project_cost':
+                    doc.project_amount = cost;
+                    doc.project_discount = 0.0;
+                    doc.project_discount_value = 0.0;
+                    break;
+                case 'project_discount':
+                    doc.project_discount_value = (cost*(doc.project_discount/100));
+                    doc.project_amount = (cost-doc.project_discount_value);
+                    break;
+                case 'project_discount_value':
+                    doc.project_discount = ((doc.project_discount_value/cost)*100);
+                    doc.project_amount = (cost-doc.project_discount_value);
+                    break;
+                case 'project_amount':
+                    doc.project_discount_value = (cost-doc.project_amount);
+                    doc.project_discount = ((doc.project_discount_value/cost)*100);
+                    break;
+            }
+            //cur_frm.refresh_field('project_discount');
+            //cur_frm.refresh_field('project_discount_value');
+            //cur_frm.refresh_field('project_amount');
+        }
+        cache = cur_frm.cscript.DBChooser.CACHE[doc.name].items;
+        console.log(cache);
+        for (var key in cache){
+        	item = locals['Sales Order Item'][cache[key]];
+        	item.adj_rate = doc.project_discount;
+        	cur_frm.cscript.adj_rate(doc, 'Sales Order Item', item.name)
+        }
+        cur_frm.refresh_fields();
+    }
+}
+cur_frm.cscript.project_cost = value_calculation_decorated('project_cost');
+cur_frm.cscript.project_discount = value_calculation_decorated('project_discount');
+cur_frm.cscript.project_discount_value = value_calculation_decorated('project_discount_value');
+cur_frm.cscript.project_amount = value_calculation_decorated('project_amount');
+cur_frm.cscript.net_payment_amount = value_calculation_decorated('net_payment_amount');
+
+// Define o filtro do campo de Pedido Principal, para vendas do cliente selecionado
+// e restinge os pedidos para nao complementares
+cur_frm.fields_dict['parent_sales_order'].get_query = function(doc){
+    var cond = '';
+    if (doc.customer) {
+        cond += ' ifnull(`tabSales Order`.`customer`, "") = "' + doc.customer + '" and';
+    }
+    if (doc.order_type) {
+        cond += ' ifnull(`tabSales Order`.`order_type`, "") = "' + doc.order_type + '" and';
+    }
+    return repl('SELECT DISTINCT `tabSales Order`.`name` FROM `tabSales Order` \
+        WHERE `tabSales Order`.`company` = "' 
+         + doc.company + '" and `tabSales Order`.`docstatus` = 1 \
+            and `tabSales Order`.`is_additional_sales_order` = 0 \
+            and %(cond)s `tabSales Order`.`%(key)s` LIKE "%s" \
+            ORDER BY `tabSales Order`.`name` DESC LIMIT 50', {cond:cond});
+}
+
+// Adiciona um gatilho para a definicao de valores padroes na criacao de uma nova ficha de financeira
+cur_frm.fields_dict.registration_data_personal_financial.on_new = function(dn){
+    locals['Registration Data Personal Financial'][dn].customer = locals[cur_frm.doctype][cur_frm.docname].customer;
 }

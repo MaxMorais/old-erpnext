@@ -6,9 +6,9 @@
  "1 Currency = [?] Fraction\nFor e.g. 1 USD = 100 Cent", 
  "Symbol", 
  "A symbol for this currency. For e.g. $", 
- "Setup", 
  "Number Format", 
  "**Currency** Master", 
+ "Setup", 
  "Enabled", 
  "How should this currency be formatted? If not set, will use system defaults", 
  "Currency"

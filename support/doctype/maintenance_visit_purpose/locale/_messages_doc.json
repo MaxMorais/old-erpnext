@@ -2,6 +2,7 @@
  "Item Name", 
  "Description", 
  "Maintenance Visit Purpose", 
+ "Document Type", 
  "Support", 
  "Against Document No", 
  "Serial No", 
@@ -9,6 +10,5 @@
  "Against Document Detail No", 
  "Work Done", 
  "Work Details", 
- "Document Type", 
  "Item Code"
 ]
