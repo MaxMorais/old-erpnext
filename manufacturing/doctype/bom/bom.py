@@ -135,6 +135,21 @@ class DocType:
 				rate = arg['standard_rate']
 
 		return rate
+		
+	def update_cost(self):
+		for d in self.doclist.get({"parentfield": "bom_materials"}):
+			d.rate = self.get_bom_material_detail({
+				'item_code': d.item_code, 
+				'bom_no': d.bom_no,
+				'qty': d.qty
+			})["rate"]
+		
+		if self.doc.docstatus == 0:
+			webnotes.bean(self.doclist).save()
+		elif self.doc.docstatus == 1:
+			self.calculate_cost()
+			self.update_exploded_items()
+			webnotes.bean(self.doclist).update_after_submit()
 
 	def get_bom_unitcost(self, bom_no):
 		bom = sql("""select name, total_cost/quantity as unit_cost from `tabBOM`

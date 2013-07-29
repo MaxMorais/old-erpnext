@@ -36,22 +36,15 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		
 		this.frm.add_fetch("sales_partner", "commission_rate", "commission_rate");
 		
-		if(this.frm.fields_dict.shipping_address_name && this.frm.fields_dict.customer_address) {
-			this.frm.fields_dict.shipping_address_name.get_query = 
-				this.frm.fields_dict['customer_address'].get_query;
-		}
-		
-		this.frm.set_query("customer_address", function() {
-			return {
-				filters: {'customer': me.frm.doc.customer }
-			}
-		});
-		
-		this.frm.set_query("contact_person", function() {
-			return {
-				filters: {'customer': me.frm.doc.customer }
-			}
-		});
+		$.each([["customer_address", "customer_filter"], 
+			["shipping_address_name", "customer_filter"],
+			["contact_person", "customer_filter"], 
+			["customer", "customer"], 
+			["lead", "lead"]], 
+			function(i, opts) {
+				if(me.frm.fields_dict[opts[0]]) 
+					me.frm.set_query(opts[0], erpnext.queries[opts[1]]);
+			});
 		
 		if(this.frm.fields_dict.charge) {
 			this.frm.set_query("charge", function() {
@@ -63,12 +56,22 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 				}
 			});
 		}
-		
-		this.frm.fields_dict.customer.get_query = function(doc,cdt,cdn) {
-			return{	query:"controllers.queries.customer_query" } }
 
-		this.frm.fields_dict.lead && this.frm.set_query("lead", function(doc,cdt,cdn) {
-			return{	query:"controllers.queries.lead_query" } });
+		if(this.frm.fields_dict.price_list_name) {
+			this.frm.set_query("price_list_name", function() {
+				return { filters: { buying_or_selling: "Selling" } };
+			});
+		
+			this.frm.set_query("price_list_currency", function() {
+				return {
+					query: "controllers.queries.get_price_list_currency",
+					filters: {
+						price_list_name: me.frm.doc.price_list_name,
+						buying_or_selling: "Selling"
+					}					
+				};
+			});
+		}
 			
 		if(!this.fname) {
 			return;
@@ -114,11 +117,7 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		}
 		
 		if(this.frm.fields_dict.sales_team && this.frm.fields_dict.sales_team.grid.get_field("sales_person")) {
-			this.frm.set_query("sales_person", "sales_team", function() {
-				return {
-					filters: { is_group: "No" }
-				};
-			});
+			this.frm.set_query("sales_person", "sales_team", erpnext.queries.not_a_group_filter);
 		}
 	},
 	
@@ -142,7 +141,6 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 					freeze: true,
 					callback: function(r) {
 						if(!r.exc) {
-							me.frm.refresh_fields();
 							(me.frm.doc.price_list_name !== price_list_name) ? 
 								me.price_list_name() :
 								me.price_list_currency();

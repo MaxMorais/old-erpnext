@@ -25,6 +25,7 @@ cur_frm.pformat.print_heading = 'Invoice';
 wn.require('app/accounts/doctype/sales_taxes_and_charges_master/sales_taxes_and_charges_master.js');
 wn.require('app/utilities/doctype/sms_control/sms_control.js');
 wn.require('app/selling/doctype/sales_common/sales_common.js');
+// wn.require('app/accounts/doctype/sales_invoice/pos.js');
 
 wn.provide("erpnext.accounts");
 erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.extend({
@@ -37,6 +38,10 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 				this.frm.set_df_property("debit_to", "print_hide", 0);
 			}
 		}
+		
+		// if(this.frm.doc.is_pos && this.frm.doc.docstatus===0) {
+		// 	cur_frm.cscript.toggle_pos(true);
+		// }
 	},
 	
 	refresh: function(doc, dt, dn) {
@@ -60,7 +65,7 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 
 			cur_frm.add_custom_button('Send SMS', cur_frm.cscript.send_sms);
 
-			if(doc.is_pos==1 && doc.update_stock!=1)
+			if(cint(doc.update_stock)!=1)
 				cur_frm.add_custom_button('Make Delivery', cur_frm.cscript['Make Delivery Note']);
 
 			if(doc.outstanding_amount!=0)
@@ -95,12 +100,34 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 						}
 					})
 				});
+				
+			// cur_frm.add_custom_button(wn._("POS View"), function() {
+			// 	cur_frm.cscript.toggle_pos();
+			// }, 'icon-desktop');
 
 		}
 		
 		cur_frm.cscript.hide_fields(doc, dt, dn);
 	},
 
+	toggle_pos: function(show) {
+		if((show===true && cur_frm.pos_active) || (show===false && !cur_frm.pos_active)) return;
+		
+		// make pos
+		if(!cur_frm.pos) {
+			cur_frm.layout.add_view("pos");
+			cur_frm.pos = new erpnext.POS(cur_frm.layout.views.pos, cur_frm);
+		}
+		
+		// toggle view
+		cur_frm.layout.set_view(cur_frm.pos_active ? "" : "pos");
+		cur_frm.pos_active = !cur_frm.pos_active;
+		
+		// refresh
+		if(cur_frm.pos_active)
+			cur_frm.pos.refresh();
+		
+	},
 	tc_name: function() {
 		this.get_terms();
 	},
@@ -120,6 +147,7 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 		}
 		
 		// TODO toggle display of fields
+		cur_frm.cscript.hide_fields(this.frm.doc);
 	},
 	
 	debit_to: function() {
@@ -162,7 +190,7 @@ $.extend(cur_frm.cscript, new erpnext.accounts.SalesInvoiceController({frm: cur_
 
 // Hide Fields
 // ------------
-cur_frm.cscript.hide_fields = function(doc, cdt, cdn) {
+cur_frm.cscript.hide_fields = function(doc) {
 	par_flds = ['project_name', 'due_date', 'is_opening', 'conversion_rate',
 	'source', 'total_advance', 'gross_profit',
 	'gross_profit_percent', 'get_advances_received',
@@ -170,24 +198,26 @@ cur_frm.cscript.hide_fields = function(doc, cdt, cdn) {
 	'total_commission', 'advances'];
 	
 	item_flds_normal = ['sales_order', 'delivery_note']
-	item_flds_pos = ['warehouse', 'serial_no', 'batch_no', 'actual_qty', 
-		'delivered_qty', 'expense_account']
+	item_flds_pos = ['serial_no', 'batch_no', 'actual_qty', 'expense_account']
 	
 	if(cint(doc.is_pos) == 1) {
 		hide_field(par_flds);
 		unhide_field('payments_section');
-		for(f in item_flds_normal) cur_frm.fields_dict['entries'].grid.set_column_disp(item_flds_normal[f], false);
+		cur_frm.fields_dict['entries'].grid.set_column_disp(item_flds_normal, false);
 	} else {
 		hide_field('payments_section');
 		unhide_field(par_flds);
-		for(f in item_flds_normal) cur_frm.fields_dict['entries'].grid.set_column_disp(item_flds_normal[f], true);
+		cur_frm.fields_dict['entries'].grid.set_column_disp(item_flds_normal, true);
 	}
-	for(f in item_flds_pos) cur_frm.fields_dict['entries'].grid.set_column_disp(item_flds_pos[f], (cint(doc.update_stock)==1?true:false));
-
+	
+	cur_frm.fields_dict['entries'].grid.set_column_disp(item_flds_pos, (cint(doc.update_stock)==1?true:false));
+	
 	// India related fields
 	var cp = wn.control_panel;
 	if (cp.country == 'India') unhide_field(['c_form_applicable', 'c_form_no']);
 	else hide_field(['c_form_applicable', 'c_form_no']);
+	
+	cur_frm.refresh_fields();
 }
 
 

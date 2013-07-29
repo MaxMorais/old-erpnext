@@ -95,7 +95,7 @@ class TransactionBase(StatusUpdater):
 			self.doc.price_list
 			
 		for fieldname, val in customer_defaults.items():
-			if not self.doc.fields.get(fieldname) and self.meta.get_field(fieldname):
+			if self.meta.get_field(fieldname):
 				self.doc.fields[fieldname] = val
 		
 		if self.meta.get_field("sales_team"):
@@ -129,13 +129,14 @@ class TransactionBase(StatusUpdater):
 
 		supplier = webnotes.doc("Supplier", self.doc.supplier)
 		out["supplier_name"] = supplier.supplier_name
-		out["currency"] = supplier.default_currency
+		if supplier.default_currency:
+			out["currency"] = supplier.default_currency
 		
 		return out
 		
 	def set_supplier_defaults(self):
 		for fieldname, val in self.get_supplier_defaults().items():
-			if not self.doc.fields.get(fieldname) and self.meta.get_field(fieldname):
+			if self.meta.get_field(fieldname):
 				self.doc.fields[fieldname] = val
 				
 	def get_lead_defaults(self):
@@ -307,7 +308,7 @@ class TransactionBase(StatusUpdater):
 						self.compare_values({key: [ref_dn]}, val["compare_fields"], d)
 						if ref_dn not in item_ref_dn:
 							item_ref_dn.append(ref_dn)
-						else:
+						elif not val.get("allow_duplicate_prev_row_id"):
 							webnotes.msgprint(_("Row ") + cstr(d.idx + 1) + 
 								_(": Duplicate row from same ") + key, raise_exception=1)
 					elif ref_dn:
@@ -502,6 +503,8 @@ def delete_events(ref_type, ref_name):
 	webnotes.delete_doc("Event", webnotes.conn.sql_list("""select name from `tabEvent` 
 		where ref_type=%s and ref_name=%s""", (ref_type, ref_name)), for_reload=True)
 
+class UOMMustBeIntegerError(webnotes.ValidationError): pass
+
 def validate_uom_is_integer(doclist, uom_field, qty_fields):
 	if isinstance(qty_fields, basestring):
 		qty_fields = [qty_fields]
@@ -520,4 +523,4 @@ def validate_uom_is_integer(doclist, uom_field, qty_fields):
 						webnotes.msgprint(_("For UOM") + " '" + d.fields[uom_field] \
 							+ "': " + _("Quantity cannot be a fraction.") \
 							+ " " + _("In Row") + ": " + str(d.idx),
-							raise_exception=True)
+							raise_exception=UOMMustBeIntegerError)
