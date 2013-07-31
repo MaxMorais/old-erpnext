@@ -2,6 +2,7 @@
  "Create a price list from Price List master and enter standard ref rates against each of them. On selection of a price list in Quotation, Sales Order or Delivery Note, corresponding ref rate will be fetched for this item.", 
  "Selecting \"Yes\" will allow this item to appear in Purchase Order , Purchase Receipt.", 
  "Valuation Method", 
+ "Default Supplier", 
  "List this Item in multiple groups on the website.", 
  "Default Cost Center", 
  "A Product or a Service that is bought, sold or kept in stock.", 

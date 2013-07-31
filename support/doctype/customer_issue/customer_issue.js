@@ -14,25 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.	If not, see <http://www.gnu.org/licenses/>.
 
+
 wn.provide("erpnext.support");
 // TODO commonify this code
 erpnext.support.CustomerIssue = wn.ui.form.Controller.extend({
 	refresh: function() {
 		if((cur_frm.doc.status=='Open' || cur_frm.doc.status == 'Work In Progress')) {
 			cur_frm.add_custom_button('Make Maintenance Visit', this.make_maintenance_visit)
+			
 		}
 	}, 
 	
+
 	customer: function() {
 		var me = this;
 		if(this.frm.doc.customer) {
-			this.frm.call({
+			// TODO shift this to depends_on
+		
+			unhide_field(['customer_address', 'contact_person']);
+			
+			return this.frm.call({
+				
 				doc: this.frm.doc,
 				method: "set_customer_defaults",
 			});
-			
-			// TODO shift this to depends_on
-			unhide_field(['customer_address', 'contact_person']);
 		}
 	}, 
 	
@@ -47,6 +52,7 @@ erpnext.support.CustomerIssue = wn.ui.form.Controller.extend({
 $.extend(cur_frm.cscript, new erpnext.support.CustomerIssue({frm: cur_frm}));
 
 cur_frm.cscript.onload = function(doc,cdt,cdn){
+	
 	if(!doc.status) 
 		set_multiple(dt,dn,{status:'Open'});	
 	if(doc.__islocal){		
@@ -56,8 +62,14 @@ cur_frm.cscript.onload = function(doc,cdt,cdn){
 
 cur_frm.cscript.customer_address = cur_frm.cscript.contact_person = function(doc,dt,dn) {		
 	if(doc.customer) 
-		get_server_fields('get_customer_address', 
+		return get_server_fields('get_customer_address', 
 			JSON.stringify({customer: doc.customer, address: doc.customer_address, contact: doc.contact_person}),'', doc, dt, dn, 1);
+}
+
+cur_frm.fields_dict['sales_order'].get_query = function(doc, cdt, cdn) {
+	return{
+		filters:{ 'Sales Order': doc.sales_order}
+	}
 }
 
 cur_frm.fields_dict['customer_address'].get_query = function(doc, cdt, cdn) {
@@ -72,6 +84,7 @@ cur_frm.fields_dict['contact_person'].get_query = function(doc, cdt, cdn) {
 	}
 }
 
+
 cur_frm.fields_dict['serial_no'].get_query = function(doc, cdt, cdn) {
 	var cond = [];
 	var filter = [
@@ -82,10 +95,11 @@ cur_frm.fields_dict['serial_no'].get_query = function(doc, cdt, cdn) {
 	if(doc.customer) cond = ['Serial No', 'customer', '=', doc.customer];
 	filter.push(cond);
 	return{
-		filters:filter
+	filters:filter
 	}
 }
 
+cur_frm.add_fetch('sales_order', 'customer', 'customer');
 cur_frm.add_fetch('serial_no', 'item_code', 'item_code');
 cur_frm.add_fetch('serial_no', 'item_name', 'item_name');
 cur_frm.add_fetch('serial_no', 'description', 'description');
@@ -117,3 +131,17 @@ cur_frm.add_fetch('item_code', 'description', 'description');
 
 cur_frm.fields_dict.customer.get_query = function(doc,cdt,cdn) {
 	return{	query:"controllers.queries.customer_query" } }
+
+cur_frm.fields_dict['sales_order'].get_query = function(doc, cdt, cdn){
+	if(doc.customer){
+		return {
+			filters: {'customer': doc.customer}
+		}
+	} else {
+		return {
+			filters: [
+				['Sales Order', 'docstatus', '!=', 2]
+			]
+		}
+	}
+}

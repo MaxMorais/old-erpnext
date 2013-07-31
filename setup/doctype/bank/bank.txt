@@ -2,11 +2,12 @@
  {
   "creation": "2013-06-17 16:50:14", 
   "docstatus": 0, 
-  "modified": "2013-06-27 12:07:52", 
+  "modified": "2013-07-31 14:11:26", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
  {
+  "autoname": "field:bank_code", 
   "description": "Bank", 
   "doctype": "DocType", 
   "document_type": "Master", 
@@ -48,6 +49,7 @@
   "label": "Bank Name"
  }, 
  {
+  "cancel": 1, 
   "create": 1, 
   "doctype": "DocPerm", 
   "role": "System Manager", 

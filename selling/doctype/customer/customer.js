@@ -66,7 +66,7 @@ cur_frm.cscript.setup_dashboard = function(doc) {
 	cur_frm.dashboard.add_doctype_badge("Delivery Note", "customer");
 	cur_frm.dashboard.add_doctype_badge("Sales Invoice", "customer");
 	
-	wn.call({
+	return wn.call({
 		type: "GET",
 		method:"selling.doctype.customer.customer.get_dashboard_info",
 		args: {
@@ -132,4 +132,131 @@ cur_frm.fields_dict.lead_name.get_query = function(doc,cdt,cdn) {
 	return{
 		query:"controllers.queries.lead_query"
 	}
+}
+
+cur_frm.cscript.refresh = function(doc, cdt, cdn){
+	cur_frm.cscript.customer_type(doc, cdt, cdn);
+}
+
+cur_frm.cscript.customer_type = function(doc, cdt, cdn){
+	if (doc.customer_type=='Company'){
+		cur_frm.toggle_reqd('documentos_cnpj', true);
+		cur_frm.toggle_reqd('documentos_cpf', false);
+	} else {
+		cur_frm.toggle_reqd('documentos_cpf', true);
+		cur_frm.toggle_reqd('documentos_cnpj', false);
+	}
+}
+
+// funcao para validacao do CPF
+function validar_cpf(cpf){
+    var Soma = 0, Resto, i;
+    if (cpf == "00000000000"){
+    		return false;a
+        }
+    for (i=1; i<=9; i++){
+    	Soma = Soma + parseInt(cpf.substring(i-1, i)) * (11 - i); 
+    }
+    Resto = (Soma * 10) % 11;
+    if ((Resto == 10) || (Resto == 11)) {
+    	Resto = 0;	
+    }
+    if (Resto != parseInt(cpf.substring(9, 10)) ){
+    	return false;	
+    }
+	Soma = 0;
+    for (i = 1; i <= 10; i++){
+    	Soma = Soma + parseInt(cpf.substring(i-1, i)) * (12 - i);
+    }
+    Resto = (Soma * 10) % 11;
+    if ((Resto == 10) || (Resto == 11)) {
+    	Resto = 0;	
+    }
+    if (Resto != parseInt(cpf.substring(10, 11) ) )
+        return false;
+    return true;
+}
+// funcao para validar CNPJ
+function validar_cnpj(cnpj) {
+    cnpj = cnpj.replace(/[^\d]+/g,'');
+    if(cnpj == '') {
+        return false
+    };
+    if (cnpj.length != 14) {
+        return false;
+    }
+    // Elimina CNPJs invalidos conhecidos
+    if (cnpj == "00000000000000" || 
+        cnpj == "11111111111111" || 
+        cnpj == "22222222222222" || 
+        cnpj == "33333333333333" || 
+        cnpj == "44444444444444" || 
+        cnpj == "55555555555555" || 
+        cnpj == "66666666666666" || 
+        cnpj == "77777777777777" || 
+        cnpj == "88888888888888" || 
+        cnpj == "99999999999999"){
+        return false;
+   }      
+    // Valida DVs
+    tamanho = cnpj.length - 2
+    numeros = cnpj.substring(0,tamanho);
+    digitos = cnpj.substring(tamanho);
+    soma = 0;
+    pos = tamanho - 7;
+    for (i = tamanho; i >= 1; i--) {
+      soma += numeros.charAt(tamanho - i) * pos--;
+      if (pos < 2){
+            pos = 9;
+      }
+    }
+    resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+    if (resultado != digitos.charAt(0)){
+        return false;
+    }
+    tamanho = tamanho + 1;
+    numeros = cnpj.substring(0,tamanho);
+    soma = 0;
+    pos = tamanho - 7;
+    for (i = tamanho; i >= 1; i--) {
+      soma += numeros.charAt(tamanho - i) * pos--;
+      if (pos < 2){
+            pos = 9;
+      }
+    }
+    resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+    if (resultado != digitos.charAt(1)){
+          return false;
+    }
+    return true;
+}
+
+cur_frm.cscript.custom_validate = function(doc, cdt, cdn){
+    // Verifica se o cliente eh do tipo Individual, caso seja, verifica se o
+    // cpf esta preenchido e se o mesmo e valido.
+    var msg = "";
+    if (doc.customer_type==="Individual"){
+        if (!doc.documentos_cpf){
+            msg = msg + "Informe o CPF.\n"
+            validated = false;
+        } else {
+            validated = validar_cpf(doc.documentos_cpf);
+            if (!validated){
+                msg = msg + "CPF Inv\xC3\xA1lido.\n";
+            }
+        }
+    } else if (doc.customer_type==="Company"){
+        if (!doc.documentos_cnpj){
+            msg = msg + "Informe o CNPJ.\n";
+            validated=false;
+        } else {
+            validated = validar_cnpj(doc.documentos_cnpj);
+            if (!validated){
+                msg = msg + "CNPJ Inv\xC3\xA1lido.\n";
+            }
+        }
+    }
+    if ((!validated) && (msg != "")){
+        msgprint(msg);
+    }
 }

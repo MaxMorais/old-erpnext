@@ -395,7 +395,8 @@ def make_delivery_note(source_name, target_doclist=None):
 				"parenttype": "prevdoc_doctype",
 				"reserved_warehouse": "warehouse"
 			},
-			"postprocess": update_item
+			"postprocess": update_item,
+			"condition": lambda doc: doc.delivered_qty < doc.qty
 		},
 		"Sales Taxes and Charges": {
 			"doctype": "Sales Taxes and Charges",

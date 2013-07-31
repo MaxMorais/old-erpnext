@@ -1,7 +1,10 @@
 [
+ "Tax Category can not be 'Valuation' or 'Valuation and Total' \n\t\t\t\t\tas all items are non-stock items", 
  "Cost Center is mandatory for item: ", 
  "must be one of", 
+ " has been freezed. ", 
  "Supplier Warehouse mandatory subcontracted purchase receipt", 
+ "Account for this ", 
  "to be included in Item's rate, it is required that: ", 
  "Row ", 
  " is mandatory", 
@@ -14,6 +17,6 @@
  "Total", 
  "No default BOM exists for item: ", 
  "Expense account is mandatory for item: ", 
- "Tax Category can not be 'Valuation' or 'Valuation and Total' \n\t\t\t\t\tas all items are non-stock items", 
+ " can not be made.", 
  "Row"
 ]
