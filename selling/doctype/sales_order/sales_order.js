@@ -39,34 +39,34 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 				cur_frm.dashboard.add_progress(cint(doc.per_billed) + wn._("% Billed"), 
 					doc.per_billed);
 
-				cur_frm.add_custom_button('Send SMS', cur_frm.cscript.send_sms);
+				cur_frm.add_custom_button(wn._('Send SMS'), cur_frm.cscript.send_sms);
 				// delivery note
 				if(flt(doc.per_delivered, 2) < 100 && doc.order_type=='Sales')
-					cur_frm.add_custom_button('Make Delivery', this.make_delivery_note);
+					cur_frm.add_custom_button(wn._('Make Delivery'), this.make_delivery_note);
 			
 				// maintenance
 				if(flt(doc.per_delivered, 2) < 100 && (doc.order_type !='Sales')) {
-					cur_frm.add_custom_button('Make Maint. Visit', this.make_maintenance_visit);
-					cur_frm.add_custom_button('Make Maint. Schedule', 
+					cur_frm.add_custom_button(wn._('Make Maint. Visit'), this.make_maintenance_visit);
+					cur_frm.add_custom_button(wn._('Make Maint. Schedule'), 
 						this.make_maintenance_schedule);
 				}
 
 				// indent
 				if(!doc.order_type || (doc.order_type == 'Sales'))
-					cur_frm.add_custom_button('Make ' + wn._('Material Request'), 
+					cur_frm.add_custom_button(wn._('Make ') + wn._('Material Request'), 
 						this.make_material_request);
 			
 				// sales invoice
 				if(flt(doc.per_billed, 2) < 100)
-					cur_frm.add_custom_button('Make Invoice', this.make_sales_invoice);
+					cur_frm.add_custom_button(wn._('Make Invoice'), this.make_sales_invoice);
 			
 				// stop
 				if(flt(doc.per_delivered, 2) < 100 || doc.per_billed < 100)
-					cur_frm.add_custom_button('Stop!', cur_frm.cscript['Stop Sales Order']);
+					cur_frm.add_custom_button(wn._('Stop!'), cur_frm.cscript['Stop Sales Order']);
 			} else {	
 				// un-stop
 				cur_frm.dashboard.set_headline_alert("Stopped", "alert-danger", "icon-stop");
-				cur_frm.add_custom_button('Unstop', cur_frm.cscript['Unstop Sales Order']);
+				cur_frm.add_custom_button(wn._('Unstop'), cur_frm.cscript['Unstop Sales Order']);
 			}
 		}
 
@@ -313,7 +313,8 @@ cur_frm.cscript.get_project_costs = function(doc, cdt, cdn){
 	}
 }
 
-cur_frm.cscript.refresh = function(){
+cur_frm.cscript.refresh = function(doc, cdt, cdn){
+	cur_frm.refresh(doc, cdt, cdn);
 	var doc = locals[cur_frm.doctype][cur_frm.docname],
 		display = ((user_roles.indexOf('Accounts User')>=0)||
 			       (user_roles.indexOf('Accounts Manager')>=0)||
@@ -342,8 +343,8 @@ cur_frm.cscript.refresh = function(){
 	cur_frm.toggle_enable('tc_name', display);
 	cur_frm.toggle_enable('terms', display);
 
-	if (!cur_frm.cscript.DBChooser.initialized && $('input[data-fieldname="project_files"]').length){
-        if (doc.__islocal || doc.workflow_state=='Rascunho'){
+	if (!cur_frm.cscript.DBChooser.initialized){
+        if (doc.__islocal && doc.workflow_state==='Rascunho'){
             cur_frm.cscript.DBChooser();
         } else {
             if (doc.project_files&&doc.project_files_name){
@@ -355,6 +356,7 @@ cur_frm.cscript.refresh = function(){
         }
         cur_frm.cscript.DBChooser.initialized = true;
     }
+    cur_frm.toggle_display('project_files', display);
 }
 
 cur_frm.cscript.get_revision_details = function(){
@@ -477,19 +479,20 @@ cur_frm.cscript.parent_sales_order = function(doc, cdt, cdn){
 // Adiciona uma validacao customizada a 'Sales Order'
 cur_frm.cscript.custom_validate = function(doc, cdt, cdn){
 	var payment_total = 0, msg='';
-    
+
     if (doc.__islocal){
-        doc.project_files = cur_frm.cscript.DBChooser.CACHE[doc.name].selected_files.join(';');
-        doc.project_files_name = cur_frm.cscript.DBChooser.CACHE[doc.name].selected_names.join(';');
+        doc.project_files = cur_frm.cscript.DBChooser.CACHE[doc.name] ? cur_frm.cscript.DBChooser.CACHE[doc.name].selected_files.join(';') : '';
+        doc.project_files_name = cur_frm.cscript.DBChooser.CACHE[doc.name] ? cur_frm.cscript.DBChooser.CACHE[doc.name].selected_names.join(';') : '';
         refresh_field('project_files');
     }
 
     if (!wn.model.get_children('Sales Order Payment', doc.name, 'sales_order_payments')){
     	validated = false;
-    	msg = msg + "Informe a forma de pagamento do pedido!<br>"
+    	msg = msg + "Informe a forma de pagamento do pedido!<br>";
     } else {
-    	$.map(wn.model.get_children('Sales Order Payment', doc.name, 'sales_order_payments'), function(d){payment_total += d.gross_payment_amount;});
-    	if (payment_total!==doc.net_total_export){
+    	doc.payment_amount_net = 0;
+    	$.map(wn.model.get_children('Sales Order Payment', doc.name, 'sales_order_payments'), function(d){ doc.payment_amount_net += d.net_payment_amount; payment_total += d.gross_payment_amount;});
+    	if (payment_total.toFixed(2)!==doc.net_total_export.toFixed(2)){
     		validated = false;
     		msg = msg + "A soma de pagamentos difere do total do pedido!<br>"
     			+ "Dica: <br>\t<b>Soma de Pagamentos: </b>"+format_currency(total, user_defaults.currency)
@@ -510,13 +513,12 @@ cur_frm.cscript.custom_validate = function(doc, cdt, cdn){
     // A data prevista de entrega deve ser superior a 90 dias a contar da data atual
     if (doc.is_scheduled_delivery && wn.datetime.get_day(wn.datetime.str_to_obj(doc.delivery_date)<wn.datetime.add_months(doc.transaction_date, 3))){
         validated = false;
-        msg = msg + 'A Data Prevista de Entrega deve ser superior a 90 dias a contar da data do pedido'
+        msg = msg + 'A Data Prevista de Entrega deve ser superior a 90 dias a contar da data do pedido';
     }
     // Dispara a mensagem de validacao caso o doc nao seja validado e haja uma mensagem
     if ((validated === false) && (msg !== '')) {
         msgprint(msg);
-    }
-    // Verificar se o total pago e igual ao total do pedido
+    }  
 }
 
 // Atualiza os valores da forma de pagamento e deflaciona
@@ -834,7 +836,6 @@ function value_calculation_decorated(caller){
             //cur_frm.refresh_field('project_amount');
         }
         cache = cur_frm.cscript.DBChooser.CACHE[doc.name].items;
-        console.log(cache);
         for (var key in cache){
         	item = locals['Sales Order Item'][cache[key]];
         	item.adj_rate = doc.project_discount;

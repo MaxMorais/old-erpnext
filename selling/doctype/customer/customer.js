@@ -31,7 +31,8 @@ cur_frm.cscript.load_defaults = function(doc, dt, dn) {
 cur_frm.add_fetch('lead_name', 'company_name', 'customer_name');
 cur_frm.add_fetch('default_sales_partner','commission_rate','default_commission_rate');
 
-cur_frm.cscript.refresh = function(doc,dt,dn) {
+cur_frm.cscript.custom_refresh = function(doc,dt,dn) {
+    console.log(doc.customer_type === 'Individual' ? 'documentos_cpf': 'documentos_cnpj');
 	cur_frm.cscript.setup_dashboard(doc);
 	if(sys_defaults.cust_master_name == 'Customer Name')
 		hide_field('naming_series');
@@ -51,6 +52,7 @@ cur_frm.cscript.refresh = function(doc,dt,dn) {
 			parent: cur_frm.fields_dict.communication_html.wrapper,
 			doc: doc,
 		});
+        cur_frm.toggle_enable(doc.customer_type === 'Individual' ? 'documentos_cpf': 'documentos_cnpj', false);
 	}
 }
 

@@ -2,7 +2,7 @@
  {
   "creation": "2013-01-10 16:34:32", 
   "docstatus": 0, 
-  "modified": "2013-07-11 17:02:12", 
+  "modified": "2013-08-19 16:57:41", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -230,6 +230,39 @@
   "fieldtype": "Data", 
   "label": "Lead Name", 
   "read_only": 1
+ }, 
+ {
+  "cancel": 1, 
+  "doctype": "DocPerm", 
+  "role": "System Manager"
+ }, 
+ {
+  "cancel": 1, 
+  "doctype": "DocPerm", 
+  "role": "Sales Master Manager"
+ }, 
+ {
+  "cancel": 1, 
+  "doctype": "DocPerm", 
+  "role": "Purchase Master Manager"
+ }, 
+ {
+  "cancel": 0, 
+  "doctype": "DocPerm", 
+  "role": "Maintenance Manager"
+ }, 
+ {
+  "cancel": 0, 
+  "doctype": "DocPerm", 
+  "role": "Accounts Manager"
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "Sales Manager"
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "Purchase Manager"
  }, 
  {
   "doctype": "DocPerm", 

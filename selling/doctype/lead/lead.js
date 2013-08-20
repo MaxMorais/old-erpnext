@@ -37,8 +37,8 @@ erpnext.LeadController = wn.ui.form.Controller.extend({
 
 		if(in_list(user_roles,'System Manager')) {
 			cur_frm.footer.help_area.innerHTML = '<hr>\
-				<p><a href="#Form/Sales Email Settings">Sales Email Settings</a><br>\
-				<span class="help">Automatically extract Leads from a mail box e.g. "sales@example.com"</span></p>';
+				<p><a href="#Form/Sales Email Settings">' + wn._('Sales Email Settings') + '</a><br>\
+				<span class="help">' + wn._('Automatically extract Leads from a mail box e.g. \"sales@example.com\"') + '</span></p>';
 		}
 	},
 	
@@ -58,9 +58,9 @@ erpnext.LeadController = wn.ui.form.Controller.extend({
 		
 		this.frm.__is_customer = this.frm.__is_customer || this.frm.doc.__is_customer;
 		if(!this.frm.doc.__islocal && !this.frm.__is_customer) {
-			this.frm.add_custom_button("Create Customer", this.create_customer);
-			this.frm.add_custom_button("Create Opportunity", this.create_opportunity);
-			this.frm.add_custom_button("Send SMS", this.frm.cscript.send_sms);
+			this.frm.add_custom_button(wn._("Create Customer"), this.create_customer);
+			this.frm.add_custom_button(wn._("Create Opportunity"), this.create_opportunity);
+			this.frm.add_custom_button(wn._("Send SMS"), this.frm.cscript.send_sms);
 		}
 		
 		cur_frm.communication_view = new wn.views.CommunicationList({

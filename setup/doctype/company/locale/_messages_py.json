@@ -1,3 +1,4 @@
 [
+ "Sorry! You cannot change company's default currency, because there are existing transactions against it. You will need to cancel those transactions if you want to change the default currency.", 
  "Sorry. Companies cannot be merged"
 ]
