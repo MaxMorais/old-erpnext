@@ -81,7 +81,7 @@ cur_frm.cscript.refresh = function(doc) {
 	erpnext.hide_naming_series();
 	cur_frm.cscript.voucher_type(doc);
 	if(doc.docstatus==1) { 
-		cur_frm.add_custom_button('View Ledger', function() {
+		cur_frm.add_custom_button(wn._('View Ledger'), function() {
 			wn.route_options = {
 				"voucher_no": doc.name,
 				"from_date": doc.posting_date,

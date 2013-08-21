@@ -26,6 +26,11 @@ wn.module_page["Accounts"] = [
 				label: wn._("Join Financial"),
 				description: wn._("Financial data from Customers."),
 				doctype:"Registration Data Personal Financial"
+			},
+			{
+				label: wn._('Receipt of Cheque'),
+				description: wn._('Receipt Control Cheques'),
+				doctype: "Receipt of Cheque"
 			}
 		]
 	},

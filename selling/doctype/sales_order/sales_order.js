@@ -60,6 +60,10 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 				if(flt(doc.per_billed, 2) < 100)
 					cur_frm.add_custom_button(wn._('Make Invoice'), this.make_sales_invoice);
 			
+				// journal voucher
+				if(flt(doc.per_billed, 2) < 100)
+					cur_frm.add_custom_button(wn._('Make Entries from Payments'), this.make_journal_voucher);
+
 				// stop
 				if(flt(doc.per_delivered, 2) < 100 || doc.per_billed < 100)
 					cur_frm.add_custom_button(wn._('Stop!'), cur_frm.cscript['Stop Sales Order']);
@@ -87,10 +91,10 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 				});
 		}
 
-		this.order_type(doc);
+		//this.order_type();
 	},
 	
-	order_type: function() {
+	order_type: function(doc, cdt, cdn) {
 		this.frm.toggle_reqd("delivery_date", this.frm.doc.order_type == "Sales");
 	},
 
@@ -133,6 +137,13 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 		})
 	},
 	
+	make_journal_voucher: function(){
+		wn.model.open_mapped_doc({
+			method: "selling.doctype.sales_order.sales_order.make_journal_voucher",
+			source: cur_frm.name
+		})
+	},
+
 	make_maintenance_schedule: function() {
 		wn.model.open_mapped_doc({
 			method: "selling.doctype.sales_order.sales_order.make_maintenance_schedule",
@@ -313,10 +324,9 @@ cur_frm.cscript.get_project_costs = function(doc, cdt, cdn){
 	}
 }
 
-cur_frm.cscript.refresh = function(doc, cdt, cdn){
-	cur_frm.refresh(doc, cdt, cdn);
-	var doc = locals[cur_frm.doctype][cur_frm.docname],
-		display = ((user_roles.indexOf('Accounts User')>=0)||
+cur_frm.cscript.custom_refresh = function(doc, cdt, cdn){
+	//var doc = locals[cur_frm.doctype][cur_frm.docname],
+	var display = ((user_roles.indexOf('Accounts User')>=0)||
 			       (user_roles.indexOf('Accounts Manager')>=0)||
 			       (user_roles.indexOf('Administrator')>=0||
 			       (user_roles.indexOf('System Manager')>=0))
@@ -325,26 +335,28 @@ cur_frm.cscript.refresh = function(doc, cdt, cdn){
 	
 	delete cur_frm.cscript.order_type;
 	
-	cur_frm.toggle_enable('project_cost', display);
-	cur_frm.toggle_enable('letter_head', display);
-	cur_frm.toggle_enable('transaction_date', display);
-	cur_frm.toggle_enable('select_print_heading', display);
-
-	cur_frm.toggle_display('project_cost_net', display);
-	cur_frm.toggle_display('project_increase', display);
-	cur_frm.toggle_display('project_estimate', display);
-	cur_frm.toggle_display('project_amount_net', display);
-	cur_frm.toggle_display('payment_amount_net', display);
-	cur_frm.toggle_display('commission_rate', display);
-	cur_frm.toggle_display('total_comission', display);
-	cur_frm.toggle_display('sales_team', display);
-	cur_frm.toggle_display('fiscal_year', display);
-
-	cur_frm.toggle_enable('tc_name', display);
-	cur_frm.toggle_enable('terms', display);
+	var key, fields = {
+		'project_cost': 1,
+		'letter_head': 1,
+		'transaction_date': 1,
+		'select_print_heading': 1,
+		'project_cost_net': 1,
+		'project_increase': 1,
+		'project_estimate': 1,
+		'project_amount_net': 1,
+		'payment_amount_net': 1,
+		'commission_rate': 1,
+		'total_comission': 1,
+		'sales_team': 1,
+		'fiscal_year': 1,
+		'tc_name': 1,
+		'terms': 1,
+	};
 
 	if (!cur_frm.cscript.DBChooser.initialized){
-        if (doc.__islocal && doc.workflow_state==='Rascunho'){
+		console.log('1')
+        if (doc.__islocal || doc.workflow_state==='Rascunho'){
+       
             cur_frm.cscript.DBChooser();
         } else {
             if (doc.project_files&&doc.project_files_name){
@@ -356,7 +368,19 @@ cur_frm.cscript.refresh = function(doc, cdt, cdn){
         }
         cur_frm.cscript.DBChooser.initialized = true;
     }
-    cur_frm.toggle_display('project_files', display);
+    for(var key in fields){
+		if ((key === 'project_cost')
+			||(key === 'letter_head')
+			||(key === 'transaction_date')
+			||(key === 'select_print_heading')
+			||(key === 'tc_name')
+			||(key === 'terms')){
+			cur_frm.toggle_enable(key, display);
+		} else {
+			cur_frm.toggle_display(key, display);
+		}
+	}
+	cur_frm.toggle_display('project_files',false);
 }
 
 cur_frm.cscript.get_revision_details = function(){

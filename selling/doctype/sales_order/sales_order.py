@@ -505,6 +505,20 @@ def make_maintenance_visit(source_name, target_doclist=None):
 		return [d.fields for d in doclist]
 
 @webnotes.whitelist()
+def make_journal_voucher(source_name, target_doclist=None):
+	doc_list = get_mapped_doclist("Sales Order", source_name, {
+		"Sales Order Payment": {
+			"doctype": "Journal Voucher",
+			"field_map": {
+
+			},
+			"validation": {
+				"mode_of_payment": ["!=", "Cheque"]
+			}
+		}
+	})
+
+@webnotes.whitelist()
 def get_project_costs(filenames):
 	from ParsePromob import PromobReader  # The file parse
 	from webnotes.model.bean import getlist
@@ -621,10 +635,6 @@ def get_project_costs(filenames):
 				item.doclist[1].fields.update({'ref_rate': price})                      # Update the price
 				item.insert()                                                           # Save the item
 			items.append(i['item_code']) # Append item code to
-
-			
-
-
 
 	return {
 		'project_cost': cost,
