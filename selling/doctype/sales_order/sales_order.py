@@ -541,8 +541,8 @@ def get_project_costs(filenames):
 			'is_sample_item': 'No',
 			'max_discount': 65,
 			'default_income_account': u'Vendas - Grupo Realize Móveis',
-			'default_sales_cost_center': u'Auto Inventory Accounting - Grupo Realize Móveis',
-		},
+			'default_sales_cost_center': u'Auto Inventory Accounting - Grupo Realize Móveis',	
+		}, 
 		# The Price
 		{
 			'doctype': 'Item Price',
@@ -583,7 +583,7 @@ def get_project_costs(filenames):
 			'stock_uom': '__Item Template_UOM',
 			'is_stock_item': 'No',
 			'is_purchase_item': 'Yes',
-			'is_sales_item': 'No',
+			'is_sales_item': 'Yes',
 			'manufacturer_part_no': '_Item Template_Code'
 		}
 	]
@@ -594,7 +594,7 @@ def get_project_costs(filenames):
 
 	for project_files in filenames.split(';'):
 		reader = PromobReader(project_files)              # Init the parse
-		project = reader.getProject()                     # Get the xml root element
+		project = reader.getProject()                     # Get the xml root element 
 		data = project.toDict()                           # Get the item and subitems to compose the sales bom
 		cost += data.get('project_cost', 0)               # Get the raw price of the item
 		increase += data.get('project_increase', 0)       # Get the project increase
@@ -608,26 +608,7 @@ def get_project_costs(filenames):
 				pricelist = item.doclist.get({'doctype': 'Item Price'})
 				if pricelist:
 					pricelist[0].ref_rate = price
-				item.save()
-				                                                                        # Save the item
-				sales_bom = webnotes.bean(copy=sales_bom_template[0])
-				sales_bom.doc.fields.update({'new_item_code': i['item_code']})
-
-				subcodes = []
-				subnames = []
-				for subitem in subitems:
-					subname = x['item_name']
-					subcodes.append(`subname`)
-					subnames.append(subname)
-				webnotes.msgprint(subitem_codes);
-				to_add = sql(
-					'SELECT `Item`.`name` FROM `tabItem` WHERE `name` in (%s);'%','.join(subcodes), 
-					 as_dict=True
-				)
-				for subitem in to_add:
-					_item = webnotes.bean(copy=item_template[0])
-					
-
+				item.save()                                                             # Save the item
 			except Exception, e:
 				webnotes.msgprint(e)
 				item = webnotes.bean(copy=enviroment_template)                          # Make a new item based on template

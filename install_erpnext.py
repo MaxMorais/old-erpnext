@@ -236,7 +236,7 @@ def setup_db(install_path, root_password, db_name):
 	inst.import_from_db(db_name, verbose=1)
 
 	# run patches and sync
-	exec_in_shell("./lib/wnf.py --patch_sync_build")
+	exec_in_shell("cd %s && ./lib/wnf.py --patch_sync_build"%(os.path.join(install_path)))
 	
 def setup_cron(install_path):
 	erpnext_cron_entries = [

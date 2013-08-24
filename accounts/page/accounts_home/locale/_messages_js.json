@@ -28,6 +28,7 @@
  "Shipping Rules", 
  "General Ledger", 
  "Terms and Conditions Template", 
+ "Receipt Control Cheques", 
  "Match non-linked Invoices and Payments.", 
  "Budget Variance Report", 
  "Bank Reconciliation", 
@@ -73,5 +74,6 @@
  "Accounts Settings", 
  "Tools", 
  "Chart of Cost Centers", 
- "Bills raised to Customers."
+ "Bills raised to Customers.", 
+ "Receipt of Cheque"
 ]

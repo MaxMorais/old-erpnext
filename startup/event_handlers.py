@@ -35,7 +35,7 @@ def on_login_post_session(login_manager):
 		set_cart_count()
 		
 def on_logout(login_manager):
-	webnotes.add_cookies["cart_count"] = ""
+	pass
 		
 def check_if_expired():
 	"""check if account is expired. If expired, do not allow login"""

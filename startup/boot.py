@@ -12,22 +12,13 @@ def boot_session(bootinfo):
 	import webnotes.model.doc
 	
 	bootinfo['custom_css'] = webnotes.conn.get_value('Style Settings', None, 'custom_css') or ''
-	bootinfo['website_settings'] = webnotes.model.doc.getsingle('Website Settings')
 
 	if webnotes.session['user']!='Guest':
 		bootinfo['letter_heads'] = get_letter_heads()
 
 		import webnotes.model.doctype
 		bootinfo['notification_settings'] = webnotes.doc("Notification Control", 
-			"Notification Control").get_values()
-				
-		# if no company, show a dialog box to create a new company
-		bootinfo["customer_count"] = webnotes.conn.sql("""select count(*) from tabCustomer""")[0][0]
-
-		if not bootinfo["customer_count"]:
-			bootinfo['setup_complete'] = webnotes.conn.sql("""select name from 
-				tabCompany limit 1""") and 'Yes' or 'No'
-		
+			"Notification Control").get_values()		
 		
 		# load subscription info
 		import conf
