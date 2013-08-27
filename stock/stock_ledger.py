@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 import webnotes
 from webnotes import msgprint
@@ -21,6 +8,7 @@ from stock.utils import get_valuation_method
 import json
 
 # future reposting
+class NegativeStockError(webnotes.ValidationError): pass
 
 _exceptions = []
 def update_entries_after(args, verbose=1):
@@ -266,9 +254,9 @@ def _raise_exceptions(args, verbose=1):
 		_exceptions[0]["voucher_type"], _exceptions[0]["voucher_no"],
 		abs(deficiency))
 	if verbose:
-		msgprint(msg, raise_exception=1)
+		msgprint(msg, raise_exception=NegativeStockError)
 	else:
-		raise webnotes.ValidationError, msg
+		raise NegativeStockError, msg
 		
 def get_previous_sle(args, for_update=False):
 	"""

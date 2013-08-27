@@ -1,22 +1,9 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
-from webnotes.utils import cint, flt, comma_or
+from webnotes.utils import cint, flt, comma_or, _round, add_days, cstr
 from setup.utils import get_company_currency
 from selling.utils import get_item_details
 from webnotes import msgprint, _
@@ -27,12 +14,8 @@ class SellingController(StockController):
 	def onload_post_render(self):
 		# contact, address, item details and pos details (if applicable)
 		self.set_missing_values()
-		
 		self.set_taxes("other_charges", "charge")
 		
-		if self.meta.get_field("debit_to") and not self.doc.debit_to:
-			self.doc.debit_to = self.get_debit_to().get("debit_to")
-			
 	def set_missing_values(self, for_validate=False):
 		super(SellingController, self).set_missing_values(for_validate)
 		
@@ -116,8 +99,8 @@ class SellingController(StockController):
 			for item in self.doclist.get({"parentfield": self.fname}):
 				if item.item_code in self.stock_items or \
 						(item_sales_bom and item_sales_bom.get(item.item_code)):
-					buying_amount = get_buying_amount(item.item_code, item.warehouse, -1*item.qty, 
-						self.doc.doctype, self.doc.name, item.name, stock_ledger_entries, 
+					buying_amount = get_buying_amount(item.item_code, self.doc.doctype, self.doc.name, item.name, 
+						stock_ledger_entries.get((item.item_code, item.warehouse), []), 
 						item_sales_bom)
 					
 					item.buying_amount = buying_amount >= 0.01 and buying_amount or 0
@@ -163,10 +146,10 @@ class SellingController(StockController):
 				cumulated_tax_fraction += tax.tax_fraction_for_current_item
 			
 			if cumulated_tax_fraction:
-				item.basic_rate = flt((item.export_rate * self.doc.conversion_rate) / 
-					(1 + cumulated_tax_fraction), self.precision("basic_rate", item))
-				
-				item.amount = flt(item.basic_rate * item.qty, self.precision("amount", item))
+				item.amount = flt((item.export_amount * self.doc.conversion_rate) /
+					(1 + cumulated_tax_fraction), self.precision("amount", item))
+					
+				item.basic_rate = flt(item.amount / item.qty, self.precision("basic_rate", item))
 				
 				if item.adj_rate == 100:
 					item.base_ref_rate = item.basic_rate
@@ -204,7 +187,7 @@ class SellingController(StockController):
 			
 			if item.adj_rate == 100:
 				item.export_rate = 0
-			elif item.ref_rate:
+			elif not item.export_rate:
 				item.export_rate = flt(item.ref_rate * (1.0 - (item.adj_rate / 100.0)),
 					self.precision("export_rate", item))
 						
@@ -235,8 +218,8 @@ class SellingController(StockController):
 		self.doc.other_charges_total_export = flt(self.doc.grand_total_export - self.doc.net_total_export,
 			self.precision("other_charges_total_export"))
 		
-		self.doc.rounded_total = round(self.doc.grand_total)
-		self.doc.rounded_total_export = round(self.doc.grand_total_export)
+		self.doc.rounded_total = _round(self.doc.grand_total)
+		self.doc.rounded_total_export = _round(self.doc.grand_total_export)
 		
 	def calculate_outstanding_amount(self):
 		# NOTE: 
@@ -284,3 +267,32 @@ class SellingController(StockController):
 			msgprint(_(self.meta.get_label("order_type")) + " " + 
 				_("must be one of") + ": " + comma_or(valid_types),
 				raise_exception=True)
+				
+	def update_serial_nos(self, cancel=False):
+		from stock.doctype.stock_ledger_entry.stock_ledger_entry import update_serial_nos_after_submit, get_serial_nos
+		update_serial_nos_after_submit(self, self.doc.doctype, self.fname)
+		update_serial_nos_after_submit(self, self.doc.doctype, "packing_details")
+
+		for table_fieldname in (self.fname, "packing_details"):
+			for d in self.doclist.get({"parentfield": table_fieldname}):
+				for serial_no in get_serial_nos(d.serial_no):
+					sr = webnotes.bean("Serial No", serial_no)
+					if cancel:
+						sr.doc.status = "Available"
+						for fieldname in ("warranty_expiry_date", "delivery_document_type", 
+							"delivery_document_no", "delivery_date", "delivery_time", "customer", 
+							"customer_name"):
+							sr.doc.fields[fieldname] = None
+					else:
+						sr.doc.delivery_document_type = self.doc.doctype
+						sr.doc.delivery_document_no = self.doc.name
+						sr.doc.delivery_date = self.doc.posting_date
+						sr.doc.delivery_time = self.doc.posting_time
+						sr.doc.customer = self.doc.customer
+						sr.doc.customer_name	= self.doc.customer_name
+						if sr.doc.warranty_period:
+							sr.doc.warranty_expiry_date = add_days(cstr(self.doc.posting_date), 
+								cint(sr.doc.warranty_period))
+						sr.doc.status =	'Delivered'
+
+					sr.save()

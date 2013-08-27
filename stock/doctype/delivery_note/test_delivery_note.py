@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 
 from __future__ import unicode_literals
@@ -30,6 +17,8 @@ class TestDeliveryNote(unittest.TestCase):
 		pr.submit()
 		
 	def test_over_billing_against_dn(self):
+		self._insert_purchase_receipt()
+		
 		from stock.doctype.delivery_note.delivery_note import make_sales_invoice
 		
 		dn = webnotes.bean(copy=test_records[0]).insert()
@@ -45,7 +34,7 @@ class TestDeliveryNote(unittest.TestCase):
 		
 		# modify export_amount
 		si[1].export_rate = 200
-		self.assertRaises(webnotes.ValidationError, webnotes.bean(si).submit)
+		self.assertRaises(webnotes.ValidationError, webnotes.bean(si).insert)
 		
 	
 	def test_delivery_note_no_gl_entry(self):
@@ -107,6 +96,59 @@ class TestDeliveryNote(unittest.TestCase):
 		self.assertEquals(bal, prev_bal - 375.0)
 		
 		webnotes.defaults.set_global_default("auto_inventory_accounting", 0)
+		
+	def test_serialized(self):
+		from stock.doctype.stock_entry.test_stock_entry import make_serialized_item
+		from stock.doctype.stock_ledger_entry.stock_ledger_entry import get_serial_nos
+		
+		se = make_serialized_item()
+		serial_nos = get_serial_nos(se.doclist[1].serial_no)
+		
+		dn = webnotes.bean(copy=test_records[0])
+		dn.doclist[1].item_code = "_Test Serialized Item With Series"
+		dn.doclist[1].qty = 1
+		dn.doclist[1].serial_no = serial_nos[0]
+		dn.insert()
+		dn.submit()
+		
+		self.assertEquals(webnotes.conn.get_value("Serial No", serial_nos[0], "status"), "Delivered")
+		self.assertFalse(webnotes.conn.get_value("Serial No", serial_nos[0], "warehouse"))
+		self.assertEquals(webnotes.conn.get_value("Serial No", serial_nos[0], 
+			"delivery_document_no"), dn.doc.name)
+			
+		return dn
+			
+	def test_serialized_cancel(self):
+		from stock.doctype.stock_ledger_entry.stock_ledger_entry import get_serial_nos
+		dn = self.test_serialized()
+		dn.cancel()
+
+		serial_nos = get_serial_nos(dn.doclist[1].serial_no)
+
+		self.assertEquals(webnotes.conn.get_value("Serial No", serial_nos[0], "status"), "Available")
+		self.assertEquals(webnotes.conn.get_value("Serial No", serial_nos[0], "warehouse"), "_Test Warehouse - _TC")
+		self.assertFalse(webnotes.conn.get_value("Serial No", serial_nos[0], 
+			"delivery_document_no"))
+
+	def test_serialize_status(self):
+		from stock.doctype.stock_ledger_entry.stock_ledger_entry import SerialNoStatusError, get_serial_nos
+		from stock.doctype.stock_entry.test_stock_entry import make_serialized_item
+		
+		se = make_serialized_item()
+		serial_nos = get_serial_nos(se.doclist[1].serial_no)
+		
+		sr = webnotes.bean("Serial No", serial_nos[0])
+		sr.doc.status = "Not Available"
+		sr.save()
+		
+		dn = webnotes.bean(copy=test_records[0])
+		dn.doclist[1].item_code = "_Test Serialized Item With Series"
+		dn.doclist[1].qty = 1
+		dn.doclist[1].serial_no = serial_nos[0]
+		dn.insert()
+
+		self.assertRaises(SerialNoStatusError, dn.submit)
+
 
 test_records = [
 	[
@@ -122,7 +164,7 @@ test_records = [
 			"posting_date": "2013-02-21", 
 			"posting_time": "9:00:00", 
 			"price_list_currency": "INR", 
-			"price_list_name": "_Test Price List", 
+			"selling_price_list": "_Test Price List", 
 			"status": "Draft", 
 			"territory": "_Test Territory",
 			"net_total": 500.0,

@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -33,8 +20,7 @@ class DocType(BuyingController):
 
 	def is_item_table_empty(self, obj):
 		if not len(obj.doclist.get({"parentfield": obj.fname})):
-			msgprint(_("Hey there! You need to put at least one item in \
-				the item table."), raise_exception=True)
+			msgprint(_("You need to put at least one item in the item table."), raise_exception=True)
 
 	def get_supplier_details(self, name = ''):
 		details = sql("select supplier_name,address from `tabSupplier` where name = '%s' and docstatus != 2" %(name), as_dict = 1)

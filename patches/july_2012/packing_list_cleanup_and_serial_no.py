@@ -1,3 +1,6 @@
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
+
 from __future__ import unicode_literals
 def execute():
 	import webnotes
@@ -36,7 +39,7 @@ def execute():
 
 				status = 'Not in Use'
 				if sle and flt(sle[0]['actual_qty']) > 0:
-					status = 'In Store'
+					status = 'Available'
 				elif sle and flt(sle[0]['actual_qty']) < 0:
 					status = 'Delivered'
 				

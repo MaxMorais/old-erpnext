@@ -1,18 +1,5 @@
- # ERPNext - web based ERP (http://erpnext.com)
- # Copyright (C) 2012 Web Notes Technologies Pvt Ltd
- 
- # This program is free software: you can redistribute it and/or modify
- # it under the terms of the GNU General Public License as published by
- # the Free Software Foundation, either version 3 of the License, or
- # (at your option) any later version.
-
- # This program is distributed in the hope that it will be useful,
- # but WITHOUT ANY WARRANTY; without even the implied warranty of
- # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- # GNU General Public License for more details.
- 
- # You should have received a copy of the GNU General Public License
- # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -200,10 +187,10 @@ def get_project_name(doctype, txt, searchfield, start, page_len, filters):
 		
 def get_price_list_currency(doctype, txt, searchfield, start, page_len, filters):
 	return webnotes.conn.sql("""select ref_currency from `tabItem Price` 
-		where price_list_name = %s and buying_or_selling = %s
+		where price_list = %s and buying_or_selling = %s
 		and `%s` like %s order by ref_currency asc limit %s, %s""" %
 		("%s", "%s", searchfield, "%s", "%s", "%s"), 
-		(filters["price_list_name"], filters['buying_or_selling'], "%%%s%%" % txt, 
+		(filters["price_list"], filters['buying_or_selling'], "%%%s%%" % txt, 
 			start, page_len))
 			
 def get_delivery_notes_to_be_billed(doctype, txt, searchfield, start, page_len, filters):
@@ -220,4 +207,4 @@ def get_delivery_notes_to_be_billed(doctype, txt, searchfield, start, page_len, 
 				"fcond": get_filters_cond(doctype, filters, []),
 				"mcond": get_match_cond(doctype),
 				"start": "%(start)s", "page_len": "%(page_len)s", "txt": "%(txt)s"
-			}, { "start": start, "page_len": page_len, "txt": ("%%%s%%" % txt) }, debug=True)
+			}, { "start": start, "page_len": page_len, "txt": ("%%%s%%" % txt) })

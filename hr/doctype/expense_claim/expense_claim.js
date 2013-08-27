@@ -1,18 +1,5 @@
-// ERPNext - web based ERP (http://erpnext.com)
-// Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.	If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
 
 wn.provide("erpnext.hr");
 
@@ -38,9 +25,11 @@ erpnext.hr.ExpenseClaimController = wn.ui.form.Controller.extend({
 
 				// credit to bank
 				var d1 = wn.model.add_child(jv, 'Journal Voucher Detail', 'entries');
-				d1.account = r.message[0].account;
 				d1.credit = cur_frm.doc.total_sanctioned_amount;
-				d1.balance = r.message[0].balance;
+				if(r.message) {
+					d1.account = r.message[0].account;
+					d1.balance = r.message[0].balance;
+				}
 
 				loaddoc('Journal Voucher', jv.name);
 			}

@@ -1,3 +1,6 @@
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
+
 def execute():
 	import webnotes
 	from webnotes.utils import flt
@@ -10,7 +13,7 @@ def execute():
 			where account = %s and voucher_type = 'Sales Invoice' and voucher_no = %s
 			and ifnull(is_cancelled, 'No') = 'No' limit 1""", (r.debit_to, r.name), as_dict=1)
 		if gle:
-			diff = round((flt(r.grand_total) - flt(gle[0]['debit'])), 2)
+			diff = flt((flt(r.grand_total) - flt(gle[0]['debit'])), 2)
 		
 			if abs(diff) == 0.01:
 				# print r.name, r.grand_total, gle[0]['debit'], diff

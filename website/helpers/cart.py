@@ -1,5 +1,5 @@
-# Copyright (c) 2012 Web Notes Technologies Pvt Ltd.
-# License: GNU General Public License (v3). For more information see license.txt
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -228,6 +228,7 @@ def _get_cart_quotation(party=None):
 			"company": webnotes.defaults.get_user_default("company"),
 			"order_type": "Shopping Cart",
 			"status": "Draft",
+			"docstatus": 0,
 			"__islocal": 1,
 			(party.doctype.lower()): party.name
 		})
@@ -297,7 +298,7 @@ def apply_cart_settings(party=None, quotation=None):
 	
 def set_price_list_and_rate(quotation, cart_settings, billing_territory):
 	"""set price list based on billing territory"""
-	quotation.doc.price_list_name = cart_settings.get_price_list(billing_territory)
+	quotation.doc.selling_price_list = cart_settings.get_price_list(billing_territory)
 	
 	# reset values
 	quotation.doc.price_list_currency = quotation.doc.currency = \
@@ -309,7 +310,7 @@ def set_price_list_and_rate(quotation, cart_settings, billing_territory):
 	quotation.run_method("set_price_list_and_item_details")
 	
 	# set it in cookies for using in product page
-	webnotes.cookies[b"price_list_name"] = quotation.doc.price_list_name
+	webnotes.cookies[b"selling_price_list"] = quotation.doc.selling_price_list
 	
 def set_taxes(quotation, cart_settings, billing_territory):
 	"""set taxes based on billing territory"""

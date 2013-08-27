@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -90,9 +77,9 @@ class TransactionBase(StatusUpdater):
 		"""
 		customer_defaults = self.get_customer_defaults()
 					
-		customer_defaults["price_list"] = customer_defaults.get("price_list") or \
+		customer_defaults["selling_price_list"] = customer_defaults.get("price_list") or \
 			webnotes.conn.get_value("Customer Group", self.doc.customer_group, "default_price_list") or \
-			self.doc.price_list
+			self.doc.selling_price_list
 			
 		for fieldname, val in customer_defaults.items():
 			if self.meta.get_field(fieldname):
@@ -489,8 +476,8 @@ def validate_currency(args, item, meta=None):
 				webnotes._dict({"fields": args})))
 	
 	# validate price list conversion rate
-	if meta.get_field("price_list_currency") and args.price_list_name and \
-		args.price_list_currency:
+	if meta.get_field("price_list_currency") and (args.selling_price_list or args.buying_price_list) \
+		and args.price_list_currency:
 		validate_conversion_rate(args.price_list_currency, args.plc_conversion_rate, 
 			meta.get_label("plc_conversion_rate"), args.company)
 		

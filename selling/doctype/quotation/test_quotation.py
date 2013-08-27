@@ -1,3 +1,6 @@
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
+
 import webnotes, json
 from webnotes.utils import flt
 import unittest
@@ -41,7 +44,7 @@ test_records = [
 			"order_type": "Sales",
 			"plc_conversion_rate": 1.0, 
 			"price_list_currency": "INR", 
-			"price_list_name": "_Test Price List", 
+			"selling_price_list": "_Test Price List", 
 			"territory": "_Test Territory", 
 			"transaction_date": "2013-02-21",
 			"grand_total": 1000.0, 

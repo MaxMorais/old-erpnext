@@ -1,3 +1,6 @@
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
+
 # ERPNext - web based ERP (http://erpnext.com)
 # For license information, please see license.txt
 
@@ -48,10 +51,9 @@ class DocType(BuyingController):
 					msgprint("You can raise indent of maximum qty: %s for item: %s against sales order: %s\n Anyway, you can add more qty in new row for the same item." % (actual_so_qty - already_indented, item, so_no), raise_exception=1)
 				
 	def validate_schedule_date(self):
-		 #:::::::: validate schedule date v/s indent date ::::::::::::
 		for d in getlist(self.doclist, 'indent_details'):
 			if d.schedule_date < self.doc.transaction_date:
-				msgprint("Expected Schedule Date cannot be before Material Request Date")
+				msgprint("Expected Date cannot be before Material Request Date")
 				raise Exception
 				
 	# Validate

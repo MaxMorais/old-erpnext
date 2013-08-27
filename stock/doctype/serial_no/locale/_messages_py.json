@@ -1,3 +1,8 @@
 [
- "Sorry. Serial Nos. cannot be merged"
+ "Sorry. Serial Nos. cannot be merged", 
+ "Item Code cannot be changed for Serial No.", 
+ "Cannot delete Serial No in warehouse. First remove from warehouse, then delete.", 
+ "Item must have 'Has Serial No' as 'Yes'", 
+ "New Serial No cannot have Warehouse. Warehouse must be set by Stock Entry or Purchase Receipt", 
+ "Warehouse cannot be changed for Serial No."
 ]

@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -209,7 +196,6 @@ def make_purchase_receipt(source_name, target_doclist=None):
 		bean.run_method("set_missing_values")
 
 	def update_item(obj, target, source_parent):
-		target.conversion_factor = 1
 		target.qty = flt(obj.qty) - flt(obj.received_qty)
 		target.stock_qty = (flt(obj.qty) - flt(obj.received_qty)) * flt(obj.conversion_factor)
 		target.import_amount = (flt(obj.qty) - flt(obj.received_qty)) * flt(obj.import_rate)
@@ -250,7 +236,6 @@ def make_purchase_invoice(source_name, target_doclist=None):
 		bean.run_method("set_supplier_defaults")
 
 	def update_item(obj, target, source_parent):
-		target.conversion_factor = 1
 		target.import_amount = flt(obj.import_amount) - flt(obj.billed_amt)
 		target.amount = target.import_amount * flt(source_parent.conversion_rate)
 		if flt(obj.purchase_rate):

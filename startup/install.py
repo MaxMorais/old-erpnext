@@ -1,3 +1,6 @@
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
+
 from __future__ import unicode_literals
 
 import webnotes
@@ -69,7 +72,7 @@ def feature_setup():
 		'fs_exports', 'fs_imports', 'fs_discounts', 'fs_purchase_discounts',
 		'fs_after_sales_installations', 'fs_projects', 'fs_sales_extras',
 		'fs_recurring_invoice', 'fs_pos', 'fs_manufacturing', 'fs_quality',
-		'fs_page_break', 'fs_more_info'
+		'fs_page_break', 'fs_more_info', 'fs_pos_view'
 	]
 	doc.fields.update(dict(zip(flds, [1]*len(flds))))
 	doc.save()
@@ -104,6 +107,7 @@ def import_defaults():
 		{'doctype': 'Item Group', 'item_group_name': 'Products', 'is_group': 'No', 'parent_item_group': 'All Item Groups'},
 		{'doctype': 'Item Group', 'item_group_name': 'Raw Material', 'is_group': 'No', 'parent_item_group': 'All Item Groups'},
 		{'doctype': 'Item Group', 'item_group_name': 'Services', 'is_group': 'No', 'parent_item_group': 'All Item Groups'},
+		{'doctype': 'Item Group', 'item_group_name': 'Sub Assemblies', 'is_group': 'No', 'parent_item_group': 'All Item Groups'},
 		
 		# deduction type
 		{'doctype': 'Deduction Type', 'name': 'Income Tax', 'description': 'Income Tax', 'deduction_name': 'Income Tax'},

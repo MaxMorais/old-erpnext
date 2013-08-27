@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -42,7 +29,7 @@ def get_item_details(args):
 			"warehouse": None,
 			"customer": "",
 			"conversion_rate": 1.0,
-			"price_list_name": None,
+			"selling_price_list": None,
 			"price_list_currency": None,
 			"plc_conversion_rate": 1.0
 		}
@@ -70,9 +57,9 @@ def get_item_details(args):
 	if meta.get_field("currency"):
 		out.base_ref_rate = out.basic_rate = out.ref_rate = out.export_rate = 0.0
 		
-		if args.price_list_name and args.price_list_currency:
+		if args.selling_price_list and args.price_list_currency:
 			out.update(_get_price_list_rate(args, item_bean, meta))
-			
+		
 	out.update(_get_item_discount(out.item_group, args.customer))
 	
 	if out.get(warehouse_fieldname):
@@ -82,10 +69,24 @@ def get_item_details(args):
 	
 	if cint(args.is_pos):
 		pos_settings = get_pos_settings(args.company)
-		out.update(apply_pos_settings(pos_settings, out))
-	
+		if pos_settings:
+			out.update(apply_pos_settings(pos_settings, out))
+		
+	if args.doctype in ("Sales Invoice", "Delivery Note"):
+		if item_bean.doc.has_serial_no and not args.serial_no:
+			out.serial_no = _get_serial_nos_by_fifo(args, item_bean)
+		
 	return out
-	
+
+def _get_serial_nos_by_fifo(args, item_bean):
+	return "\n".join(webnotes.conn.sql_list("""select name from `tabSerial No` 
+		where item_code=%(item_code)s and warehouse=%(warehouse)s and status='Available' 
+		order by timestamp(purchase_date, purchase_time) asc limit %(qty)s""", {
+			"item_code": args.item_code,
+			"warehouse": args.warehouse,
+			"qty": cint(args.qty)
+		}))
+
 def _get_item_code(barcode):
 	item_code = webnotes.conn.sql_list("""select name from `tabItem` where barcode=%s""", barcode)
 			
@@ -142,10 +143,10 @@ def _get_basic_details(args, item_bean, warehouse_fieldname):
 def _get_price_list_rate(args, item_bean, meta):
 	base_ref_rate = item_bean.doclist.get({
 		"parentfield": "ref_rate_details",
-		"price_list_name": args.price_list_name, 
+		"price_list": args.selling_price_list, 
 		"ref_currency": args.price_list_currency,
 		"buying_or_selling": "Selling"})
-	
+
 	if not base_ref_rate:
 		return {}
 	

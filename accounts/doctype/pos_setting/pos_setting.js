@@ -1,25 +1,12 @@
-// ERPNext - web based ERP (http://erpnext.com)
-// Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.	If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
 
 cur_frm.cscript.onload = function(doc,cdt,cdn){
 	return $c_obj(make_doclist(cdt,cdn),'get_series','',function(r,rt){
 		if(r.message) set_field_options('naming_series', r.message);
 	});
 	
-	cur_frm.set_query("price_list_name", function() {
+	cur_frm.set_query("selling_price_list", function() {
 		return { filters: { buying_or_selling: "Selling" } };
 	});
 }

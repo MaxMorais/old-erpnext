@@ -1,18 +1,5 @@
-// ERPNext - web based ERP (http://erpnext.com)
-// Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
 
 wn.pages['general-ledger'].onload = function(wrapper) { 
 	wn.ui.make_app_page({
@@ -154,13 +141,13 @@ erpnext.GeneralLedger = wn.views.GridReport.extend({
 	toggle_group_by_checks: function() {
 		this.make_account_by_name();
 		
-		this.filter_inputs.group_by_ledger
-			.parent().toggle(!!(this.account_by_name[this.account] 
-				&& this.account_by_name[this.account].group_or_ledger==="Group"));
-				
-		this.filter_inputs.group_by_voucher
-			.parent().toggle(!!(this.account_by_name[this.account] 
-				&& this.account_by_name[this.account].group_or_ledger==="Ledger"));
+		// this.filter_inputs.group_by_ledger
+		// 	.parent().toggle(!!(this.account_by_name[this.account] 
+		// 		&& this.account_by_name[this.account].group_or_ledger==="Group"));
+		// 		
+		// this.filter_inputs.group_by_voucher
+		// 	.parent().toggle(!!(this.account_by_name[this.account] 
+		// 		&& this.account_by_name[this.account].group_or_ledger==="Ledger"));
 	},
 	prepare_data: function() {
 		var me = this;
@@ -402,7 +389,8 @@ erpnext.GeneralLedger = wn.views.GridReport.extend({
 			grid: { hoverable: true, clickable: true },
 			xaxis: { mode: "time", 
 				min: dateutil.str_to_obj(this.from_date).getTime(),
-				max: dateutil.str_to_obj(this.to_date).getTime() }
+				max: dateutil.str_to_obj(this.to_date).getTime() },
+			series: { downsample: { threshold: 1000 } }
 		}
 	},
 });

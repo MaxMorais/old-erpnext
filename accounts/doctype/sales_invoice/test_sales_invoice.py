@@ -1,3 +1,6 @@
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
+
 import webnotes
 import unittest, json
 from webnotes.utils import flt, cint
@@ -158,7 +161,7 @@ class TestSalesInvoice(unittest.TestCase):
 		expected_values = {
 			"keys": ["ref_rate", "adj_rate", "export_rate", "export_amount", 
 				"base_ref_rate", "basic_rate", "amount"],
-			"_Test Item Home Desktop 100": [62.5, 0, 62.5, 625.0, 50, 50, 500],
+			"_Test Item Home Desktop 100": [62.5, 0, 62.5, 625.0, 50, 50, 499.98],
 			"_Test Item Home Desktop 200": [190.66, 0, 190.66, 953.3, 150, 150, 750],
 		}
 		
@@ -172,28 +175,28 @@ class TestSalesInvoice(unittest.TestCase):
 				self.assertEquals(d.fields.get(k), expected_values[d.item_code][i])
 		
 		# check net total
-		self.assertEquals(si.doc.net_total, 1250)
+		self.assertEquals(si.doc.net_total, 1249.98)
 		self.assertEquals(si.doc.net_total_export, 1578.3)
 		
 		# check tax calculation
 		expected_values = {
 			"keys": ["tax_amount", "total"],
-			"_Test Account Excise Duty - _TC": [140, 1390],
-			"_Test Account Education Cess - _TC": [2.8, 1392.8],
-			"_Test Account S&H Education Cess - _TC": [1.4, 1394.2],
-			"_Test Account CST - _TC": [27.88, 1422.08],
-			"_Test Account VAT - _TC": [156.25, 1578.33],
-			"_Test Account Customs Duty - _TC": [125, 1703.33],
-			"_Test Account Shipping Charges - _TC": [100, 1803.33],
-			"_Test Account Discount - _TC": [-180.33, 1623]
+			"_Test Account Excise Duty - _TC": [140, 1389.98],
+			"_Test Account Education Cess - _TC": [2.8, 1392.78],
+			"_Test Account S&H Education Cess - _TC": [1.4, 1394.18],
+			"_Test Account CST - _TC": [27.88, 1422.06],
+			"_Test Account VAT - _TC": [156.25, 1578.31],
+			"_Test Account Customs Duty - _TC": [125, 1703.31],
+			"_Test Account Shipping Charges - _TC": [100, 1803.31],
+			"_Test Account Discount - _TC": [-180.33, 1622.98]
 		}
 		
 		for d in si.doclist.get({"parentfield": "other_charges"}):
 			for i, k in enumerate(expected_values["keys"]):
 				self.assertEquals(flt(d.fields.get(k), 6), expected_values[d.account_head][i])
 		
-		self.assertEquals(si.doc.grand_total, 1623)
-		self.assertEquals(si.doc.grand_total_export, 1623)
+		self.assertEquals(si.doc.grand_total, 1622.98)
+		self.assertEquals(si.doc.grand_total_export, 1622.98)
 		
 	def test_sales_invoice_calculation_export_currency_with_tax_inclusive_price(self):
 		# prepare
@@ -212,8 +215,8 @@ class TestSalesInvoice(unittest.TestCase):
 		expected_values = {
 			"keys": ["ref_rate", "adj_rate", "export_rate", "export_amount", 
 				"base_ref_rate", "basic_rate", "amount"],
-			"_Test Item Home Desktop 100": [55.56, 10, 50, 500, 2222.11, 1999.9, 19999.0],
-			"_Test Item Home Desktop 200": [187.5, 20, 150, 750, 7375.66, 5900.53, 29502.65],
+			"_Test Item Home Desktop 100": [55.56, 10, 50, 500, 2222.11, 1999.9, 19999.04],
+			"_Test Item Home Desktop 200": [187.5, 20, 150, 750, 7375.66, 5900.53, 29502.66],
 		}
 		
 		# check if children are saved
@@ -226,27 +229,27 @@ class TestSalesInvoice(unittest.TestCase):
 				self.assertEquals(d.fields.get(k), expected_values[d.item_code][i])
 		
 		# check net total
-		self.assertEquals(si.doc.net_total, 49501.65)
+		self.assertEquals(si.doc.net_total, 49501.7)
 		self.assertEquals(si.doc.net_total_export, 1250)
 		
 		# check tax calculation
 		expected_values = {
 			"keys": ["tax_amount", "total"],
-			"_Test Account Excise Duty - _TC": [5540.22, 55041.87],
-			"_Test Account Education Cess - _TC": [110.81, 55152.68],
-			"_Test Account S&H Education Cess - _TC": [55.4, 55208.08],
-			"_Test Account CST - _TC": [1104.16, 56312.24],
-			"_Test Account VAT - _TC": [6187.71, 62499.95],
-			"_Test Account Customs Duty - _TC": [4950.17, 67450.12],
-			"_Test Account Shipping Charges - _TC": [5000, 72450.12],
-			"_Test Account Discount - _TC": [-7245.01, 65205.11]
+			"_Test Account Excise Duty - _TC": [5540.22, 55041.92],
+			"_Test Account Education Cess - _TC": [110.81, 55152.73],
+			"_Test Account S&H Education Cess - _TC": [55.4, 55208.13],
+			"_Test Account CST - _TC": [1104.16, 56312.29],
+			"_Test Account VAT - _TC": [6187.71, 62500],
+			"_Test Account Customs Duty - _TC": [4950.17, 67450.17],
+			"_Test Account Shipping Charges - _TC": [5000, 72450.17],
+			"_Test Account Discount - _TC": [-7245.01, 65205.16]
 		}
 		
 		for d in si.doclist.get({"parentfield": "other_charges"}):
 			for i, k in enumerate(expected_values["keys"]):
 				self.assertEquals(flt(d.fields.get(k), 6), expected_values[d.account_head][i])
 		
-		self.assertEquals(si.doc.grand_total, 65205.11)
+		self.assertEquals(si.doc.grand_total, 65205.16)
 		self.assertEquals(si.doc.grand_total_export, 1304.1)
 
 	def test_outstanding(self):
@@ -641,7 +644,61 @@ class TestSalesInvoice(unittest.TestCase):
 		count = no_of_months == 12 and 3 or 13
 		for i in xrange(count):
 			base_si = _test(i)
+
+	def test_serialized(self):
+		from stock.doctype.stock_entry.test_stock_entry import make_serialized_item
+		from stock.doctype.stock_ledger_entry.stock_ledger_entry import get_serial_nos
 		
+		se = make_serialized_item()
+		serial_nos = get_serial_nos(se.doclist[1].serial_no)
+		
+		si = webnotes.bean(copy=test_records[0])
+		si.doc.update_stock = 1
+		si.doclist[1].item_code = "_Test Serialized Item With Series"
+		si.doclist[1].qty = 1
+		si.doclist[1].serial_no = serial_nos[0]
+		si.insert()
+		si.submit()
+		
+		self.assertEquals(webnotes.conn.get_value("Serial No", serial_nos[0], "status"), "Delivered")
+		self.assertFalse(webnotes.conn.get_value("Serial No", serial_nos[0], "warehouse"))
+		self.assertEquals(webnotes.conn.get_value("Serial No", serial_nos[0], 
+			"delivery_document_no"), si.doc.name)
+			
+		return si
+			
+	def test_serialized_cancel(self):
+		from stock.doctype.stock_ledger_entry.stock_ledger_entry import get_serial_nos
+		si = self.test_serialized()
+		si.cancel()
+
+		serial_nos = get_serial_nos(si.doclist[1].serial_no)
+
+		self.assertEquals(webnotes.conn.get_value("Serial No", serial_nos[0], "status"), "Available")
+		self.assertEquals(webnotes.conn.get_value("Serial No", serial_nos[0], "warehouse"), "_Test Warehouse - _TC")
+		self.assertFalse(webnotes.conn.get_value("Serial No", serial_nos[0], 
+			"delivery_document_no"))
+
+	def test_serialize_status(self):
+		from stock.doctype.stock_ledger_entry.stock_ledger_entry import SerialNoStatusError, get_serial_nos
+		from stock.doctype.stock_entry.test_stock_entry import make_serialized_item
+		
+		se = make_serialized_item()
+		serial_nos = get_serial_nos(se.doclist[1].serial_no)
+		
+		sr = webnotes.bean("Serial No", serial_nos[0])
+		sr.doc.status = "Not Available"
+		sr.save()
+		
+		si = webnotes.bean(copy=test_records[0])
+		si.doc.update_stock = 1
+		si.doclist[1].item_code = "_Test Serialized Item With Series"
+		si.doclist[1].qty = 1
+		si.doclist[1].serial_no = serial_nos[0]
+		si.insert()
+
+		self.assertRaises(SerialNoStatusError, si.submit)
+
 test_dependencies = ["Journal Voucher", "POS Setting", "Contact", "Address"]
 
 test_records = [
@@ -663,7 +720,7 @@ test_records = [
 			"plc_conversion_rate": 1.0, 
 			"posting_date": "2013-01-23", 
 			"price_list_currency": "INR", 
-			"price_list_name": "_Test Price List", 
+			"selling_price_list": "_Test Price List", 
 			"territory": "_Test Territory"
 		}, 
 		{
@@ -726,7 +783,7 @@ test_records = [
 			"plc_conversion_rate": 1.0, 
 			"posting_date": "2013-03-07", 
 			"price_list_currency": "INR", 
-			"price_list_name": "_Test Price List", 
+			"selling_price_list": "_Test Price List", 
 			"territory": "_Test Territory"
 		}, 
 		{
@@ -777,7 +834,7 @@ test_records = [
 			"plc_conversion_rate": 1.0, 
 			"posting_date": "2013-01-23", 
 			"price_list_currency": "INR", 
-			"price_list_name": "_Test Price List", 
+			"selling_price_list": "_Test Price List", 
 			"territory": "_Test Territory",
 		},
 		# items
@@ -902,7 +959,7 @@ test_records = [
 			"plc_conversion_rate": 1.0, 
 			"posting_date": "2013-01-23", 
 			"price_list_currency": "INR", 
-			"price_list_name": "_Test Price List", 
+			"selling_price_list": "_Test Price List", 
 			"territory": "_Test Territory",
 		},
 		# items
@@ -913,7 +970,6 @@ test_records = [
 			"item_name": "_Test Item Home Desktop 100",
 			"qty": 10,
 			"ref_rate": 62.5,
-			"export_rate": 62.5,
 			"stock_uom": "_Test UOM",
 			"item_tax_rate": json.dumps({"_Test Account Excise Duty - _TC": 10}),
 			"income_account": "Sales - _TC",
@@ -927,7 +983,6 @@ test_records = [
 			"item_name": "_Test Item Home Desktop 200",
 			"qty": 5,
 			"ref_rate": 190.66,
-			"export_rate": 190.66,
 			"stock_uom": "_Test UOM",
 			"income_account": "Sales - _TC",
 			"cost_center": "_Test Cost Center - _TC",

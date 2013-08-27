@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -51,11 +38,13 @@ class StockController(AccountsController):
 			return gl_entries
 		
 	def get_stock_ledger_entries(self, item_list=None, warehouse_list=None):
+		out = {}
+		
 		if not (item_list and warehouse_list):
 			item_list, warehouse_list = self.get_distinct_item_warehouse()
 			
 		if item_list and warehouse_list:
-			return webnotes.conn.sql("""select item_code, voucher_type, voucher_no,
+			res = webnotes.conn.sql("""select item_code, voucher_type, voucher_no,
 				voucher_detail_no, posting_date, posting_time, stock_value,
 				warehouse, actual_qty as qty from `tabStock Ledger Entry` 
 				where ifnull(`is_cancelled`, "No") = "No" and company = %s 
@@ -64,6 +53,14 @@ class StockController(AccountsController):
 				posting_time desc, name desc""" % 
 				('%s', ', '.join(['%s']*len(item_list)), ', '.join(['%s']*len(warehouse_list))), 
 				tuple([self.doc.company] + item_list + warehouse_list), as_dict=1)
+				
+			for r in res:
+				if (r.item_code, r.warehouse) not in out:
+					out[(r.item_code, r.warehouse)] = []
+		
+				out[(r.item_code, r.warehouse)].append(r)
+
+		return out
 
 	def get_distinct_item_warehouse(self):
 		item_list = []

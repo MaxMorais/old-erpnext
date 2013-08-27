@@ -1,18 +1,5 @@
-// ERPNext - web based ERP (http://erpnext.com)
-// Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.	If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
 
 cur_frm.cscript.onload = function(doc, dt, dn) {
 	if (!doc.status) doc.status = 'Draft';
@@ -74,30 +61,25 @@ cur_frm.cscript['Unstop Production Order'] = function() {
 }
 
 cur_frm.cscript['Transfer Raw Materials'] = function() {
-	var doc = cur_frm.doc;
-	cur_frm.cscript.make_se(doc, 'Material Transfer');
+	cur_frm.cscript.make_se('Material Transfer');
 }
 
 cur_frm.cscript['Update Finished Goods'] = function() {
-	var doc = cur_frm.doc;
-	cur_frm.cscript.make_se(doc, 'Manufacture/Repack');
+	cur_frm.cscript.make_se('Manufacture/Repack');
 }
 
-cur_frm.cscript.make_se = function(doc, purpose) {
-	var se = wn.model.get_new_doc("Stock Entry");
-	se.purpose = purpose;
-	se.production_order = doc.name;
-	if(purpose==="Material Transfer") {
-		se.to_warehouse = doc.wip_warehouse;
-	} else {
-		se.from_warehouse = doc.wip_warehouse;
-		se.to_warehouse = doc.fg_warehouse;
-	}
-	se.company = doc.company;
-	se.fg_completed_qty = doc.qty - doc.produced_qty;
-	se.bom_no = doc.bom_no;
-	se.use_multi_level_bom = doc.use_multi_level_bom;
-	loaddoc('Stock Entry', se.name);
+cur_frm.cscript.make_se = function(purpose) {
+	wn.call({
+		method:"manufacturing.doctype.production_order.production_order.make_stock_entry",
+		args: {
+			"production_order_id": cur_frm.doc.name,
+			"purpose": purpose
+		},
+		callback: function(r) {
+			var doclist = wn.model.sync(r.message);
+			wn.set_route("Form", doclist[0].doctype, doclist[0].name);
+		}
+	})
 }
 
 cur_frm.fields_dict['production_item'].get_query = function(doc) {

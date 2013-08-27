@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -22,6 +9,8 @@ from webnotes.model.code import get_obj
 from webnotes import msgprint, _
 
 sql = webnotes.conn.sql
+
+class OverProductionError(webnotes.ValidationError): pass
 
 class DocType:
 	def __init__(self, doc, doclist=[]):
@@ -84,8 +73,7 @@ class DocType:
 				cstr(self.doc.production_item) + _(" against sales order") + ": " + 
 				cstr(self.doc.sales_order) + _(" will be ") + cstr(total_qty) + ", " + 
 				_("which is greater than sales order qty ") + "(" + cstr(so_qty) + ")" + 
-				_("Please reduce qty."), raise_exception=1)
-
+				_("Please reduce qty."), raise_exception=OverProductionError)
 
 	def stop_unstop(self, status):
 		""" Called from client side on Stop/Unstop event"""
@@ -108,6 +96,8 @@ class DocType:
 
 
 	def on_submit(self):
+		if not self.doc.wip_warehouse:
+			webnotes.throw(_("WIP Warehouse required before Submit"))
 		webnotes.conn.set(self.doc,'status', 'Submitted')
 		self.update_planned_qty(self.doc.qty)
 		
@@ -148,3 +138,30 @@ def get_item_details(item):
 		res.bom_no = bom[0][0]
 		
 	return res
+
+@webnotes.whitelist()
+def make_stock_entry(production_order_id, purpose):
+	production_order = webnotes.bean("Production Order", production_order_id)
+	
+	# validate already existing
+	ste = webnotes.conn.get_value("Stock Entry",  {
+		"production_order":production_order_id,
+		"purpose": purpose
+	}, "name")
+		
+	stock_entry = webnotes.new_bean("Stock Entry")
+	stock_entry.doc.purpose = purpose
+	stock_entry.doc.production_order = production_order_id
+	stock_entry.doc.company = production_order.doc.company
+	stock_entry.doc.bom_no = production_order.doc.bom_no
+	stock_entry.doc.use_multi_level_bom = production_order.doc.use_multi_level_bom
+	stock_entry.doc.fg_completed_qty = flt(production_order.doc.qty) - flt(production_order.doc.produced_qty)
+	
+	if purpose=="Material Transfer":
+		stock_entry.doc.to_warehouse = production_order.doc.wip_warehouse
+	else:
+		stock_entry.doc.from_warehouse = production_order.doc.wip_warehouse
+		stock_entry.doc.to_warehouse = production_order.doc.fg_warehouse
+		
+	stock_entry.run_method("get_items")
+	return [d.fields for d in stock_entry.doclist]

@@ -8,5 +8,6 @@
  "Serialized Item: '", 
  " at warehouse: ", 
  "Please enter Expense Account", 
- "Row # "
+ "Row # ", 
+ "Invalid Item or Warehouse Data"
 ]

@@ -1,18 +1,5 @@
-// ERPNext - web based ERP (http://erpnext.com)
-// Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
 
 // js inside blog page
 
@@ -69,12 +56,12 @@ var blog = {
 			b.page_name = encodeURIComponent(b.page_name);
 			
 			$(repl('<div class="row">\
-					<div class="col col-lg-1">\
+					<div class="col-md-1">\
 						<div class="avatar avatar-medium" style="margin-top: 6px;">\
 							<img src="%(avatar)s" />\
 						</div>\
 					</div>\
-					<div class="col col-lg-11">\
+					<div class="col-md-11">\
 						<h4><a href="%(page_name)s">%(title)s</a></h4>\
 						<p>%(content)s</p>\
 						<p style="color: #aaa; font-size: 90%">\
@@ -90,7 +77,7 @@ var blog = {
 					.parent().append("<div class='text-muted'>Nothing more to show.</div>");	
 			} else {
 				$("#next-page").toggle(false)
-					.parent().append("<div class='alert'>No blogs written yet.</div>");	
+					.parent().append("<div class='alert alert-warning'>No blogs written yet.</div>");	
 			}
 		} else {
 			$("#next-page").toggle(true);

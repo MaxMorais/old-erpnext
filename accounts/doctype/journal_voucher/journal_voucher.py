@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.	If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -244,11 +231,12 @@ class DocType(AccountsController):
 		for d in self.doclist.get({"parentfield": "entries"}):
 			if d.against_invoice and webnotes.conn.get_value("Sales Invoice", 
 					d.against_invoice, "debit_to") != d.account:
-				msgprint("Debit account is not matching with Sales Invoice", raise_exception=1)
+				webnotes.throw(_("Credited account (Customer) is not matching with Sales Invoice"))
 			
 			if d.against_voucher and webnotes.conn.get_value("Purchase Invoice", 
 						d.against_voucher, "credit_to") != d.account:
-				msgprint("Credit account is not matching with Purchase Invoice", raise_exception=1)
+				webnotes.throw(_("Debited account (Supplier) is not matching with \
+					Purchase Invoice"))
 
 	def make_gl_entries(self, cancel=0, adv_adj=0):
 		from accounts.general_ledger import make_gl_entries
@@ -351,11 +339,72 @@ def get_default_bank_cash_account(company, voucher_type):
 	account = webnotes.conn.get_value("Company", company,
 		voucher_type=="Bank Voucher" and "default_bank_account" or "default_cash_account")
 	if account:
-		return [{
+		return {
 			"account": account,
 			"balance": get_balance_on(account)
-		}]
+		}
+		
+@webnotes.whitelist()
+def get_payment_entry_from_sales_invoice(sales_invoice):
+	from accounts.utils import get_balance_on
+	si = webnotes.bean("Sales Invoice", sales_invoice)
+	jv = get_payment_entry(si.doc)
+	jv.doc.remark = 'Payment received against Sales Invoice %(name)s. %(remarks)s' % si.doc.fields
 
+	# credit customer
+	jv.doclist[1].account = si.doc.debit_to
+	jv.doclist[1].balance = get_balance_on(si.doc.debit_to)
+	jv.doclist[1].credit = si.doc.outstanding_amount
+	jv.doclist[1].against_invoice = si.doc.name
+
+	# debit bank
+	jv.doclist[2].debit = si.doc.outstanding_amount
+	
+	return [d.fields for d in jv.doclist]
+
+@webnotes.whitelist()
+def get_payment_entry_from_purchase_invoice(purchase_invoice):
+	from accounts.utils import get_balance_on
+	pi = webnotes.bean("Purchase Invoice", purchase_invoice)
+	jv = get_payment_entry(pi.doc)
+	jv.doc.remark = 'Payment against Purchase Invoice %(name)s. %(remarks)s' % pi.doc.fields
+	
+	# credit supplier
+	jv.doclist[1].account = pi.doc.credit_to
+	jv.doclist[1].balance = get_balance_on(pi.doc.credit_to)
+	jv.doclist[1].debit = pi.doc.outstanding_amount
+	jv.doclist[1].against_voucher = pi.doc.name
+
+	# credit bank
+	jv.doclist[2].credit = pi.doc.outstanding_amount
+	
+	return [d.fields for d in jv.doclist]
+
+def get_payment_entry(doc):
+	bank_account = get_default_bank_cash_account(doc.company, "Bank Voucher")
+	
+	jv = webnotes.new_bean('Journal Voucher')
+	jv.doc.voucher_type = 'Bank Voucher'
+
+	jv.doc.company = doc.company
+	jv.doc.fiscal_year = doc.fiscal_year
+
+	jv.doclist.append({
+		"doctype": "Journal Voucher Detail",
+		"parentfield": "entries"
+	})
+
+	jv.doclist.append({
+		"doctype": "Journal Voucher Detail",
+		"parentfield": "entries"
+	})
+	
+	if bank_account:
+		jv.doclist[2].account = bank_account["account"]
+		jv.doclist[2].balance = bank_account["balance"]
+	
+	return jv
+	
 @webnotes.whitelist()
 def get_opening_accounts(company):
 	"""get all balance sheet accounts for opening entry"""

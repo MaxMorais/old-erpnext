@@ -1,18 +1,5 @@
-// ERPNext - web based ERP (http://erpnext.com)
-// Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
 
 cur_frm.cscript.tname = "Purchase Invoice Item";
 cur_frm.cscript.fname = "entries";
@@ -119,13 +106,13 @@ cur_frm.cscript.is_opening = function(doc, dt, dn) {
 
 cur_frm.cscript.make_bank_voucher = function() {
 	return wn.call({
-		method: "accounts.doctype.journal_voucher.journal_voucher.get_default_bank_cash_account",
+		method: "accounts.doctype.journal_voucher.journal_voucher.get_payment_entry_from_purchase_invoice",
 		args: {
-			"company": cur_frm.doc.company,
-			"voucher_type": "Bank Voucher"
+			"purchase_invoice": cur_frm.doc.name,
 		},
 		callback: function(r) {
-			cur_frm.cscript.make_jv(cur_frm.doc, null, null, r.message);
+			var doclist = wn.model.sync(r.message);
+			wn.set_route("Form", doclist[0].doctype, doclist[0].name);
 		}
 	});
 }
@@ -172,16 +159,13 @@ return{
 	}	
 }
 
-cur_frm.fields_dict['entries'].grid.get_field("expense_head").get_query = function(doc) {
+cur_frm.set_query("expense_head", "entries", function(doc) {
 	return{
-		filters:{
-			'debit_or_credit':'Debit',
-			'account_type': 'Expense Account',
-			'group_or_ledger': 'Ledger',
-			'company': doc.company
-		}
-	}	
-}
+		query: "accounts.doctype.purchase_invoice.purchase_invoice.get_expense_account",
+		filters: {'company': doc.company}
+	}
+});
+
 cur_frm.cscript.expense_head = function(doc, cdt, cdn){
 	var d = locals[cdt][cdn];
 	if(d.idx == 1 && d.expense_head){
@@ -212,31 +196,6 @@ cur_frm.cscript.cost_center = function(doc, cdt, cdn){
 		}
 	}
 	refresh_field('entries');
-}
-
-cur_frm.cscript.make_jv = function(doc, dt, dn, bank_account) {
-	var jv = wn.model.make_new_doc_and_get_name('Journal Voucher');
-	jv = locals['Journal Voucher'][jv];
-	jv.voucher_type = 'Bank Voucher';
-	jv.remark = repl('Payment against voucher %(vn)s for %(rem)s', {vn:doc.name, rem:doc.remarks});
-	jv.total_debit = doc.outstanding_amount;
-	jv.total_credit = doc.outstanding_amount;
-	jv.fiscal_year = doc.fiscal_year;
-	jv.company = doc.company;
-	
-	// debit to creditor
-	var d1 = wn.model.add_child(jv, 'Journal Voucher Detail', 'entries');
-	d1.account = doc.credit_to;
-	d1.debit = doc.outstanding_amount;
-	d1.against_voucher = doc.name;
-	
-	// credit to bank
-	var d1 = wn.model.add_child(jv, 'Journal Voucher Detail', 'entries');
-	d1.account = bank_account.account;
-	d1.credit = doc.outstanding_amount;
-	d1.balance = bank_account.balance;
-	
-	loaddoc('Journal Voucher', jv.name);
 }
 
 cur_frm.fields_dict['entries'].grid.get_field('project_name').get_query = function(doc, cdt, cdn) {

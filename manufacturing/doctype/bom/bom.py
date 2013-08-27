@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -131,6 +118,11 @@ class DocType:
 				rate = self.get_valuation_rate(arg)
 			elif self.doc.rm_cost_as_per == 'Last Purchase Rate':
 				rate = arg['last_purchase_rate']
+			elif self.doc.rm_cost_as_per == "Price List":
+				if not self.doc.buying_price_list:
+					webnotes.throw(_("Please select Price List"))
+				rate = webnotes.conn.get_value("Item Price", {"price_list": self.doc.buying_price_list, 
+					"parent": arg["item_code"]}, "ref_rate") or 0
 			elif self.doc.rm_cost_as_per == 'Standard Rate':
 				rate = arg['standard_rate']
 
@@ -193,7 +185,7 @@ class DocType:
 				webnotes.conn.set(self.doc, "is_default", 0)
 			
 			sql("update `tabItem` set default_bom = null where name = %s and default_bom = %s", 
-			 	(self.doc.item, self.doc.name))
+				 (self.doc.item, self.doc.name))
 
 	def clear_operations(self):
 		if not self.doc.with_operations:
@@ -263,7 +255,7 @@ class DocType:
 			(bom_no, item), as_dict =1)
 		if not bom:
 			msgprint("""Incorrect BOM No: %s against item: %s at row no: %s.
-				It may be inactive or cancelled or for some other item.""" % 
+				It may be inactive or not submitted or does not belong to this item.""" % 
 				(bom_no, item, idx), raise_exception = 1)
 
 	def check_if_item_repeated(self, item, op, check_list):

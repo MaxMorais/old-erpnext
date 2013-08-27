@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import unittest
@@ -74,7 +61,7 @@ test_records = [
 	}, {
 		"doctype": "Item Price",
 		"parentfield": "ref_rate_details",
-		"price_list_name": "_Test Price List",
+		"price_list": "_Test Price List",
 		"ref_rate": 100,
 		"ref_currency": "INR",
 		"buying_or_selling": "Selling"
@@ -198,6 +185,27 @@ test_records = [
 		"is_asset_item": "No",
 		"has_batch_no": "No",
 		"has_serial_no": "Yes",
+		"is_purchase_item": "Yes",
+		"is_sales_item": "Yes",
+		"is_service_item": "No",
+		"is_sample_item": "No",
+		"inspection_required": "No",
+		"is_pro_applicable": "No",
+		"is_sub_contracted_item": "No",
+		"stock_uom": "_Test UOM"
+	}],
+	[{
+		"doctype": "Item",
+		"item_code": "_Test Serialized Item With Series",
+		"item_name": "_Test Serialized Item With Series",
+		"description": "_Test Serialized Item",
+		"item_group": "_Test Item Group Desktops",
+		"is_stock_item": "Yes",
+		"default_warehouse": "_Test Warehouse - _TC",
+		"is_asset_item": "No",
+		"has_batch_no": "No",
+		"has_serial_no": "Yes",
+		"serial_no_series": "ABCD.#####",
 		"is_purchase_item": "Yes",
 		"is_sales_item": "Yes",
 		"is_service_item": "No",

@@ -1,33 +1,20 @@
-// ERPNext - web based ERP (http://erpnext.com)
-// Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
 
 wn.provide("erpnext.stock");
 
 erpnext.stock.Item = wn.ui.form.Controller.extend({
 	onload: function() {
-		this.frm.add_fetch("price_list_name", "currency", "ref_currency");
-		this.frm.add_fetch("price_list_name", "buying_or_selling", "buying_or_selling");
+		this.frm.add_fetch("price_list", "currency", "ref_currency");
+		this.frm.add_fetch("price_list", "buying_or_selling", "buying_or_selling");
 	},
 	
 	ref_rate_details_add: function(doc, cdt, cdn) {
 		var row = wn.model.get_doc(cdt, cdn);
-		if(row.price_list_name && !row.ref_currency) {
+		if(row.price_list && !row.ref_currency) {
 			// execute fetch
-			var df = wn.meta.get_docfield(row.doctype, "price_list_name", row.parent);
-			this.frm.script_manager.validate_link_and_fetch(df, row.name, row.price_list_name);
+			var df = wn.meta.get_docfield(row.doctype, "price_list", row.parent);
+			this.frm.script_manager.validate_link_and_fetch(df, row.name, row.price_list);
 		}
 	}
 });

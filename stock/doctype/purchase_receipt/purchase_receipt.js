@@ -1,18 +1,5 @@
-// ERPNext - web based ERP (http://erpnext.com)
-// Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
 
 cur_frm.cscript.tname = "Purchase Receipt Item";
 cur_frm.cscript.fname = "purchase_receipt_details";
@@ -36,23 +23,22 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 			
 			this.show_stock_ledger();
 			this.show_general_ledger();
+		} else {
+			cur_frm.add_custom_button(wn._('From Purchase Order'), 
+				function() {
+					wn.model.map_current_doc({
+						method: "buying.doctype.purchase_order.purchase_order.make_purchase_receipt",
+						source_doctype: "Purchase Order",
+						get_query_filters: {
+							supplier: cur_frm.doc.supplier || undefined,
+							docstatus: 1,
+							status: ["!=", "Stopped"],
+							per_received: ["<", 99.99],
+							company: cur_frm.doc.company
+						}
+					})
+				});
 		}
-
-		cur_frm.add_custom_button(wn._('From Purchase Order'), 
-			function() {
-				wn.model.map_current_doc({
-					method: "buying.doctype.purchase_order.purchase_order.make_purchase_receipt",
-					source_doctype: "Purchase Order",
-					get_query_filters: {
-						supplier: cur_frm.doc.supplier || undefined,
-						docstatus: 1,
-						status: ["!=", "Stopped"],
-						per_received: ["<", 99.99],
-						company: cur_frm.doc.company
-					}
-				})
-			});
-
 
 		if(wn.boot.control_panel.country == 'India') {
 			unhide_field(['challan_no', 'challan_date']);
@@ -140,7 +126,7 @@ cur_frm.cscript.new_contact = function(){
 cur_frm.fields_dict['purchase_receipt_details'].grid.get_field('project_name').get_query = function(doc, cdt, cdn) {
 	return{
 		filters:[
-			['project', 'status', 'not in', 'Completed, Cancelled']
+			['Project', 'status', 'not in', 'Completed, Cancelled']
 		]
 	}
 }

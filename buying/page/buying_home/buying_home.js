@@ -1,5 +1,5 @@
-// ERPNext: Copyright 2013 Web Notes Technologies Pvt Ltd
-// GNU General Public License. See "license.txt"
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt"
 
 wn.module_page["Buying"] = [
 	{
@@ -111,14 +111,9 @@ wn.module_page["Buying"] = [
 		icon: "icon-list",
 		items: [
 			{
-				"label":wn._("Item-wise Purchase History"),
-				route: "query-report/Item-wise Purchase History",
+				"label":wn._("Items To Be Requested"),
+				route: "query-report/Items To Be Requested",
 				doctype: "Item"
-			},
-			{
-				"label":wn._("Purchase In Transit"),
-				route: "query-report/Purchase In Transit",
-				doctype: "Purchase Order"
 			},
 			{
 				"label":wn._("Requested Items To Be Ordered"),
@@ -126,15 +121,30 @@ wn.module_page["Buying"] = [
 				doctype: "Material Request"
 			},
 			{
-				"label":wn._("Purchase Order Trends"),
-				route: "query-report/Purchase Order Trends",
+				"label":wn._("Material Requests for which Supplier Quotations are not created"),
+				route: "query-report/Material Requests for which Supplier Quotations are not created",
+				doctype: "Material Request"
+			},
+			{
+				"label":wn._("Purchase In Transit"),
+				route: "query-report/Purchase In Transit",
 				doctype: "Purchase Order"
+			},
+			{
+				"label":wn._("Item-wise Purchase History"),
+				route: "query-report/Item-wise Purchase History",
+				doctype: "Item"
 			},
 			{
 				"label":wn._("Item-wise Last Purchase Rate"),
 				route: "query-report/Item-wise Last Purchase Rate",
 				doctype: "Item"
-			}
+			},
+			{
+				"label":wn._("Purchase Order Trends"),
+				route: "query-report/Purchase Order Trends",
+				doctype: "Purchase Order"
+			},
 		]
 	}
 ]

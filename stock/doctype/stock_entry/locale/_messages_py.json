@@ -1,4 +1,5 @@
 [
+ "Stock Entries already created for Production Order ", 
  "Posting Date Time cannot be before", 
  "Material Request", 
  "Status should be Submitted", 
@@ -19,12 +20,8 @@
  "Quantity should be equal to Manufacturing Quantity. ", 
  "Row #", 
  "of", 
- "Quantity already manufactured", 
- "Hence, maximum allowed Manufacturing Quantity", 
  "Target Warehouse", 
- "Manufacturing Quantity", 
  " should be same as that in ", 
- "For Item ", 
  " is mandatory", 
  "Row # "
 ]

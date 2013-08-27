@@ -1,18 +1,5 @@
-// ERPNext - web based ERP (http://erpnext.com)
-// Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
 
 // Preset
 // ------
@@ -58,8 +45,8 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 			});
 		}
 
-		if(this.frm.fields_dict.price_list_name) {
-			this.frm.set_query("price_list_name", function() {
+		if(this.frm.fields_dict.selling_price_list) {
+			this.frm.set_query("selling_price_list", function() {
 				return { filters: { buying_or_selling: "Selling" } };
 			});
 		
@@ -67,7 +54,7 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 				return {
 					query: "controllers.queries.get_price_list_currency",
 					filters: {
-						price_list_name: me.frm.doc.price_list_name,
+						price_list: me.frm.doc.selling_price_list,
 						buying_or_selling: "Selling"
 					}					
 				};
@@ -139,15 +126,15 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 				this.frm.set_value("customer", null);
 				msgprint(wn._("Please specify Company"));
 			} else {
-				var price_list_name = this.frm.doc.price_list_name;
+				var selling_price_list = this.frm.doc.selling_price_list;
 				return this.frm.call({
 					doc: this.frm.doc,
 					method: "set_customer_defaults",
 					freeze: true,
 					callback: function(r) {
 						if(!r.exc) {
-							(me.frm.doc.price_list_name !== price_list_name) ? 
-								me.price_list_name() :
+							(me.frm.doc.selling_price_list !== selling_price_list) ? 
+								me.selling_price_list() :
 								me.price_list_currency();
 						}
 					}
@@ -201,7 +188,7 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 							customer: me.frm.doc.customer,
 							currency: me.frm.doc.currency,
 							conversion_rate: me.frm.doc.conversion_rate,
-							price_list_name: me.frm.doc.price_list_name,
+							selling_price_list: me.frm.doc.selling_price_list,
 							price_list_currency: me.frm.doc.price_list_currency,
 							plc_conversion_rate: me.frm.doc.plc_conversion_rate,
 							company: me.frm.doc.company,
@@ -219,8 +206,8 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		}
 	},
 	
-	price_list_name: function() {
-		this._super("Selling");
+	selling_price_list: function() {
+		this.get_price_list_currency("Selling");
 	},
 	
 	ref_rate: function(doc, cdt, cdn) {
@@ -372,11 +359,11 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 			});
 			
 			if(cumulated_tax_fraction) {
-				item.basic_rate = flt(
-					(item.export_rate * me.frm.doc.conversion_rate) / (1 + cumulated_tax_fraction),
-					precision("basic_rate", item));
-				
-				item.amount = flt(item.basic_rate * item.qty, precision("amount", item));
+				item.amount = flt(
+					(item.export_amount * me.frm.doc.conversion_rate) / (1 + cumulated_tax_fraction),
+					precision("amount", item));
+					
+				item.basic_rate = flt(item.amount / item.qty, precision("basic_rate", item));
 				
 				if(item.adj_rate == 100) {
 					item.base_ref_rate = item.basic_rate;
@@ -605,7 +592,10 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		
 		// toggle columns
 		var item_grid = this.frm.fields_dict[this.fname].grid;
-		var show = this.frm.doc.currency != company_currency;
+		var show = (this.frm.doc.currency != company_currency) || 
+			(wn.model.get_doclist(cur_frm.doctype, cur_frm.docname, 
+				{parentfield: "other_charges", included_in_print_rate: 1}).length);
+		
 		$.each(["basic_rate", "base_ref_rate", "amount"], function(i, fname) {
 			if(wn.meta.get_docfield(item_grid.doctype, fname))
 				item_grid.set_column_disp(fname, show);
@@ -614,7 +604,9 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		// set labels
 		var $wrapper = $(this.frm.wrapper);
 		$.each(field_label_map, function(fname, label) {
-			$wrapper.find('[data-grid-fieldname="'+fname+'"]').text(label);
+			fname = fname.split("-");
+			var df = wn.meta.get_docfield(fname[0], fname[1], me.frm.doc.name);
+			if(df) df.label = label;
 		});
 	},
 	
@@ -648,7 +640,7 @@ var set_sales_bom_help = function(doc) {
 		$(cur_frm.fields_dict.packing_list.row.wrapper).toggle(true);
 		
 		if (inList(['Delivery Note', 'Sales Invoice'], doc.doctype)) {
-			help_msg = "<div class='alert'> \
+			help_msg = "<div class='alert alert-warning'> \
 				For 'Sales BOM' items, warehouse, serial no and batch no \
 				will be considered from the 'Packing List' table. \
 				If warehouse and batch no are same for all packing items for any 'Sales BOM' item, \

@@ -1,50 +1,10 @@
-// ERPNext - web based ERP (http://erpnext.com)
-// Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.	If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
 
 wn.require("public/app/js/controllers/stock_controller.js");
 wn.provide("erpnext.stock");
 
-erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
-	onload: function() {
-		this.set_default_account();
-	}, 
-	
-	set_default_account: function() {
-		var me = this;
-		
-		if (cint(wn.defaults.get_default("auto_inventory_accounting")) && !this.frm.doc.expense_adjustment_account) {
-			if (this.frm.doc.purpose == "Sales Return")
-				account_for = "stock_in_hand_account";
-			else if (this.frm.doc.purpose == "Purchase Return") 
-				account_for = "stock_received_but_not_billed";
-			else account_for = "stock_adjustment_account";
-			
-			return this.frm.call({
-				method: "accounts.utils.get_company_default",
-				args: {
-					"fieldname": account_for, 
-					"company": this.frm.doc.company
-				},
-				callback: function(r) {
-					if (!r.exc) me.frm.set_value("expense_adjustment_account", r.message);
-				}
-			});
-		}
-	},
-	
+erpnext.stock.StockEntry = erpnext.stock.StockController.extend({		
 	setup: function() {
 		var me = this;
 		
@@ -93,11 +53,7 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 	},
 	
 	onload_post_render: function() {
-		if(this.frm.doc.__islocal && (this.frm.doc.production_order || this.frm.doc.bom_no) 
-			&& !getchildren('Stock Entry Detail', this.frm.doc.name, 'mtn_details').length) {
-				// if production order / bom is mentioned, get items
-				this.get_items();
-		}
+		this.set_default_account();
 	},
 	
 	refresh: function() {
@@ -128,6 +84,29 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 	after_cancel: function() {
 		this.clean_up();
 	},
+
+	set_default_account: function() {
+		var me = this;
+		
+		if (cint(wn.defaults.get_default("auto_inventory_accounting")) && !this.frm.doc.expense_adjustment_account) {
+			var account_for = "stock_adjustment_account";
+			if (this.frm.doc.purpose == "Sales Return")
+				account_for = "stock_in_hand_account";
+			else if (this.frm.doc.purpose == "Purchase Return") 
+				account_for = "stock_received_but_not_billed";
+			
+			return this.frm.call({
+				method: "accounts.utils.get_company_default",
+				args: {
+					"fieldname": account_for, 
+					"company": this.frm.doc.company
+				},
+				callback: function(r) {
+					if (!r.exc) me.frm.set_value("expense_adjustment_account", r.message);
+				}
+			});
+		}
+	},
 	
 	clean_up: function() {
 		// Clear Production Order record from locals, because it is updated via Stock Entry
@@ -139,13 +118,16 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 	},
 	
 	get_items: function() {
-		return this.frm.call({
-			doc: this.frm.doc,
-			method: "get_items",
-			callback: function(r) {
-				if(!r.exc) refresh_field("mtn_details");
-			}
-		});
+		if(this.frm.doc.production_order || this.frm.doc.bom_no) {
+			// if production order / bom is mentioned, get items
+			return this.frm.call({
+				doc: this.frm.doc,
+				method: "get_items",
+				callback: function(r) {
+					if(!r.exc) refresh_field("mtn_details");
+				}
+			});
+		}
 	},
 	
 	qty: function(doc, cdt, cdn) {
@@ -225,7 +207,6 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 						});
 						loaddoc("Journal Voucher", jv_name);
 					}
-
 				}
 			});
 		}
@@ -237,6 +218,10 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 		if(!row.s_warehouse) row.s_warehouse = this.frm.doc.from_warehouse;
 		if(!row.t_warehouse) row.t_warehouse = this.frm.doc.to_warehouse;
 	},
+	
+	mtn_details_on_form_rendered: function(doc, grid_row) {
+		erpnext.setup_serial_no(grid_row)
+	}
 });
 
 cur_frm.script_manager.make(erpnext.stock.StockEntry);

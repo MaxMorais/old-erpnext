@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -68,10 +55,11 @@ class AccountsController(TransactionBase):
 			
 	def set_price_list_currency(self, buying_or_selling):
 		company_currency = get_company_currency(self.doc.company)
+		fieldname = buying_or_selling.lower() + "_price_list"
 		# TODO - change this, since price list now has only one currency allowed
-		if self.meta.get_field("price_list_name") and self.doc.price_list_name and \
+		if self.meta.get_field(fieldname) and self.doc.fields.get(fieldname) and \
 			not self.doc.price_list_currency:
-				self.doc.fields.update(get_price_list_currency(self.doc.price_list_name))
+				self.doc.fields.update(get_price_list_currency(self.doc.fields.get(fieldname)))
 				
 				if self.doc.price_list_currency:
 					if not self.doc.plc_conversion_rate:
@@ -86,11 +74,14 @@ class AccountsController(TransactionBase):
 						self.doc.currency = self.doc.price_list_currency
 						self.doc.conversion_rate = self.doc.plc_conversion_rate
 						
-		if self.meta.get_field("currency") and self.doc.currency != company_currency and \
-			not self.doc.conversion_rate:
-				exchange = self.doc.currency + "-" + company_currency
-				self.doc.conversion_rate = flt(webnotes.conn.get_value("Currency Exchange",
-					exchange, "exchange_rate"))
+		if self.meta.get_field("currency"):
+			if self.doc.currency and self.doc.currency != company_currency:
+				if not self.doc.conversion_rate:
+					exchange = self.doc.currency + "-" + company_currency
+					self.doc.conversion_rate = flt(webnotes.conn.get_value("Currency Exchange",
+						exchange, "exchange_rate"))
+			else:
+				self.doc.conversion_rate = 1
 						
 	def set_missing_item_details(self, get_item_details):
 		"""set missing item values"""
@@ -274,7 +265,7 @@ class AccountsController(TransactionBase):
 					tax.grand_total_for_current_item = \
 						flt(self.tax_doclist[i-1].grand_total_for_current_item +
 							current_tax_amount, self.precision("total", tax))
-							
+				
 				# in tax.total, accumulate grand total of each item
 				tax.total += tax.grand_total_for_current_item
 				
@@ -401,7 +392,7 @@ class AccountsController(TransactionBase):
 				
 				total_billed_amt = flt(flt(already_billed) + flt(item.fields[based_on]), 
 					self.precision(based_on, item))
-				
+					
 				if max_allowed_amt and total_billed_amt - max_allowed_amt > 0.02:
 					webnotes.msgprint(_("Row ")+ cstr(item.idx) + ": " + cstr(item.item_code) + 
 						_(" will be over-billed against mentioned ") + cstr(ref_dt) +  

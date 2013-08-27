@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -21,7 +8,7 @@ from webnotes.utils import cint, cstr, flt
 from webnotes.model.doc import addchild
 from webnotes.model.bean import getlist
 from webnotes.model.code import get_obj
-from webnotes import msgprint
+from webnotes import msgprint, _
 from setup.utils import get_company_currency
 
 get_value = webnotes.conn.get_value
@@ -128,6 +115,10 @@ class DocType(TransactionBase):
 			reserved_qty_for_main_item = 0
 			
 			if obj.doc.doctype == "Sales Order":
+				if (webnotes.conn.get_value("Item", d.item_code, "is_stock_item") == 'Yes' or 
+					self.has_sales_bom(d.item_code)) and not d.reserved_warehouse:
+						webnotes.throw(_("Please enter Reserved Warehouse for item ") + 
+							d.item_code + _(" as it is stock Item or packing item"))
 				reserved_warehouse = d.reserved_warehouse
 				if flt(d.qty) > flt(d.delivered_qty):
 					reserved_qty_for_main_item = flt(d.qty) - flt(d.delivered_qty)

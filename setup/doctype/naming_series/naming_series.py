@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -134,8 +121,7 @@ class DocType:
 
 	def get_current(self, arg=None):
 		"""get series current"""
-		self.doc.current_value = webnotes.conn.sql("""select current from tabSeries where name=%s""", 
-			self.doc.prefix)[0][0]
+		self.doc.current_value = webnotes.conn.get_value("Series", self.doc.prefix, "current")
 
 	def insert_series(self, series):
 		"""insert series if missing"""

@@ -1,3 +1,6 @@
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
+
 window.get_product_list = function() {
 	$(".more-btn .btn").click(function() {
 		window.get_product_list()
@@ -37,7 +40,7 @@ window.render_product_list = function(data) {
 	if(data.length < 10) {
 		if(!table) {
 			$(".more-btn")
-				.replaceWith("<div class='alert'>No products found.</div>");
+				.replaceWith("<div class='alert alert-warning'>No products found.</div>");
 		} else {
 			$(".more-btn")
 				.replaceWith("<div class='text-muted'>Nothing more to show.</div>");

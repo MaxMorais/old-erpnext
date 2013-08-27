@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -143,16 +130,16 @@ class DocType(DocListController):
 	def validate_price_lists(self):
 		price_lists=[]
 		for d in getlist(self.doclist,'ref_rate_details'):
-			if d.price_list_name in price_lists:
-				msgprint(_("Cannot have two prices for same Price List") + ": " + d.price_list_name,
+			if d.price_list in price_lists:
+				msgprint(_("Cannot have two prices for same Price List") + ": " + d.price_list,
 					raise_exception= webnotes.DuplicateEntryError)
 			else:
-				price_list_currency = webnotes.conn.get_value("Price List", d.price_list_name, "currency")
+				price_list_currency = webnotes.conn.get_value("Price List", d.price_list, "currency")
 				if price_list_currency and d.ref_currency != price_list_currency:
 					msgprint(_("Currency does not match Price List Currency for Price List") \
-						+ ": " + d.price_list_name, raise_exception=PriceListCurrencyMismatch)
+						+ ": " + d.price_list, raise_exception=PriceListCurrencyMismatch)
 				
-				price_lists.append(d.price_list_name)
+				price_lists.append(d.price_list)
 			
 					
 	def fill_customer_code(self):
@@ -285,4 +272,4 @@ class DocType(DocListController):
 			from stock.stock_ledger import update_entries_after
 			for wh in webnotes.conn.sql("""select warehouse from `tabBin` 
 				where item_code=%s""", newdn):
-					update_entries_after({"item_code": newdn, "warehouse": wh})
+					update_entries_after({"item_code": newdn, "warehouse": wh[0]})

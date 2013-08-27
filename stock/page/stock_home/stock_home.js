@@ -1,5 +1,5 @@
-// ERPNext: Copyright 2013 Web Notes Technologies Pvt Ltd
-// GNU General Public License. See "license.txt"
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt"
 
 wn.module_page["Stock"] = [
 	{
@@ -188,6 +188,11 @@ wn.module_page["Stock"] = [
 			{
 				"label":wn._("Purchase Order Items To Be Received"),
 				route: "query-report/Purchase Order Items To Be Received",
+				doctype: "Purchase Receipt"
+			},
+			{
+				"label":wn._("Item Shortage Report"),
+				route: "Report/Bin/Item Shortage Report",
 				doctype: "Purchase Receipt"
 			},
 			{

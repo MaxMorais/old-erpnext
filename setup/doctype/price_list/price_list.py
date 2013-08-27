@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -24,7 +11,7 @@ import webnotes.defaults
 class DocType(DocListController):
 	def onload(self):
 		self.doclist.extend(webnotes.conn.sql("""select * from `tabItem Price` 
-			where price_list_name=%s""", self.doc.name, as_dict=True, update={"doctype": "Item Price"}))
+			where price_list=%s""", self.doc.name, as_dict=True, update={"doctype": "Item Price"}))
 	
 	def validate(self):
 		if self.doc.buying_or_selling not in ["Buying", "Selling"]:
@@ -44,10 +31,20 @@ class DocType(DocListController):
 				self.validate_table_has_rows("valid_for_territories")
 		
 	def on_update(self):
+		self.set_default_if_missing()
 		cart_settings = webnotes.get_obj("Shopping Cart Settings")
 		if cint(cart_settings.doc.enabled):
 			cart_settings.validate_price_lists()
 				
 	def on_trash(self):
-		webnotes.conn.sql("""delete from `tabItem Price` where price_list_name = %s""", 
+		webnotes.conn.sql("""delete from `tabItem Price` where price_list = %s""", 
 			self.doc.name)
+			
+	def set_default_if_missing(self):
+		if self.doc.buying_or_selling=="Selling":
+			if not webnotes.conn.get_value("Selling Settings", None, "selling_price_list"):
+				webnotes.set_value("Selling Settings", "Selling Settings", "selling_price_list", self.doc.name)
+
+		elif self.doc.buying_or_selling=="Buying":
+			if not webnotes.conn.get_value("Buying Settings", None, "buying_price_list"):
+				webnotes.set_value("Buying Settings", "Buying Settings", "buying_price_list", self.doc.name)

@@ -1,3 +1,6 @@
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
+
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -135,7 +138,7 @@ erpnext.AccountTreeGrid = wn.views.TreeGridReport.extend({
 		$.each(gl, function(i, v) {
 			var posting_date = dateutil.str_to_obj(v.posting_date);
 			var account = me.item_by_name[v.account];
-			me.update_balances(account, posting_date, v)
+			me.update_balances(account, posting_date, v);
 		});
 
 		this.update_groups();

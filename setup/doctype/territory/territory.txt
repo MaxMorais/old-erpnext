@@ -2,7 +2,11 @@
  {
   "creation": "2013-03-07 09:28:32", 
   "docstatus": 0, 
+<<<<<<< HEAD
   "modified": "2013-05-28 18:10:05", 
+=======
+  "modified": "2013-08-05 18:12:29", 
+>>>>>>> cf343174a4a2b51df750c1004d45ba98b212a501
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -71,7 +75,7 @@
   "oldfieldname": "parent_territory", 
   "oldfieldtype": "Link", 
   "options": "Territory", 
-  "reqd": 1
+  "reqd": 0
  }, 
  {
   "description": "Only leaf nodes are allowed in transaction", 

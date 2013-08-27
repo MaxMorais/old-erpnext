@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -118,7 +105,7 @@ class DocType(BuyingController):
 			
 
 	def po_required(self):
-		if webnotes.conn.get_single_value("Buying Settings", "po_required") == 'Yes':
+		if webnotes.conn.get_value("Buying Settings", None, "po_required") == 'Yes':
 			 for d in getlist(self.doclist,'purchase_receipt_details'):
 				 if not d.prevdoc_docname:
 					 msgprint("Purchse Order No. required against item %s"%d.item_code)
@@ -140,8 +127,6 @@ class DocType(BuyingController):
 		self.validate_inspection()
 		self.validate_uom_is_integer("uom", ["qty", "received_qty"])
 		self.validate_uom_is_integer("stock_uom", "stock_qty")
-
-		get_obj('Stock Ledger').validate_serial_no(self, 'purchase_receipt_details')
 		self.validate_challan_no()
 
 		pc_obj = get_obj(dt='Purchase Common')
@@ -159,16 +144,6 @@ class DocType(BuyingController):
 		if self.doc.rejected_warehouse:
 			for d in getlist(self.doclist,'purchase_receipt_details'):
 				d.rejected_warehouse = self.doc.rejected_warehouse
-
-		get_obj('Stock Ledger').scrub_serial_nos(self)
-		self.scrub_rejected_serial_nos()
-
-
-	def scrub_rejected_serial_nos(self):
-		for d in getlist(self.doclist, 'purchase_receipt_details'):
-			if d.rejected_serial_no:
-				d.rejected_serial_no = cstr(d.rejected_serial_no).strip().replace(',', '\n')
-				d.save()
 
 	def update_stock(self, is_submit):
 		pc_obj = get_obj('Purchase Common')
@@ -220,11 +195,6 @@ class DocType(BuyingController):
 
 	# make Stock Entry
 	def make_sl_entry(self, d, wh, qty, in_value, is_submit, rejected = 0):
-		if rejected:
-			serial_no = cstr(d.rejected_serial_no).strip()
-		else:
-			serial_no = cstr(d.serial_no).strip()
-
 		self.values.append({
 			'item_code'			: d.fields.has_key('item_code') and d.item_code or d.rm_item_code,
 			'warehouse'			: wh,
@@ -240,7 +210,7 @@ class DocType(BuyingController):
 			'fiscal_year'		: self.doc.fiscal_year,
 			'is_cancelled'		: (is_submit==1) and 'No' or 'Yes',
 			'batch_no'			: cstr(d.batch_no).strip(),
-			'serial_no'			: serial_no,
+			'serial_no'			: d.serial_no,
 			"project"			: d.project_name
 			})
 
@@ -270,20 +240,34 @@ class DocType(BuyingController):
 		get_obj('Authorization Control').validate_approving_authority(self.doc.doctype, self.doc.company, self.doc.grand_total)
 
 		# Set status as Submitted
-		webnotes.conn.set(self.doc,'status', 'Submitted')
+		webnotes.conn.set(self.doc, 'status', 'Submitted')
 
 		self.update_prevdoc_status()
-
-		# Update Serial Record
-		get_obj('Stock Ledger').update_serial_record(self, 'purchase_receipt_details', is_submit = 1, is_incoming = 1)
-
+		
 		# Update Stock
 		self.update_stock(is_submit = 1)
+
+		self.update_serial_nos()
 
 		# Update last purchase rate
 		purchase_controller.update_last_purchase_rate(self, 1)
 		
 		self.make_gl_entries()
+		
+	def update_serial_nos(self, cancel=False):
+		from stock.doctype.stock_ledger_entry.stock_ledger_entry import update_serial_nos_after_submit, get_serial_nos
+		update_serial_nos_after_submit(self, "Purchase Receipt", "purchase_receipt_details")
+
+		for d in self.doclist.get({"parentfield": "purchase_receipt_details"}):
+			for serial_no in get_serial_nos(d.serial_no):
+				sr = webnotes.bean("Serial No", serial_no)
+				if cancel:
+					sr.doc.supplier = None
+					sr.doc.supplier_name = None
+				else:
+					sr.doc.supplier = self.doc.supplier
+					sr.doc.supplier_name = self.doc.supplier_name
+				sr.save()
 
 	def check_next_docstatus(self):
 		submit_rv = sql("select t1.name from `tabPurchase Invoice` t1,`tabPurchase Invoice Item` t2 where t1.name = t2.parent and t2.purchase_receipt = '%s' and t1.docstatus = 1" % (self.doc.name))
@@ -308,10 +292,10 @@ class DocType(BuyingController):
 		webnotes.conn.set(self.doc,'status','Cancelled')
 
 		# 3. Cancel Serial No
-		get_obj('Stock Ledger').update_serial_record(self, 'purchase_receipt_details', is_submit = 0, is_incoming = 1)
 
 		# 4.Update Bin
 		self.update_stock(is_submit = 0)
+		self.update_serial_nos(cancel=True)
 
 		self.update_prevdoc_status()
 
@@ -370,9 +354,6 @@ def make_purchase_invoice(source_name, target_doclist=None):
 		bean.run_method("set_missing_values")
 		bean.run_method("set_supplier_defaults")
 
-	def update_item(obj, target, source_parent):
-		target.conversion_factor = 1
-
 	doclist = get_mapped_doclist("Purchase Receipt", source_name,	{
 		"Purchase Receipt": {
 			"doctype": "Purchase Invoice", 
@@ -389,7 +370,6 @@ def make_purchase_invoice(source_name, target_doclist=None):
 				"prevdoc_docname": "purchase_order", 
 				"purchase_rate": "rate"
 			},
-			"postprocess": update_item
 		}, 
 		"Purchase Taxes and Charges": {
 			"doctype": "Purchase Taxes and Charges", 

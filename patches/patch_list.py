@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 patch_list = [
@@ -35,7 +22,6 @@ patch_list = [
 	"patches.april_2012.update_role_in_address", 
 	"patches.april_2012.update_permlevel_in_address", 
 	"patches.april_2012.update_appraisal_permission", 
-	"patches.april_2012.serial_no_fixes", 
 	"patches.april_2012.repost_stock_for_posting_time", 
 	"patches.may_2012.cleanup_property_setter", 
 	"patches.may_2012.rename_prev_doctype", 
@@ -242,7 +228,6 @@ patch_list = [
 	"execute:webnotes.delete_doc('Report', 'Received Items To Be Billed')",
 	"patches.july_2013.p02_copy_shipping_address",
 	"patches.july_2013.p03_cost_center_company",
-	"execute:webnotes.bean('Style Settings').save() #2013-07-16",
 	"patches.july_2013.p04_merge_duplicate_leads",
 	"patches.july_2013.p05_custom_doctypes_in_list_view",
 	"patches.july_2013.p06_same_sales_rate",
@@ -265,4 +250,11 @@ patch_list = [
 	"patches.july_2013.p11_update_price_list_currency",
 	"execute:webnotes.bean('Selling Settings').save() #2013-07-29",
 	"patches.august_2013.p01_hr_settings",
+	"patches.august_2013.p02_rename_price_list",
+	"patches.august_2013.p03_pos_setting_replace_customer_account",
+	"patches.august_2013.p05_update_serial_no_status",
+	"patches.august_2013.p05_employee_birthdays",
+	"execute:webnotes.reload_doc('accounts', 'Print Format', 'POS Invoice') # 2013-08-16",
+	"patches.august_2013.p06_fix_sle_against_stock_entry",
+	"execute:webnotes.bean('Style Settings').save() #2013-08-20",
 ]

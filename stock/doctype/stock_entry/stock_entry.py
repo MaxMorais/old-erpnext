@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -32,6 +19,8 @@ sql = webnotes.conn.sql
 
 class NotUpdateStockError(webnotes.ValidationError): pass
 class StockOverReturnError(webnotes.ValidationError): pass
+class IncorrectValuationRateError(webnotes.ValidationError): pass
+class DuplicateEntryForProductionOrderError(webnotes.ValidationError): pass
 	
 from controllers.stock_controller import StockController
 
@@ -44,7 +33,6 @@ class DocType(StockController):
 	def validate(self):
 		self.validate_posting_time()
 		self.validate_purpose()
-		self.validate_serial_nos()
 		pro_obj = self.doc.production_order and \
 			get_obj('Production Order', self.doc.production_order) or None
 
@@ -64,14 +52,14 @@ class DocType(StockController):
 		self.set_total_amount()
 		
 	def on_submit(self):
-		self.update_serial_no(1)
 		self.update_stock_ledger(0)
+		self.update_serial_no(1)
 		self.update_production_order(1)
 		self.make_gl_entries()
 
 	def on_cancel(self):
-		self.update_serial_no(0)
 		self.update_stock_ledger(1)
+		self.update_serial_no(0)
 		self.update_production_order(0)
 		self.make_cancel_gl_entries()
 		
@@ -86,11 +74,6 @@ class DocType(StockController):
 		if self.doc.purpose not in valid_purposes:
 			msgprint(_("Purpose must be one of ") + comma_or(valid_purposes),
 				raise_exception=True)
-					
-	def validate_serial_nos(self):
-		sl_obj = get_obj("Stock Ledger")
-		sl_obj.scrub_serial_nos(self)
-		sl_obj.validate_serial_no(self, 'mtn_details')
 		
 	def validate_item(self):
 		for item in self.doclist.get({"parentfield": "mtn_details"}):
@@ -164,21 +147,33 @@ class DocType(StockController):
 				return
 		
 		if self.doc.purpose == "Manufacture/Repack":
-			if not flt(self.doc.fg_completed_qty):
-				msgprint(_("Manufacturing Quantity") + _(" is mandatory"), raise_exception=1)
-			
-			if flt(pro_obj.doc.qty) < (flt(pro_obj.doc.produced_qty)
-					+ flt(self.doc.fg_completed_qty)):
-				# do not allow manufacture of qty > production order qty
-				msgprint(_("For Item ") + pro_obj.doc.production_item 
-					+ _("Quantity already manufactured")
-					+ " = %s." % flt(pro_obj.doc.produced_qty)
-					+ _("Hence, maximum allowed Manufacturing Quantity")
-					+ " = %s." % (flt(pro_obj.doc.qty) - flt(pro_obj.doc.produced_qty)),
-					raise_exception=1)
+			# check for double entry
+			self.check_duplicate_entry_for_production_order()
 		elif self.doc.purpose != "Material Transfer":
 			self.doc.production_order = None
+	
+	def check_duplicate_entry_for_production_order(self):
+		other_ste = [t[0] for t in webnotes.conn.get_values("Stock Entry",  {
+			"production_order": self.doc.production_order,
+			"purpose": self.doc.purpose,
+			"docstatus": ["!=", 2],
+			"name": ["!=", self.doc.name]
+		}, "name")]
+		
+		if other_ste:
+			production_item, qty = webnotes.conn.get_value("Production Order", 
+				self.doc.production_order, ["production_item", "qty"])
+			args = other_ste + [production_item]
+			fg_qty_already_entered = webnotes.conn.sql("""select sum(actual_qty)
+				from `tabStock Entry Detail` 
+				where parent in (%s) 
+					and item_code = %s 
+					and ifnull(s_warehouse,'')='' """ % (", ".join(["%s" * len(other_ste)]), "%s"), args)[0][0]
 			
+			if fg_qty_already_entered >= qty:
+				webnotes.throw(_("Stock Entries already created for Production Order ") 
+					+ self.doc.production_order + ":" + ", ".join(other_ste), DuplicateEntryForProductionOrderError)
+
 	def set_total_amount(self):
 		self.doc.total_amount = sum([flt(item.amount) for item in self.doclist.get({"parentfield": "mtn_details"})])
 			
@@ -218,7 +213,7 @@ class DocType(StockController):
 				"posting_date": self.doc.posting_date,
 				"posting_time": self.doc.posting_time,
 				"qty": d.s_warehouse and -1*d.transfer_qty or d.transfer_qty,
-				"serial_no": cstr(d.serial_no).strip(),
+				"serial_no": d.serial_no,
 				"bom_no": d.bom_no,
 			})
 			# get actual stock at source warehouse
@@ -258,7 +253,7 @@ class DocType(StockController):
 	def validate_incoming_rate(self):
 		for d in getlist(self.doclist, 'mtn_details'):
 			if d.t_warehouse:
-				self.validate_value("incoming_rate", ">", 0, d)
+				self.validate_value("incoming_rate", ">", 0, d, raise_exception=IncorrectValuationRateError)
 					
 	def validate_bom(self):
 		for d in getlist(self.doclist, 'mtn_details'):
@@ -329,27 +324,21 @@ class DocType(StockController):
 		
 	def update_serial_no(self, is_submit):
 		"""Create / Update Serial No"""
-		from stock.utils import get_valid_serial_nos
-		
-		sl_obj = get_obj('Stock Ledger')
-		if is_submit:
-			sl_obj.validate_serial_no_warehouse(self, 'mtn_details')
+
+		from stock.doctype.stock_ledger_entry.stock_ledger_entry import update_serial_nos_after_submit, get_serial_nos
+		update_serial_nos_after_submit(self, "Stock Entry", "mtn_details")
 		
 		for d in getlist(self.doclist, 'mtn_details'):
-			if cstr(d.serial_no).strip():
-				for x in get_valid_serial_nos(d.serial_no):
-					serial_no = x.strip()
-					if d.s_warehouse:
-						sl_obj.update_serial_delivery_details(self, d, serial_no, is_submit)
-					if d.t_warehouse:
-						sl_obj.update_serial_purchase_details(self, d, serial_no, is_submit,
-							self.doc.purpose)
-					
-					if self.doc.purpose == 'Purchase Return':
-						serial_doc = Document("Serial No", serial_no)
-						serial_doc.status = is_submit and 'Purchase Returned' or 'In Store'
-						serial_doc.docstatus = is_submit and 2 or 0
-						serial_doc.save()
+			for serial_no in get_serial_nos(d.serial_no):
+				if self.doc.purpose == 'Purchase Return':
+					sr = webnotes.bean("Serial No", serial_no)
+					sr.doc.status = "Purchase Returned" if is_submit else "Available"
+					sr.save()
+				
+				if self.doc.purpose == "Sales Return":
+					sr = webnotes.bean("Serial No", serial_no)
+					sr.doc.status = "Sales Returned" if is_submit else "Delivered"
+					sr.save()
 						
 	def update_stock_ledger(self, is_cancelled=0):
 		self.values = []			
@@ -451,6 +440,7 @@ class DocType(StockController):
 	def get_items(self):
 		self.doclist = self.doc.clear_table(self.doclist, 'mtn_details', 1)
 		
+		pro_obj = None
 		if self.doc.production_order:
 			# common validations
 			pro_obj = get_obj('Production Order', self.doc.production_order)
@@ -469,7 +459,8 @@ class DocType(StockController):
 				else:
 					item_dict = self.get_bom_raw_materials(self.doc.fg_completed_qty)
 					for item in item_dict.values():
-						item["from_warehouse"] = pro_obj.doc.wip_warehouse
+						if pro_obj:
+							item["from_warehouse"] = pro_obj.doc.wip_warehouse
 						item["to_warehouse"] = ""
 
 				# add raw materials to Stock Entry Detail table
@@ -494,8 +485,12 @@ class DocType(StockController):
 				item = webnotes.conn.sql("""select item, description, uom from `tabBOM`
 					where name=%s""", (self.doc.bom_no,), as_dict=1)
 				self.add_to_stock_entry_detail({
-					item[0]["item"] :
-						[self.doc.fg_completed_qty, item[0]["description"], item[0]["uom"]]
+					item[0]["item"] : {
+						"qty": self.doc.fg_completed_qty,
+						"description": item[0]["description"],
+						"stock_uom": item[0]["uom"],
+						"from_warehouse": ""
+					}
 				}, bom_no=self.doc.bom_no)
 		
 		self.get_stock_and_rate()
@@ -577,7 +572,6 @@ class DocType(StockController):
 		for item in item_dict:
 			pending_to_issue = (max_qty * item_dict[item]["qty"]) - issued_item_qty.get(item, 0)
 			desire_to_transfer = flt(self.doc.fg_completed_qty) * item_dict[item]["qty"]
-			
 			if desire_to_transfer <= pending_to_issue:
 				item_dict[item]["qty"] = desire_to_transfer
 			else:
@@ -617,7 +611,7 @@ class DocType(StockController):
 		for d in item_dict:
 			se_child = addchild(self.doc, 'mtn_details', 'Stock Entry Detail', 
 				self.doclist)
-			se_child.s_warehouse = item_dict[d].get("from_warehouse", self.doc.from_warehouse) 
+			se_child.s_warehouse = item_dict[d].get("from_warehouse", self.doc.from_warehouse)
 			se_child.t_warehouse = item_dict[d].get("to_warehouse", self.doc.to_warehouse)
 			se_child.item_code = cstr(d)
 			se_child.description = item_dict[d]["description"]

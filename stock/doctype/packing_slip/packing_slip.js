@@ -1,18 +1,5 @@
-// ERPNext - web based ERP (http://erpnext.com)
-// Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
 
 cur_frm.fields_dict['delivery_note'].get_query = function(doc, cdt, cdn) {
 	return{
@@ -116,7 +103,7 @@ cur_frm.cscript.calc_net_total_pkg = function(doc, ps_detail) {
 		net_weight_pkg += flt(item.net_weight) * flt(item.qty);
 	}
 
-	doc.net_weight_pkg = roundNumber(net_weight_pkg, 2);
+	doc.net_weight_pkg = _round(net_weight_pkg, 2);
 	if(!flt(doc.gross_weight_pkg)) {
 		doc.gross_weight_pkg = doc.net_weight_pkg
 	}

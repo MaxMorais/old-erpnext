@@ -1,18 +1,5 @@
-// ERPNext - web based ERP (http://erpnext.com)
-// Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// License: GNU General Public License v3. See license.txt
 wn.provide("erpnext");
 
 $.extend(erpnext, {
@@ -49,4 +36,47 @@ $.extend(erpnext, {
 				territory.territory = wn.defaults.get_default("territory");
 		}
 	},
+	
+	setup_serial_no: function(grid_row) {
+		if(!grid_row.fields_dict.serial_no || 
+			grid_row.fields_dict.serial_no.get_status()!=="Write") return;
+		
+		var $btn = $('<button class="btn btn-sm btn-default">Add Serial No</button>')
+			.appendTo($("<div>")
+				.css({"margin-bottom": "10px", "margin-top": "-10px"})
+				.appendTo(grid_row.fields_dict.serial_no.$wrapper));
+				
+		$btn.on("click", function() {
+			var d = new wn.ui.Dialog({
+				title: "Add Serial No",
+				fields: [
+					{
+						"fieldtype": "Link",
+						"options": "Serial No",
+						"label": "Serial No",
+						"get_query": {
+							item_code: grid_row.doc.item_code,
+							warehouse: grid_row.doc.warehouse
+						}
+					},
+					{
+						"fieldtype": "Button",
+						"label": "Add"
+					}
+				]
+			});
+			
+			d.get_input("add").on("click", function() {
+				var serial_no = d.get_value("serial_no");
+				if(serial_no) {
+					var val = (grid_row.doc.serial_no || "").split("\n").concat([serial_no]).join("\n");
+					grid_row.fields_dict.serial_no.set_model_value(val.trim());
+				}
+				d.hide();
+				return false;
+			});
+			
+			d.show();
+		});
+	}
 });

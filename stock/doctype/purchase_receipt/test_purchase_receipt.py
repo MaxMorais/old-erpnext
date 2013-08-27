@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 
 from __future__ import unicode_literals
@@ -89,8 +76,31 @@ class TestPurchaseReceipt(unittest.TestCase):
 		
 		self.assertEquals(pr.doclist[1].rm_supp_cost, 70000.0)
 		self.assertEquals(len(pr.doclist.get({"parentfield": "pr_raw_material_details"})), 2)
+		
+	def test_serial_no_supplier(self):
+		pr = webnotes.bean(copy=test_records[0])
+		pr.doclist[1].item_code = "_Test Serialized Item With Series"
+		pr.doclist[1].qty = 1
+		pr.doclist[1].received_qty = 1
+		pr.insert()
+		pr.submit()
+		self.assertEquals(webnotes.conn.get_value("Serial No", pr.doclist[1].serial_no, 
+			"supplier"), pr.doc.supplier)
+			
+		return pr
+	
+	def test_serial_no_cancel(self):
+		pr = self.test_serial_no_supplier()
+		pr.cancel()
 
+		self.assertFalse(webnotes.conn.get_value("Serial No", pr.doclist[1].serial_no, 
+			"warehouse"))
 
+		self.assertEqual(webnotes.conn.get_value("Serial No", pr.doclist[1].serial_no, 
+			"status"), "Not Available")
+		
+	
+		
 test_dependencies = ["BOM"]
 
 test_records = [

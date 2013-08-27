@@ -1,18 +1,5 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
@@ -299,13 +286,15 @@ class DocType(StockController):
 		
 		item_list = [d.item_code for d in self.entries]
 		warehouse_list = [d.warehouse for d in self.entries]
+		if not (item_list and warehouse_list):
+			webnotes.throw(_("Invalid Item or Warehouse Data"))
+		
 		stock_ledger_entries = self.get_stock_ledger_entries(item_list, warehouse_list)
 		
 		self.doc.stock_value_difference = 0.0
 		for d in self.entries:
-			self.doc.stock_value_difference -= get_buying_amount(d.item_code, d.warehouse, 
-				d.actual_qty, self.doc.doctype, self.doc.name, d.voucher_detail_no, 
-				stock_ledger_entries)
+			self.doc.stock_value_difference -= get_buying_amount(d.item_code, self.doc.doctype, self.doc.name,
+				d.voucher_detail_no, stock_ledger_entries.get((d.item_code, d.warehouse), []))
 		webnotes.conn.set(self.doc, "stock_value_difference", self.doc.stock_value_difference)
 		
 	def make_gl_entries(self):

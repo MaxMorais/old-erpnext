@@ -1,23 +1,10 @@
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
 from webnotes import _, msgprint
-from webnotes.utils import flt
+from webnotes.utils import flt, _round
 
 from buying.utils import get_item_details
 from setup.utils import get_company_currency
@@ -43,6 +30,7 @@ class BuyingController(StockController):
 	def set_missing_values(self, for_validate=False):
 		super(BuyingController, self).set_missing_values(for_validate)
 
+		self.set_supplier_from_item_default()
 		self.set_price_list_currency("Buying")
 		
 		# set contact and address details for supplier, if they are not mentioned
@@ -52,6 +40,14 @@ class BuyingController(StockController):
 					self.doc.fields[fieldname] = val
 
 		self.set_missing_item_details(get_item_details)
+
+	def set_supplier_from_item_default(self):
+		if self.meta.get_field("supplier") and not self.doc.supplier:
+			for d in self.doclist.get({"doctype": self.tname}):
+				supplier = webnotes.conn.get_value("Item", d.item_code, "default_supplier")
+				if supplier:
+					self.doc.supplier = supplier
+					break
 
 	def get_purchase_tax_details(self):
 		self.doclist = self.doc.clear_table(self.doclist, "purchase_tax_details")
@@ -102,7 +98,7 @@ class BuyingController(StockController):
 
 			if item.discount_rate == 100.0:
 				item.import_rate = 0.0
-			elif item.import_ref_rate:
+			elif not item.import_rate:
 				item.import_rate = flt(item.import_ref_rate * (1.0 - (item.discount_rate / 100.0)),
 					self.precision("import_rate", item))
 						
@@ -133,10 +129,10 @@ class BuyingController(StockController):
 			self.precision("total_tax"))
 
 		if self.meta.get_field("rounded_total"):
-			self.doc.rounded_total = round(self.doc.grand_total)
+			self.doc.rounded_total = _round(self.doc.grand_total)
 		
 		if self.meta.get_field("rounded_total_import"):
-			self.doc.rounded_total_import = round(self.doc.grand_total_import)
+			self.doc.rounded_total_import = _round(self.doc.grand_total_import)
 			
 	def calculate_outstanding_amount(self):
 		if self.doc.doctype == "Purchase Invoice" and self.doc.docstatus < 2:
