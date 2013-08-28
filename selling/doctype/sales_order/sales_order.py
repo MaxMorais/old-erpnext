@@ -1,24 +1,5 @@
-<<<<<<< HEAD
-#-*- coding: utf-8 -*-
-# ERPNext - web based ERP (http://erpnext.com)
-# Copyright (C) 2012 Web Notes Technologies Pvt Ltd
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-=======
 # Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
 # License: GNU General Public License v3. See license.txt
->>>>>>> cf343174a4a2b51df750c1004d45ba98b212a501
 
 from __future__ import unicode_literals
 import webnotes
@@ -144,15 +125,9 @@ class DocType(SellingController):
 		self.validate_mandatory()
 		self.validate_proj_cust()
 		self.validate_po()
-<<<<<<< HEAD
-		self.validate_uom_is_integer("stock_uom", "qty")
-		if self.doc.docstatus == 1:
-			self.validate_for_items()
-
-=======
 		self.validate_uom_is_integer("stock_uom", "qty")		
 		self.validate_for_items()
->>>>>>> cf343174a4a2b51df750c1004d45ba98b212a501
+		self.validate_warehouse_user()
 		sales_com_obj = get_obj(dt = 'Sales Common')
 		sales_com_obj.check_active_sales_items(self)
 		sales_com_obj.check_conversion_rate(self)
@@ -171,6 +146,16 @@ class DocType(SellingController):
 
 		if not self.doc.billing_status: self.doc.billing_status = 'Not Billed'
 		if not self.doc.delivery_status: self.doc.delivery_status = 'Not Delivered'
+
+		
+	def validate_warehouse_user(self):
+		from stock.utils import validate_warehouse_user
+		
+		warehouses = list(set([d.reserved_warehouse for d in 
+			self.doclist.get({"doctype": self.tname}) if d.reserved_warehouse]))
+				
+		for w in warehouses:
+			validate_warehouse_user(w)
 
 	def validate_with_previous_doc(self):
 		super(DocType, self).validate_with_previous_doc(self.tname, {
@@ -511,7 +496,6 @@ def make_maintenance_visit(source_name, target_doclist=None):
 				"add_if_empty": True
 			}
 		}, target_doclist)
-<<<<<<< HEAD
 
 		return [d.fields for d in doclist]
 
@@ -664,7 +648,5 @@ def has_revision(sales_name):
 		)
 	}
 	return revisions
-=======
-	
-		return [d.fields for d in doclist]
->>>>>>> cf343174a4a2b51df750c1004d45ba98b212a501
+
+
