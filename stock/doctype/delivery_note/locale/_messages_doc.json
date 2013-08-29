@@ -1,12 +1,12 @@
 [
  "Customer's Vendor", 
  "Price List Currency", 
+ "Document Numbering Series", 
  "Select Terms and Conditions", 
  "Shipping Address Name", 
  "Territory", 
  "Net Total", 
  "Company", 
- "Contact Email", 
  "Track this Delivery Note against any Project", 
  "Terms and Conditions Details", 
  "Price List", 
@@ -102,7 +102,7 @@
  "% Installed", 
  "Contact Person", 
  "Cold Calling", 
- "Series", 
+ "Contact Email", 
  "Packing List", 
  "Sales Team"
 ]

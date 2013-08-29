@@ -8,11 +8,11 @@
  "Fiscal Year", 
  "Leave Type", 
  "Amended From", 
- "Attendance Date", 
+ "Document Numbering Series", 
  "ATT", 
- "Present", 
+ "Half Day", 
  "Employee", 
+ "Attendance Date", 
  "Company", 
- "Naming Series", 
- "Half Day"
+ "Present"
 ]

@@ -1,6 +1,8 @@
 [
  "Stock Entries already created for Production Order ", 
  "Posting Date Time cannot be before", 
+ "Source Warehouse Partion", 
+ "Target Warehouse Partition", 
  "Material Request", 
  "Status should be Submitted", 
  "Purpose must be one of ", 
@@ -20,6 +22,7 @@
  "Quantity should be equal to Manufacturing Quantity. ", 
  "Row #", 
  "of", 
+ "Atleast one warehouse partition is mandatory", 
  "Target Warehouse", 
  " should be same as that in ", 
  " is mandatory", 

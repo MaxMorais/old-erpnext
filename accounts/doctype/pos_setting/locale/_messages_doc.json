@@ -1,15 +1,16 @@
 [
  "Cost Center", 
+ "Document Numbering Series", 
  "Charge", 
  "Warehouse", 
  "Select Print Heading", 
- "Customer Account", 
  "Territory", 
  "Terms and Conditions", 
  "Company", 
  "User", 
  "Income Account", 
  "Price List", 
+ "Customer", 
  "POS Setting", 
  "Create Stock Ledger Entries when you submit a Sales Invoice", 
  "Expense Account", 
@@ -17,7 +18,6 @@
  "Update Stock", 
  "Letter Head", 
  "Conversion Rate", 
- "Series", 
  "Currency", 
  "Accounts"
 ]

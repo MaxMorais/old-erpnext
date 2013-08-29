@@ -1,6 +1,7 @@
 [
  "Installation Note Item", 
  "Customer Address", 
+ "Document Numbering Series", 
  "Draft", 
  "Territory", 
  "Installation Note", 
@@ -13,7 +14,6 @@
  "Remarks", 
  "Customer", 
  "Name", 
- "Customer Group", 
  "Submitted", 
  "Fiscal Year", 
  "Contact", 
@@ -25,5 +25,5 @@
  "Installation Date", 
  "Contact Email", 
  "Item Details", 
- "Series"
+ "Customer Group"
 ]

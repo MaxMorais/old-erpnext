@@ -1,6 +1,7 @@
 [
  "Expected Delivery Date", 
  "Price List Currency", 
+ "Document Numbering Series", 
  "Select Terms and Conditions", 
  "Amended From", 
  "Territory", 
@@ -85,7 +86,6 @@
  "Contact Info", 
  "Sales Order Items", 
  "In Words will be visible once you save the Sales Order.", 
- "Series", 
  "Select the relevant company name if you have multiple companies.", 
  "% of materials billed against this Sales Order", 
  "Shipping Address Name", 

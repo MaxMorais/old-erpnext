@@ -5,6 +5,7 @@
  "Material Request Type", 
  "IDT", 
  "Material Request", 
+ "Document Numbering Series", 
  "Draft", 
  "Select Print Heading", 
  "Type", 
@@ -31,7 +32,6 @@
  "Transaction Date", 
  "% Completed", 
  "Select the relevant company name if you have multiple companies", 
- "Series", 
  "More Info", 
  "MREQ-", 
  "Terms and Conditions Content"

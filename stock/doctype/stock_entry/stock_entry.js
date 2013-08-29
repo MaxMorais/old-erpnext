@@ -231,10 +231,14 @@ cur_frm.cscript.toggle_related_fields = function(doc) {
 	disable_to_warehouse = inList(["Material Issue", "Purchase Return"], doc.purpose)
 	
 	cur_frm.toggle_enable("from_warehouse", !disable_from_warehouse);
+	cur_frm.toggle_enable("from_warehouse_partition", !disable_from_warehouse);
 	cur_frm.toggle_enable("to_warehouse", !disable_to_warehouse);
+	cur_frm.toggle_enable("to_warehouse_partition", !disable_to_warehouse);
 		
 	cur_frm.fields_dict["mtn_details"].grid.set_column_disp("s_warehouse", !disable_from_warehouse);
+	cur_frm.fields_dict["mtn_details"].grid.set_column_disp("s_warehouse_partition", !disable_from_warehouse);
 	cur_frm.fields_dict["mtn_details"].grid.set_column_disp("t_warehouse", !disable_to_warehouse);
+	cur_frm.fields_dict["mtn_details"].grid.set_column_disp("t_warehouse_partition", !disable_to_warehouse);
 		
 	if(doc.purpose == 'Purchase Return') {
 		doc.customer = doc.customer_name = doc.customer_address = 
@@ -356,3 +360,18 @@ cur_frm.fields_dict.customer.get_query = function(doc,cdt,cdn) {
 
 cur_frm.fields_dict.supplier.get_query = function(doc,cdt,cdn) {
 	return{	query:"controllers.queries.supplier_query" } }
+
+cur_frm.fields_dict.from_warehouse_partition.get_query = function(doc, cdt, cdn){
+	return {
+		filters: [
+			['parent_name', "=", doc.from_warehouse]
+		]
+	}
+}
+cur_frm.fields_dict.to_warehouse_partition.get_query = function(doc, cdt, cdn){
+	return {
+		filters: [
+			['parent_name', "=", doc.to_warehouse]
+		]
+	}
+}

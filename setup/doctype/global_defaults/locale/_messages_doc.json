@@ -14,12 +14,12 @@
  "Standard", 
  "Date and Number Settings", 
  "Disable Rounded Total", 
- "Spartan", 
  "dd-mm-yyyy", 
  "SMS Sender Name", 
  "Default Currency", 
  "Number Format", 
  "Setup", 
+ "Precision for Float fields (quantities, discounts, percentages etc). Floats will be rounded up to specified decimals. Default = 3", 
  "Current Fiscal Year", 
  "yyyy-mm-dd", 
  "Yes", 
@@ -32,5 +32,5 @@
  "Global Defaults", 
  "Company Settings", 
  "If disable, 'Rounded Total' field will not be visible in any transaction", 
- "Precision for Float fields (quantities, discounts, percentages etc) only for display. Floats will still be calculated up to 6 decimals."
+ "Spartan"
 ]

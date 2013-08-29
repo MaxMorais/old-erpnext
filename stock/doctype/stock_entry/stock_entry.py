@@ -92,28 +92,45 @@ class DocType(StockController):
 
 		if self.doc.purpose in source_mandatory and self.doc.purpose not in target_mandatory:
 			self.doc.to_warehouse = None
+			self.doc.to_warehouse_partition = None
 			for d in getlist(self.doclist, 'mtn_details'):
 				d.t_warehouse = None
+				d.t_warehouse_partition = None
 		elif self.doc.purpose in target_mandatory and self.doc.purpose not in source_mandatory:
 			self.doc.from_warehouse = None
+			self.doc.from_warehouse_partition = None
 			for d in getlist(self.doclist, 'mtn_details'):
 				d.s_warehouse = None
+				d.s_warehouse_partition = None
 
 		for d in getlist(self.doclist, 'mtn_details'):
 			if not d.s_warehouse and not d.t_warehouse:
 				d.s_warehouse = self.doc.from_warehouse
+				d.s_warehouse_partition = self.doc.from_warehouse_partition
 				d.t_warehouse = self.doc.to_warehouse
+				d.t_warehouse_partition = self.doc.to_warehouse_partition
 
 			if not (d.s_warehouse or d.t_warehouse):
 				msgprint(_("Atleast one warehouse is mandatory"), raise_exception=1)
-			
+
+			if not (d.s_warehouse_partition or d.t_warehouse_partition):
+				msgprint(_("Atleast one warehouse partition is mandatory"), raise_exception=1)
+
 			if self.doc.purpose in source_mandatory and not d.s_warehouse:
 				msgprint(_("Row # ") + "%s: " % cint(d.idx)
 					+ _("Source Warehouse") + _(" is mandatory"), raise_exception=1)
 				
+			if self.doc.purpose in source_mandatory and not d.s_warehouse_partition:
+				msgprint(_("Row # ") + "%s: " % cint(d.idx)
+					+ _("Source Warehouse Partion") + _(" is mandatory"), raise_exception=1)
+
 			if self.doc.purpose in target_mandatory and not d.t_warehouse:
 				msgprint(_("Row # ") + "%s: " % cint(d.idx)
 					+ _("Target Warehouse") + _(" is mandatory"), raise_exception=1)
+
+			if self.doc.purpose in target_mandatory and not d.t_warehouse_partition:
+				msgprint(_("Row # ") + "%s: " % cint(d.idx)
+					+ _("Target Warehouse Partition") + _(" is mandatory"), raise_exception=1)				
 
 			if self.doc.purpose == "Manufacture/Repack":
 				if validate_for_manufacture_repack:
@@ -341,13 +358,19 @@ class DocType(StockController):
 					sr.save()
 						
 	def update_stock_ledger(self, is_cancelled=0):
-		self.values = []			
+		self.values = []
 		for d in getlist(self.doclist, 'mtn_details'):
 			if cstr(d.s_warehouse):
 				self.add_to_values(d, cstr(d.s_warehouse), -flt(d.transfer_qty), is_cancelled)
+				if cstr(d.s_warehouse_partition):
+					from_space_usage = flt(webnotes.conn.get_value('Warehouse Partition', d.s_warehouse_partition, 'space_usage')) - (flt(d.transfer_qty)*(1 if not is_cancelled else -1))
+ 					webnotes.conn.set_value('Warehouse Partion', d.s_warehouse_partition, 'space_usage', from_space_usage)
 			if cstr(d.t_warehouse):
 				self.add_to_values(d, cstr(d.t_warehouse), flt(d.transfer_qty), is_cancelled)
-		
+				if cstr(d.t_warehouse_partition):
+					to_space_usage = flt(webnotes.conn.get_value('Warehouse Partition', d.t_warehouse_partition, 'space_usage')) + (flt(d.transfer_qty)*(1 if not is_cancelled else -1))
+					webnotes.conn.set_value('Warehouse Partition', d.t_warehouse_partition, 'space_usage', to_space_usage)
+			
 		get_obj('Stock Ledger', 'Stock Ledger').update_stock(self.values, 
 			self.doc.amended_from and 'Yes' or 'No')
 

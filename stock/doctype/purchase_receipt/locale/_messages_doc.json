@@ -1,5 +1,6 @@
 [
  "Price List Currency", 
+ "Document Numbering Series", 
  "In Words will be visible once you save the Purchase Receipt.", 
  "Supplier", 
  "Warehouse where you are maintaining stock of rejected items", 
@@ -67,7 +68,6 @@
  "Taxes and Charges Deducted", 
  "Taxes and Charges Deducted (Company Currency)", 
  "Bill Date", 
- "Series", 
  "Contact Info", 
  "Supplier Address", 
  "Purchase Receipt Items", 

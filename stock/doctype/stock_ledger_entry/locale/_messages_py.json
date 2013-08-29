@@ -2,7 +2,6 @@
  "Serial Nos do not match with qty", 
  "Serial No must exist to transfer out.", 
  "Warehouse does not belong to Item", 
- "User not allowed entry in the Warehouse", 
  "Serial No qty cannot be a fraction", 
  "Warehouse does not belong to company.", 
  "Serial No status must be 'Available' to Deliver", 

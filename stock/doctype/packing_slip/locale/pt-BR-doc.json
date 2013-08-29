@@ -2,6 +2,7 @@
  "Amended From": "Corrigido De", 
  "Amendment Date": "Data da Corre\u00e7\u00e3o", 
  "Delivery Note": "Guia de Remessa", 
+ "Document Numbering Series": "Documento s\u00e9rie de numera\u00e7\u00e3o", 
  "From Package No.": "De No. Package", 
  "Generate packing slips for packages to be delivered. Used to notify package number, package contents and its weight.": "Gerar guias de remessa de pacotes a serem entregues. Usado para notificar o n\u00famero do pacote, o conte\u00fado do pacote e seu peso.", 
  "Get Items": "Obter itens", 
