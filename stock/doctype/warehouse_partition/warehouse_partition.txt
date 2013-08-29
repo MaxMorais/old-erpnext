@@ -1,0 +1,106 @@
+[
+ {
+  "creation": "2013-08-29 11:28:21", 
+  "docstatus": 0, 
+  "modified": "2013-08-29 12:00:15", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "autoname": "WRP.######", 
+  "description": "Warehouse Partions", 
+  "doctype": "DocType", 
+  "document_type": "Master", 
+  "istable": 1, 
+  "module": "Stock", 
+  "name": "__common__", 
+  "name_case": "UPPER CASE"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Warehouse Partition", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "name": "__common__", 
+  "parent": "Warehouse Partition", 
+  "parentfield": "permissions", 
+  "parenttype": "DocType", 
+  "permlevel": 0, 
+  "read": 1, 
+  "report": 1
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Warehouse Partition"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "partition_name", 
+  "fieldtype": "Data", 
+  "in_list_view": 1, 
+  "label": "Name", 
+  "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "description", 
+  "fieldtype": "Small Text", 
+  "in_list_view": 0, 
+  "label": "Description"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "size", 
+  "fieldtype": "Float", 
+  "in_list_view": 1, 
+  "label": "Size"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "size_uom", 
+  "fieldtype": "Link", 
+  "in_list_view": 1, 
+  "label": "Size UOM", 
+  "options": "UOM"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "space_usage", 
+  "fieldtype": "Float", 
+  "in_list_view": 1, 
+  "label": "Space Usage", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocPerm", 
+  "role": "All"
+ }, 
+ {
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "role": "System Manager", 
+  "submit": 0, 
+  "write": 1
+ }, 
+ {
+  "cancel": 1, 
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "role": "Administrator", 
+  "submit": 0, 
+  "write": 1
+ }, 
+ {
+  "create": 1, 
+  "doctype": "DocPerm", 
+  "role": "Material User", 
+  "write": 1
+ }
+]
