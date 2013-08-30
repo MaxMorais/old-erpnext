@@ -1,0 +1,33 @@
+[
+ {
+  "creation": "2012-02-20 15:46:39", 
+  "docstatus": 0, 
+  "modified": "2013-07-11 14:44:01", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "doctype": "Page", 
+  "icon": "icon-th", 
+  "module": "Call Center", 
+  "name": "__common__", 
+  "page_name": "call-center-home", 
+  "standard": "Yes", 
+  "title": "Call Center Home"
+ }, 
+ {
+  "doctype": "Page Role", 
+  "name": "__common__", 
+  "parent": "call-center-home", 
+  "parentfield": "roles", 
+  "parenttype": "Page", 
+  "role": "All"
+ }, 
+ {
+  "doctype": "Page", 
+  "name": "call-center-home"
+ }, 
+ {
+  "doctype": "Page Role"
+ }
+]
