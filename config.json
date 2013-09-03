@@ -7,11 +7,11 @@
 			"icon": "icon-tag",
 			"type": "module"
 		},
-		"Call Center":{
-			"type": "module",
+		"Call Center": {
+			"type": "page",
 			"link": "call-center-home",
-			"color": "#2c3e50",
-			"icon": "icon-headphones"
+			"color": "#c0392b",
+			"icon": "icon-bullseye"
 		},
 		"Accounts": {
 			"link": "accounts-home",

@@ -1,7 +1,6 @@
-// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
-// License: GNU General Public License v3. See license.txt"
 
-wn.module_page["Selling"] = [
+
+wn.module_page['call-center-home'] = 	[
 	{
 		top: true,
 		title: wn._("Documents"),
@@ -22,7 +21,7 @@ wn.module_page["Selling"] = [
 				description: wn._("Potential opportunities for selling."),
 				doctype:"Opportunity"
 			},
-			{
+			/*{
 				label: wn._("Quotation"),
 				description: wn._("Quotes to Leads or Customers."),
 				doctype:"Quotation"
@@ -31,10 +30,10 @@ wn.module_page["Selling"] = [
 				label: wn._("Sales Order"),
 				description: wn._("Confirmed orders from Customers."),
 				doctype:"Sales Order"
-			}
+			}*/
 		]
 	},
-	{
+	/*{
 		title: wn._('Accounts'),
 		icon: 'icon-money',
 		items: [
@@ -49,7 +48,7 @@ wn.module_page["Selling"] = [
 				doctype: "Receipt of Cheque"
 			}
 		]
-	},
+	},*/
 	{
 		title: wn._("Masters"),
 		icon: "icon-book",
@@ -75,7 +74,7 @@ wn.module_page["Selling"] = [
 		title: wn._("Setup"),
 		icon: "icon-cog",
 		items: [
-			{
+			/*{
 				"label": wn._("Selling Settings"),
 				"route": "Form/Selling Settings",
 				"doctype":"Selling Settings",
@@ -90,17 +89,17 @@ wn.module_page["Selling"] = [
 				label: wn._("Shipping Rules"),
 				description: wn._("Rules to calculate shipping amount for a sale"),
 				doctype:"Shipping Rule"
-			},
+			},*/
 			{
 				label: wn._("Price List"),
 				description: wn._("Mupltiple Item prices."),
 				doctype:"Price List"
 			},
-			{
+			/*{
 				label: wn._("Sales BOM"),
 				description: wn._("Bundle items at time of sale."),
 				doctype:"Sales BOM"
-			},
+			},*/
 			{
 				label: wn._("Terms and Conditions"),
 				description: wn._("Template of terms or contract."),
@@ -235,7 +234,14 @@ wn.module_page["Selling"] = [
 	}
 ]
 
-pscript['onload_selling-home'] = function(wrapper) {
-	wn.views.moduleview.make(wrapper, "Selling");
+pscript['onload_call-center-home'] = function(wrapper) {
+	wn.views.moduleview.make(wrapper, "call-center-home");
 }
 
+/*function(wrapper) { 
+wn.ui.make_app_page({
+		parent: wrapper,
+		title: 'Call Center Home',
+		single_column: false
+	});
+}*/
