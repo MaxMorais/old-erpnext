@@ -1,0 +1,98 @@
+[
+ {
+  "creation": "2013-09-04 12:08:12", 
+  "docstatus": 0, 
+  "modified": "2013-09-04 12:17:47", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "autoname": "ETQIMP.YYYY./.MM./.DD.-.#####", 
+  "custom": 1, 
+  "description": "Tabela temporaria para importa\u00e7\u00e3o dos registros do arquivo csv, ser\u00e1 substituida no futuro.", 
+  "doctype": "DocType", 
+  "document_type": "Master", 
+  "istable": 1, 
+  "module": "Utilities", 
+  "name": "__common__"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Etiquetas", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Etiquetas"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "seq", 
+  "fieldtype": "Data", 
+  "label": "Seq"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "lote", 
+  "fieldtype": "Data", 
+  "label": "Lote"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "pedido", 
+  "fieldtype": "Data", 
+  "label": "Pedido"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "item", 
+  "fieldtype": "Data", 
+  "label": "Item"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "etiqueta", 
+  "fieldtype": "Data", 
+  "label": "Etiqueta"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "embarcado", 
+  "fieldtype": "Check", 
+  "label": "Embarcado?"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "barcode", 
+  "fieldtype": "Data", 
+  "label": "EAN", 
+  "search_index": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "item_code", 
+  "fieldtype": "Data", 
+  "label": "cItem"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "qty", 
+  "fieldtype": "Float", 
+  "label": "Qtd"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "oc_num", 
+  "fieldtype": "Data", 
+  "label": "Ordem de Compra"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "vol", 
+  "fieldtype": "Data", 
+  "label": "Volumes"
+ }
+]

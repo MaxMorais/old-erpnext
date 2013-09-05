@@ -2,7 +2,7 @@
  {
   "creation": "2013-04-10 08:54:11", 
   "docstatus": 0, 
-  "modified": "2013-08-08 14:22:14", 
+  "modified": "2013-09-02 17:25:59", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -409,12 +409,23 @@
   "label": "Blog Subscriber"
  }, 
  {
+<<<<<<< HEAD
   "doctype": "DocPerm", 
   "role": "Guest", 
   "submit": 0
  }, 
  {
   "amend": 0, 
+=======
+  "doctype": "DocField", 
+  "fieldname": "communications", 
+  "fieldtype": "Table", 
+  "hidden": 1, 
+  "label": "Communications", 
+  "options": "Communication"
+ }, 
+ {
+>>>>>>> 9dd25b35d7a1f6b487f72bc7171fd14cb98d98b2
   "cancel": 1, 
   "doctype": "DocPerm", 
   "match": "territory", 

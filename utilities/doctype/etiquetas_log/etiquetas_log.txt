@@ -1,0 +1,44 @@
+[
+ {
+  "creation": "2013-09-04 12:19:47", 
+  "docstatus": 0, 
+  "modified": "2013-09-04 12:20:21", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "autoname": "IMPQETQ.#####", 
+  "custom": 1, 
+  "description": "Log de importa\u00e7\u00e3o de Etiquetas", 
+  "doctype": "DocType", 
+  "document_type": "Master", 
+  "module": "Utilities", 
+  "name": "__common__", 
+  "name_case": "UPPER CASE"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Etiquetas Log", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Etiquetas Log"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "filename", 
+  "fieldtype": "Data", 
+  "label": "Arquivo"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "dados", 
+  "fieldtype": "Table", 
+  "label": "Dados", 
+  "options": "Etiquetas"
+ }
+]
