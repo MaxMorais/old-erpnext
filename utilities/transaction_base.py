@@ -86,13 +86,8 @@ class TransactionBase(StatusUpdater):
 		for fieldname, val in customer_defaults.items():
 			if self.meta.get_field(fieldname):
 				self.doc.fields[fieldname] = val
-<<<<<<< HEAD
-		
-		if self.meta.get_field("sales_team"):
-=======
 			
 		if self.meta.get_field("sales_team") and self.doc.customer:
->>>>>>> 9dd25b35d7a1f6b487f72bc7171fd14cb98d98b2
 			self.set_sales_team_for_customer()
 			
 	def set_sales_team_for_customer(self):
@@ -117,7 +112,7 @@ class TransactionBase(StatusUpdater):
 			
 			# add child
 			self.doclist.append(sales_person)
-	
+			
 	def get_supplier_defaults(self):
 		out = self.get_default_address_and_contact("supplier")
 
