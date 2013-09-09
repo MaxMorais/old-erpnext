@@ -1,8 +1,9 @@
 [
  "Serial Nos do not match with qty", 
  "Serial No must exist to transfer out.", 
- "Warehouse does not belong to Item", 
+ " does not belong to Warehouse", 
  "Serial No qty cannot be a fraction", 
+ "Serial No", 
  "Warehouse does not belong to company.", 
  "Serial No status must be 'Available' to Deliver", 
  "Serial No created", 
