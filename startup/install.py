@@ -5,44 +5,6 @@ from __future__ import unicode_literals
 
 import webnotes
 
-def pre_import():
-	webnotes.conn.begin()
-	make_modules()
-	make_roles()
-	webnotes.conn.commit()
-	
-def make_modules():
-	modules = [
-		"Home", "System", "Utilities", "Website", "Setup",
-		"Selling", "Buying", "Projects", "Accounts", "Stock",
-		"Support", "HR", "Manufacturing"]
-	
-	for m in modules:
-		doc = webnotes.doc(fielddata = {
-			"doctype": "Module Def",
-			"module_name": m,
-		})
-		doc.insert()
-	
-def make_roles():
-	roles = [
-		"Accounts Manager", "Accounts User", "Analytics", "Auditor",
-		"Blogger", "Customer", "Employee", "Expense Approver",
-		"HR Manager", "HR User", "Leave Approver", "Maintenance Manager",
-		"Maintenance User", "Manufacturing Manager", "Manufacturing User",
-		"Material Manager", "Material Master Manager", "Material User",
-		"Partner", "Projects User", "Projects Manager", "Purchase Manager", "Purchase Master Manager",
-		"Purchase User", "Quality Manager", "Sales Manager",
-		"Sales Master Manager", "Sales User", "Supplier", "Support Manager",
-		"Support Team", "Website Manager"]
-		
-	for r in roles:
-		doc = webnotes.doc(fielddata = {
-			"doctype":"Role",
-			"role_name": r
-		})
-		doc.insert()
-
 def post_import():
 	webnotes.conn.begin()
 
@@ -64,7 +26,8 @@ def post_import():
 
 def feature_setup():
 	"""save global defaults and features setup"""
-	doc = webnotes.doc("Features Setup", "Features Setup")
+	bean = webnotes.bean("Features Setup", "Features Setup")
+	bean.ignore_permissions = True
 
 	# store value as 1 for all these fields
 	flds = ['fs_item_serial_nos', 'fs_item_batch_nos', 'fs_brands', 'fs_item_barcode',
@@ -74,8 +37,8 @@ def feature_setup():
 		'fs_recurring_invoice', 'fs_pos', 'fs_manufacturing', 'fs_quality',
 		'fs_page_break', 'fs_more_info', 'fs_pos_view'
 	]
-	doc.fields.update(dict(zip(flds, [1]*len(flds))))
-	doc.save()
+	bean.doc.fields.update(dict(zip(flds, [1]*len(flds))))
+	bean.save()
 
 def import_country_and_currency():
 	from webnotes.country_info import get_all
