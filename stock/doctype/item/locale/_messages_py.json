@@ -1,12 +1,10 @@
 [
  " should be 'Yes'. As Item: ", 
- "Currency does not match Price List Currency for Price List", 
  "Item Code (item_code) is mandatory because Item naming is not sequential.", 
+ "Default Unit of Measure can not be changed directly \\\n\t\t\t\t\tbecause you have already made some transaction(s) with another UOM.\\n \\\n\t\t\t\t\tTo change default UOM, use 'UOM Replace Utility' tool under Stock module.", 
  " is present in one or many Active BOMs", 
- "As there are existing stock transactions for this \\\n\t\t\t\t\t\t\titem, you can not change the values of 'Has Serial No', \\\n\t\t\t\t\t\t\t'Is Stock Item' and 'Valuation Method'", 
  "To set reorder level, item must be Purchase Item", 
- "Please Update Stock UOM with the help of Stock UOM Replace Utility.", 
  "Default Warehouse is mandatory for Stock Item.", 
- "Cannot have two prices for same Price List", 
+ "As there are existing stock transactions for this \\\n\t\t\t\t\t\t\titem, you can not change the values of 'Has Serial No', \\\n\t\t\t\t\t\t\t'Is Stock Item' and 'Valuation Method'", 
  "Please enter Default Unit of Measure"
 ]

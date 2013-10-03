@@ -8,12 +8,6 @@
 			"icon": "icon-tag",
 			"type": "module"
 		},
-		"Call Center": {
-			"type": "page",
-			"link": "call-center-home",
-			"color": "#c0392b",
-			"icon": "icon-bullseye"
-		},
 		"Accounts": {
 			"link": "accounts-home",
 			"color": "#3498db",

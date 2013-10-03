@@ -810,7 +810,7 @@ cur_frm.cscript.payment_value = function(doc, cdt, cdn){
 // Adiciona um gatilho para atualizacao de valores de projeto.
 function value_calculation_decorated(caller){
 	return function(doc, cdt, cdn){
-		var cost, cache, item, key;
+		var cost, cache, item, key, msg;
 		if (doc.is_additional_sales_order && (doc.modo_complemento==='Revis\u00E3o')){
 			cost = doc.project_cost_parent - doc.project_cost;
 		} else {
@@ -824,14 +824,35 @@ function value_calculation_decorated(caller){
 					doc.project_discount_value = 0.0;
 					break;
 				case 'project_discount':
+					if (doc.project_discount<0||doc.project_discount>100) {
+						doc.project_discount=0;
+						msg = wn._("The discount should be between 0 and 100");
+						msgprint(msg);
+						refresh_field(caller);
+						throw msg;
+					}
 					doc.project_discount_value = (cost*(doc.project_discount/100));
 					doc.project_amount = (cost-doc.project_discount_value);
 					break;
 				case 'project_discount_value':
+					if (doc.project_discount_value<0||doc.project_discount_value>cost){
+						doc.project_discount=0;
+						msg = wn._("The discount must be greater or equal to zero");
+						msgprint(msg);
+						refresh_field(caller);
+						throw msg;
+					}
 					doc.project_discount = ((doc.project_discount_value/cost)*100);
 					doc.project_amount = (cost-doc.project_discount_value);
 					break;
 				case 'project_amount':
+					if (doc.project_amount<(cost*0.64)||doc.project_amount>cost){
+						doc.project_amount = 0;
+						msg = wn._("The amount of furniture, must be beetween ") + (cost*0.64) + wn._(" and ") + cost ;
+						msgprint(msgprint);
+						refresh_field(caller);
+						throw msg;
+					}
 					doc.project_discount_value = (cost-doc.project_amount);
 					doc.project_discount = ((doc.project_discount_value/cost)*100);
 					break;
