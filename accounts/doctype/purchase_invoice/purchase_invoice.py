@@ -62,19 +62,20 @@ class DocType(BuyingController):
 			"purchase_receipt_details")
 
 	def get_credit_to(self):
-		acc_head = sql("""select name, credit_days from `tabAccount` 
-			where (name = %s or (master_name = %s and master_type = 'supplier')) 
-			and docstatus != 2 and company = %s""", 
-			(cstr(self.doc.supplier) + " - " + self.company_abbr, 
-			self.doc.supplier, self.doc.company))
-
 		ret = {}
-		if acc_head and acc_head[0][0]:
-			ret['credit_to'] = acc_head[0][0]
-			if not self.doc.due_date:
-				ret['due_date'] = add_days(cstr(self.doc.posting_date), acc_head and cint(acc_head[0][1]) or 0)
-		elif not acc_head:
-			msgprint("%s does not have an Account Head in %s. You must first create it from the Supplier Master" % (self.doc.supplier, self.doc.company))
+		if self.doc.supplier:
+			acc_head = sql("""select name, credit_days from `tabAccount` 
+				where (name = %s or (master_name = %s and master_type = 'supplier')) 
+				and docstatus != 2 and company = %s""", 
+				(cstr(self.doc.supplier) + " - " + self.company_abbr, 
+				self.doc.supplier, self.doc.company))
+
+			if acc_head and acc_head[0][0]:
+				ret['credit_to'] = acc_head[0][0]
+				if not self.doc.due_date:
+					ret['due_date'] = add_days(cstr(self.doc.posting_date), acc_head and cint(acc_head[0][1]) or 0)
+			elif not acc_head:
+				msgprint("%s does not have an Account Head in %s. You must first create it from the Supplier Master" % (self.doc.supplier, self.doc.company))
 		return ret
 		
 	def set_supplier_defaults(self):
@@ -212,28 +213,29 @@ class DocType(BuyingController):
 			raise Exception
 			
 	def set_against_expense_account(self):
-		auto_inventory_accounting = \
-			cint(webnotes.defaults.get_global_default("auto_inventory_accounting"))
+		auto_accounting_for_stock = cint(webnotes.defaults.get_global_default("auto_accounting_for_stock"))
 
-		if auto_inventory_accounting:
+		if auto_accounting_for_stock:
 			stock_not_billed_account = self.get_company_default("stock_received_but_not_billed")
 		
 		against_accounts = []
+		stock_items = self.get_stock_items()
 		for item in self.doclist.get({"parentfield": "entries"}):
-			if auto_inventory_accounting and item.item_code in self.stock_items:
+			if auto_accounting_for_stock and item.item_code in stock_items:
 				# in case of auto inventory accounting, against expense account is always
 				# Stock Received But Not Billed for a stock item
-				item.expense_head = item.cost_center = None
+				item.expense_head = stock_not_billed_account
+				item.cost_center = None
 				
 				if stock_not_billed_account not in against_accounts:
 					against_accounts.append(stock_not_billed_account)
 			
 			elif not item.expense_head:
-				msgprint(_("""Expense account is mandatory for item: """) + (item.item_code or item.item_name), 
-					raise_exception=1)
+				msgprint(_("Expense account is mandatory for item") + ": " + 
+					(item.item_code or item.item_name), raise_exception=1)
 			
 			elif item.expense_head not in against_accounts:
-				# if no auto_inventory_accounting or not a stock item
+				# if no auto_accounting_for_stock or not a stock item
 				against_accounts.append(item.expense_head)
 				
 		self.doc.against_expense_account = ",".join(against_accounts)
@@ -314,9 +316,8 @@ class DocType(BuyingController):
 		self.update_prevdoc_status()
 
 	def make_gl_entries(self):
-		from accounts.general_ledger import make_gl_entries
-		auto_inventory_accounting = \
-			cint(webnotes.defaults.get_global_default("auto_inventory_accounting"))
+		auto_accounting_for_stock = \
+			cint(webnotes.defaults.get_global_default("auto_accounting_for_stock"))
 		
 		gl_entries = []
 		
@@ -353,17 +354,15 @@ class DocType(BuyingController):
 				valuation_tax += (tax.add_deduct_tax == "Add" and 1 or -1) * flt(tax.tax_amount)
 					
 		# item gl entries
-		stock_item_and_auto_inventory_accounting = False
-		if auto_inventory_accounting:
-			stock_account = self.get_company_default("stock_received_but_not_billed")
-			
+		stock_item_and_auto_accounting_for_stock = False
+		stock_items = self.get_stock_items()
 		for item in self.doclist.get({"parentfield": "entries"}):
-			if auto_inventory_accounting and item.item_code in self.stock_items:
+			if auto_accounting_for_stock and item.item_code in stock_items:
 				if flt(item.valuation_rate):
 					# if auto inventory accounting enabled and stock item, 
 					# then do stock related gl entries
 					# expense will be booked in sales invoice
-					stock_item_and_auto_inventory_accounting = True
+					stock_item_and_auto_accounting_for_stock = True
 					
 					valuation_amt = (flt(item.amount, self.precision("amount", item)) + 
 						flt(item.item_tax_amount, self.precision("item_tax_amount", item)) + 
@@ -371,7 +370,7 @@ class DocType(BuyingController):
 					
 					gl_entries.append(
 						self.get_gl_dict({
-							"account": stock_account,
+							"account": item.expense_head,
 							"against": self.doc.credit_to,
 							"debit": valuation_amt,
 							"remarks": self.doc.remarks or "Accounting Entry for Stock"
@@ -390,13 +389,13 @@ class DocType(BuyingController):
 					})
 				)
 				
-		if stock_item_and_auto_inventory_accounting and valuation_tax:
+		if stock_item_and_auto_accounting_for_stock and valuation_tax:
 			# credit valuation tax amount in "Expenses Included In Valuation"
 			# this will balance out valuation amount included in cost of goods sold
 			gl_entries.append(
 				self.get_gl_dict({
 					"account": self.get_company_default("expenses_included_in_valuation"),
-					"cost_center": self.get_company_default("stock_adjustment_cost_center"),
+					"cost_center": self.get_company_default("cost_center"),
 					"against": self.doc.credit_to,
 					"credit": valuation_tax,
 					"remarks": self.doc.remarks or "Accounting Entry for Stock"
@@ -417,6 +416,7 @@ class DocType(BuyingController):
 			)
 		
 		if gl_entries:
+			from accounts.general_ledger import make_gl_entries
 			make_gl_entries(gl_entries, cancel=(self.doc.docstatus == 2))
 
 	def on_cancel(self):

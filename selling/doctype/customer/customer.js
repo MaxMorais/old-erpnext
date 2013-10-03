@@ -18,7 +18,7 @@ cur_frm.cscript.load_defaults = function(doc, dt, dn) {
 cur_frm.add_fetch('lead_name', 'company_name', 'customer_name');
 cur_frm.add_fetch('default_sales_partner','commission_rate','default_commission_rate');
 
-cur_frm.cscript.custom_refresh = function(doc,dt,dn) {
+cur_frm.cscript.refresh = function(doc,dt,dn) {
 	cur_frm.cscript.setup_dashboard(doc);
 	if(sys_defaults.cust_master_name == 'Customer Name')
 		hide_field('naming_series');
@@ -46,7 +46,7 @@ cur_frm.cscript.setup_dashboard = function(doc) {
 	cur_frm.dashboard.reset(doc);
 	if(doc.__islocal) 
 		return;
-	cur_frm.dashboard.set_headline('<span class="text-muted">Loading...</span>')
+	cur_frm.dashboard.set_headline('<span class="text-muted">'+ wn._('Loading...')+ '</span>')
 	
 	cur_frm.dashboard.add_doctype_badge("Opportunity", "customer");
 	cur_frm.dashboard.add_doctype_badge("Quotation", "customer");
@@ -100,7 +100,7 @@ cur_frm.cscript.make_contact = function() {
 				return "select name, first_name, last_name, email_id, phone, mobile_no, department, designation, is_primary_contact from tabContact where customer='"+cur_frm.docname+"' and docstatus != 2 order by is_primary_contact desc"
 			},
 			as_dict: 1,
-			no_results_message: 'No contacts created',
+			no_results_message: wn._('No contacts created'),
 			render_row: cur_frm.cscript.render_contact_row,
 		});
 		// note: render_contact_row is defined in contact_control.js

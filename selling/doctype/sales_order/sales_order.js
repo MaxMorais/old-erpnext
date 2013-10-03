@@ -12,6 +12,7 @@ cur_frm.cscript.sales_team_fname = "sales_team";
 wn.require('app/selling/doctype/sales_common/sales_common.js');
 wn.require('app/accounts/doctype/sales_taxes_and_charges_master/sales_taxes_and_charges_master.js');
 wn.require('app/utilities/doctype/sms_control/sms_control.js');
+wn.require('app/accounts/doctype/sales_invoice/pos.js');
 
 erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend({
 	refresh: function(doc, dt, dn) {
@@ -47,16 +48,12 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 				if(flt(doc.per_billed, 2) < 100)
 					cur_frm.add_custom_button(wn._('Make Invoice'), this.make_sales_invoice);
 			
-				// journal voucher
-				if(flt(doc.per_billed, 2) < 100)
-					cur_frm.add_custom_button(wn._('Make Entries from Payments'), this.make_journal_voucher);
-
 				// stop
 				if(flt(doc.per_delivered, 2) < 100 || doc.per_billed < 100)
 					cur_frm.add_custom_button(wn._('Stop!'), cur_frm.cscript['Stop Sales Order']);
 			} else {	
 				// un-stop
-				cur_frm.dashboard.set_headline_alert("Stopped", "alert-danger", "icon-stop");
+				cur_frm.dashboard.set_headline_alert(wn._("Stopped"), "alert-danger", "icon-stop");
 				cur_frm.add_custom_button(wn._('Unstop'), cur_frm.cscript['Unstop Sales Order']);
 			}
 		}
@@ -78,10 +75,10 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 				});
 		}
 
-		//this.order_type();
+		this.order_type(doc);
 	},
 	
-	order_type: function(doc, cdt, cdn) {
+	order_type: function() {
 		this.frm.toggle_reqd("delivery_date", this.frm.doc.order_type == "Sales");
 	},
 
@@ -168,7 +165,7 @@ cur_frm.fields_dict['project_name'].get_query = function(doc, cdt, cdn) {
 cur_frm.cscript['Stop Sales Order'] = function() {
 	var doc = cur_frm.doc;
 
-	var check = confirm("Are you sure you want to STOP " + doc.name);
+	var check = confirm(wn._("Are you sure you want to STOP ") + doc.name);
 
 	if (check) {
 		return $c('runserverobj', {
@@ -183,7 +180,7 @@ cur_frm.cscript['Stop Sales Order'] = function() {
 cur_frm.cscript['Unstop Sales Order'] = function() {
 	var doc = cur_frm.doc;
 
-	var check = confirm("Are you sure you want to UNSTOP " + doc.name);
+	var check = confirm(wn._("Are you sure you want to UNSTOP ") + doc.name);
 
 	if (check) {
 		return $c('runserverobj', {
