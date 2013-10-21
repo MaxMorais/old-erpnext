@@ -494,10 +494,10 @@ cur_frm.cscript.custom_validate = function(doc, cdt, cdn){
 	} else {
 		doc.payment_amount_net = 0;
 		$.map(wn.model.get_children('Sales Order Payment', doc.name, 'sales_order_payments'), function(d){ doc.payment_amount_net += d.net_payment_amount; payment_total += d.gross_payment_amount;});
-		if (payment_total.toFixed(2)!==doc.net_total_export.toFixed(2)){
+		if (payment_total.toFixed(2)!==doc.grand_total_export.toFixed(2)){
 			validated = false;
 			msg = msg + "A soma de pagamentos difere do total do pedido!<br>"
-				+ "Dica: <br>\t<b>Soma de Pagamentos: </b>"+format_currency(total, user_defaults.currency)
+				+ "Dica: <br>\t<b>Soma de Pagamentos: </b>"+format_currency(payment_total, user_defaults.currency)
 				+ "<b>Total do Pedido: </b>" + format_currency(doc.net_total_export, user_defaults.currency);
 		}
 	}
@@ -685,7 +685,8 @@ function update_payment_values(doc, so){
 			doc.net_payment_amount = (doc.net_payment_amount||0) + (pmt.qty*pmt.value);
 		}
 		total += doc.gross_payment_amount;
-		if (total>so.net_total_export){
+		if (total>so.grand_total_export){
+			console.log();
 			msgprint('A soma de pagamentos ultrapassa o valor do pedido!', 'Ops...');
 		}
 		refresh_field('net_payment_amount', doc.name, 'payments');
