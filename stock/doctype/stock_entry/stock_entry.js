@@ -1,6 +1,9 @@
 // Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
 // License: GNU General Public License v3. See license.txt
 
+cur_frm.cscript.tname = "Stock Entry Detail";
+cur_frm.cscript.fname = "mtn_details";
+
 wn.require("public/app/js/controllers/stock_controller.js");
 wn.provide("erpnext.stock");
 
@@ -112,12 +115,6 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 		}
 	},
 	
-	entries_add: function(doc, cdt, cdn) {
-		var row = wn.model.get_doc(cdt, cdn);
-		this.frm.script_manager.copy_from_first_row("mtn_details", row, 
-			["expense_account", "cost_center"]);
-	},
-	
 	clean_up: function() {
 		// Clear Production Order record from locals, because it is updated via Stock Entry
 		if(this.frm.doc.production_order && 
@@ -224,6 +221,8 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 
 	mtn_details_add: function(doc, cdt, cdn) {
 		var row = wn.model.get_doc(cdt, cdn);
+		this.frm.script_manager.copy_from_first_row("mtn_details", row, 
+			["expense_account", "cost_center"]);
 		
 		if(!row.s_warehouse) row.s_warehouse = this.frm.doc.from_warehouse;
 		if(!row.t_warehouse) row.t_warehouse = this.frm.doc.to_warehouse;
@@ -241,14 +240,10 @@ cur_frm.cscript.toggle_related_fields = function(doc) {
 	disable_to_warehouse = inList(["Material Issue", "Purchase Return"], doc.purpose)
 	
 	cur_frm.toggle_enable("from_warehouse", !disable_from_warehouse);
-	cur_frm.toggle_enable("from_warehouse_partition", !disable_from_warehouse);
 	cur_frm.toggle_enable("to_warehouse", !disable_to_warehouse);
-	cur_frm.toggle_enable("to_warehouse_partition", !disable_to_warehouse);
 		
 	cur_frm.fields_dict["mtn_details"].grid.set_column_disp("s_warehouse", !disable_from_warehouse);
-	cur_frm.fields_dict["mtn_details"].grid.set_column_disp("s_warehouse_partition", !disable_from_warehouse);
 	cur_frm.fields_dict["mtn_details"].grid.set_column_disp("t_warehouse", !disable_to_warehouse);
-	cur_frm.fields_dict["mtn_details"].grid.set_column_disp("t_warehouse_partition", !disable_to_warehouse);
 		
 	if(doc.purpose == 'Purchase Return') {
 		doc.customer = doc.customer_name = doc.customer_address = 
@@ -264,24 +259,29 @@ cur_frm.cscript.toggle_related_fields = function(doc) {
 	}
 }
 
-cur_frm.cscript.delivery_note_no = function(doc,cdt,cdn){
-	if(doc.delivery_note_no) return get_server_fields('get_cust_values','','',doc,cdt,cdn,1);
+cur_frm.cscript.delivery_note_no = function(doc, cdt, cdn) {
+	if(doc.delivery_note_no)
+		return get_server_fields('get_cust_values', '', '', doc, cdt, cdn, 1);
 }
 
-cur_frm.cscript.sales_invoice_no = function(doc,cdt,cdn){
-	if(doc.sales_invoice_no) return get_server_fields('get_cust_values','','',doc,cdt,cdn,1);
+cur_frm.cscript.sales_invoice_no = function(doc, cdt, cdn) {
+	if(doc.sales_invoice_no) 
+		return get_server_fields('get_cust_values', '', '', doc, cdt, cdn, 1);
 }
 
-cur_frm.cscript.customer = function(doc,cdt,cdn){
-	if(doc.customer) return get_server_fields('get_cust_addr','','',doc,cdt,cdn,1);
+cur_frm.cscript.customer = function(doc, cdt, cdn) {
+	if(doc.customer) 
+		return get_server_fields('get_cust_addr', '', '', doc, cdt, cdn, 1);
 }
 
-cur_frm.cscript.purchase_receipt_no = function(doc,cdt,cdn){
-	if(doc.purchase_receipt_no)	return get_server_fields('get_supp_values','','',doc,cdt,cdn,1);
+cur_frm.cscript.purchase_receipt_no = function(doc, cdt, cdn) {
+	if(doc.purchase_receipt_no)	
+		return get_server_fields('get_supp_values', '', '', doc, cdt, cdn, 1);
 }
 
-cur_frm.cscript.supplier = function(doc,cdt,cdn){
-	if(doc.supplier) return get_server_fields('get_supp_addr','','',doc,cdt,cdn,1);
+cur_frm.cscript.supplier = function(doc, cdt, cdn) {
+	if(doc.supplier) 
+		return get_server_fields('get_supp_addr', '', '', doc, cdt, cdn, 1);
 
 }
 
@@ -322,9 +322,13 @@ cur_frm.cscript.item_code = function(doc, cdt, cdn) {
 		'warehouse'		: cstr(d.s_warehouse) || cstr(d.t_warehouse),
 		'transfer_qty'	: d.transfer_qty,
 		'serial_no'		: d.serial_no,
-		'bom_no'		: d.bom_no
+		'bom_no'			: d.bom_no,
+		'expense_account'	: d.expense_account,
+		'cost_center'		: d.cost_center,
+		'company'			: cur_frm.doc.company
 	};
-	return get_server_fields('get_item_details',JSON.stringify(args),'mtn_details',doc,cdt,cdn,1);
+	return get_server_fields('get_item_details', JSON.stringify(args), 
+		'mtn_details', doc, cdt, cdn, 1);
 }
 
 cur_frm.cscript.s_warehouse = function(doc, cdt, cdn) {
@@ -347,7 +351,8 @@ cur_frm.cscript.uom = function(doc, cdt, cdn) {
 	var d = locals[cdt][cdn];
 	if(d.uom && d.item_code){
 		var arg = {'item_code':d.item_code, 'uom':d.uom, 'qty':d.qty}
-		return get_server_fields('get_uom_details',JSON.stringify(arg),'mtn_details', doc, cdt, cdn, 1);
+		return get_server_fields('get_uom_details', JSON.stringify(arg), 
+			'mtn_details', doc, cdt, cdn, 1);
 	}
 }
 
@@ -358,30 +363,25 @@ cur_frm.cscript.validate = function(doc, cdt, cdn) {
 }
 
 cur_frm.cscript.validate_items = function(doc) {
-	cl =	getchildren('Stock Entry Detail',doc.name,'mtn_details');
+	cl = getchildren('Stock Entry Detail', doc.name, 'mtn_details');
 	if (!cl.length) {
 		alert("Item table can not be blank");
 		validated = false;
 	}
 }
 
-cur_frm.fields_dict.customer.get_query = function(doc,cdt,cdn) {
-	return{ query:"controllers.queries.customer_query" } }
-
-cur_frm.fields_dict.supplier.get_query = function(doc,cdt,cdn) {
-	return{	query:"controllers.queries.supplier_query" } }
-
-cur_frm.fields_dict.from_warehouse_partition.get_query = function(doc, cdt, cdn){
-	return {
-		filters: [
-			['parent_name', "=", doc.from_warehouse]
-		]
-	}
+cur_frm.cscript.expense_account = function(doc, cdt, cdn) {
+	cur_frm.cscript.copy_account_in_all_row(doc, cdt, cdn, "expense_account");
 }
-cur_frm.fields_dict.to_warehouse_partition.get_query = function(doc, cdt, cdn){
-	return {
-		filters: [
-			['parent_name', "=", doc.to_warehouse]
-		]
-	}
+
+cur_frm.cscript.cost_center = function(doc, cdt, cdn) {
+	cur_frm.cscript.copy_account_in_all_row(doc, cdt, cdn, "cost_center");
+}
+
+cur_frm.fields_dict.customer.get_query = function(doc, cdt, cdn) {
+	return{ query:"controllers.queries.customer_query" }
+}
+
+cur_frm.fields_dict.supplier.get_query = function(doc, cdt, cdn) {
+	return{	query:"controllers.queries.supplier_query" }
 }

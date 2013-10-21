@@ -335,7 +335,7 @@ class DocType(BuyingController):
 			)
 	
 		# tax table gl entries
-		valuation_tax = 0
+		valuation_tax = {}
 		for tax in self.doclist.get({"parentfield": "purchase_tax_details"}):
 			if tax.category in ("Total", "Valuation and Total") and flt(tax.tax_amount):
 				gl_entries.append(
@@ -350,12 +350,16 @@ class DocType(BuyingController):
 				)
 			
 			# accumulate valuation tax
-			if tax.category in ("Valuation", "Valuation and Total") and flt(tax.tax_amount):
-				valuation_tax += (tax.add_deduct_tax == "Add" and 1 or -1) * flt(tax.tax_amount)
+			if tax.category in ("Valuation", "Valuation and Total") and flt(tax.tax_amount) \
+				and tax.cost_center:
+					valuation_tax.setdefault(tax.cost_center, 0)
+					valuation_tax[tax.cost_center] += \
+						(tax.add_deduct_tax == "Add" and 1 or -1) * flt(tax.tax_amount)
 					
 		# item gl entries
 		stock_item_and_auto_accounting_for_stock = False
 		stock_items = self.get_stock_items()
+		rounding_diff = 0.0
 		for item in self.doclist.get({"parentfield": "entries"}):
 			if auto_accounting_for_stock and item.item_code in stock_items:
 				if flt(item.valuation_rate):
@@ -364,9 +368,13 @@ class DocType(BuyingController):
 					# expense will be booked in sales invoice
 					stock_item_and_auto_accounting_for_stock = True
 					
-					valuation_amt = (flt(item.amount, self.precision("amount", item)) + 
+					valuation_amt = flt(flt(item.valuation_rate) * flt(item.qty) * \
+						flt(item.conversion_factor), self.precision("valuation_rate", item))
+					
+					rounding_diff += (flt(item.amount, self.precision("amount", item)) + 
 						flt(item.item_tax_amount, self.precision("item_tax_amount", item)) + 
-						flt(item.rm_supp_cost, self.precision("rm_supp_cost", item)))
+						flt(item.rm_supp_cost, self.precision("rm_supp_cost", item)) - 
+						valuation_amt)
 					
 					gl_entries.append(
 						self.get_gl_dict({
@@ -392,15 +400,25 @@ class DocType(BuyingController):
 		if stock_item_and_auto_accounting_for_stock and valuation_tax:
 			# credit valuation tax amount in "Expenses Included In Valuation"
 			# this will balance out valuation amount included in cost of goods sold
-			gl_entries.append(
-				self.get_gl_dict({
-					"account": self.get_company_default("expenses_included_in_valuation"),
-					"cost_center": self.get_company_default("cost_center"),
-					"against": self.doc.credit_to,
-					"credit": valuation_tax,
-					"remarks": self.doc.remarks or "Accounting Entry for Stock"
-				})
-			)
+			expenses_included_in_valuation = \
+				self.get_company_default("expenses_included_in_valuation")
+				
+			if rounding_diff:
+				import operator
+				cost_center_with_max_value = max(valuation_tax.iteritems(), 
+					key=operator.itemgetter(1))[0]
+				valuation_tax[cost_center_with_max_value] -= flt(rounding_diff)
+			
+			for cost_center, amount in valuation_tax.items():
+				gl_entries.append(
+					self.get_gl_dict({
+						"account": expenses_included_in_valuation,
+						"cost_center": cost_center,
+						"against": self.doc.credit_to,
+						"credit": amount,
+						"remarks": self.doc.remarks or "Accounting Entry for Stock"
+					})
+				)
 		
 		# writeoff account includes petty difference in the invoice amount 
 		# and the amount that is paid
