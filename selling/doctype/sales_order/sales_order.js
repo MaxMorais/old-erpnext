@@ -488,39 +488,43 @@ cur_frm.cscript.custom_validate = function(doc, cdt, cdn){
 		refresh_field('project_files');
 	}
 
-	if (!wn.model.get_children('Sales Order Payment', doc.name, 'sales_order_payments')){
-		validated = false;
-		msg = msg + "Informe a forma de pagamento do pedido!<br>";
-	} else {
-		doc.payment_amount_net = 0;
-		$.map(wn.model.get_children('Sales Order Payment', doc.name, 'sales_order_payments'), function(d){ doc.payment_amount_net += d.net_payment_amount; payment_total += d.gross_payment_amount;});
-		if (payment_total.toFixed(2)!==doc.grand_total_export.toFixed(2)){
-			validated = false;
-			msg = msg + "A soma de pagamentos difere do total do pedido!<br>"
-				+ "Dica: <br>\t<b>Soma de Pagamentos: </b>"+format_currency(payment_total, user_defaults.currency)
-				+ "<b>Total do Pedido: </b>" + format_currency(doc.net_total_export, user_defaults.currency);
-		}
-	}
+	if (doc.status=='Draft'){
 
-	// A data de uma nova ordem de vendas nao pode ser diferente da data atual.
-	if (wn.datetime.get_day_diff(new Date(), wn.datetime.str_to_obj(doc.transaction_date)) > 0) {
-		validated = false;
-		msg = msg + 'A data da Ordem de Venda nao pode uma data passada<br>'
+		if (!wn.model.get_children('Sales Order Payment', doc.name, 'sales_order_payments')){
+			validated = false;
+			msg = msg + "Informe a forma de pagamento do pedido!<br>";
+		} else {
+			doc.payment_amount_net = 0;
+			$.map(wn.model.get_children('Sales Order Payment', doc.name, 'sales_order_payments'), function(d){ doc.payment_amount_net += d.net_payment_amount; payment_total += d.gross_payment_amount;});
+			if (payment_total.toFixed(2)!==doc.grand_total_export.toFixed(2)){
+				validated = false;
+				msg = msg + "A soma de pagamentos difere do total do pedido!<br>"
+					+ "Dica: <br>\t<b>Soma de Pagamentos: </b>"+format_currency(payment_total, user_defaults.currency)
+					+ "<b>Total do Pedido: </b>" + format_currency(doc.net_total_export, user_defaults.currency);
+			}
+		}
+
+		// A data de uma nova ordem de vendas nao pode ser diferente da data atual.
+		if (wn.datetime.get_day_diff(new Date(), wn.datetime.str_to_obj(doc.transaction_date)) > 0) {
+			validated = false;
+			msg = msg + 'A data da Ordem de Venda nao pode uma data passada<br>'
+		}
+		// A data prevista de entrega prevista deve ser preenchida caso 'naming_series' seja 'VP'
+		if ((doc.is_scheduled_delivery) && (!doc.delivery_date)){
+			validated = false;
+			msg = msg + 'A Data Prevista de Entrega deve ser informada, no caso de vendas programadas!<br>';
+		}
+		// A data prevista de entrega deve ser superior a 90 dias a contar da data atual
+		if (doc.is_scheduled_delivery && wn.datetime.get_day(wn.datetime.str_to_obj(doc.delivery_date)<wn.datetime.add_months(doc.transaction_date, 3))){
+			validated = false;
+			msg = msg + 'A Data Prevista de Entrega deve ser superior a 90 dias a contar da data do pedido';
+		}
+		// Dispara a mensagem de validacao caso o doc nao seja validado e haja uma mensagem
+		if ((validated === false) && (msg !== '')) {
+			msgprint(msg);
+		}  
+		
 	}
-	// A data prevista de entrega prevista deve ser preenchida caso 'naming_series' seja 'VP'
-	if ((doc.is_scheduled_delivery) && (!doc.delivery_date)){
-		validated = false;
-		msg = msg + 'A Data Prevista de Entrega deve ser informada, no caso de vendas programadas!<br>';
-	}
-	// A data prevista de entrega deve ser superior a 90 dias a contar da data atual
-	if (doc.is_scheduled_delivery && wn.datetime.get_day(wn.datetime.str_to_obj(doc.delivery_date)<wn.datetime.add_months(doc.transaction_date, 3))){
-		validated = false;
-		msg = msg + 'A Data Prevista de Entrega deve ser superior a 90 dias a contar da data do pedido';
-	}
-	// Dispara a mensagem de validacao caso o doc nao seja validado e haja uma mensagem
-	if ((validated === false) && (msg !== '')) {
-		msgprint(msg);
-	}  
 }
 
 // Atualiza os valores da forma de pagamento e deflaciona
