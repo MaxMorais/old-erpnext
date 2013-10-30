@@ -15,7 +15,6 @@ from stock.stock_ledger import get_previous_sle
 from controllers.queries import get_match_cond
 import json
 
-sql = webnotes.conn.sql
 
 class NotUpdateStockError(webnotes.ValidationError): pass
 class StockOverReturnError(webnotes.ValidationError): pass
@@ -56,7 +55,6 @@ class DocType(StockController):
 
 		from stock.doctype.serial_no.serial_no import update_serial_nos_after_submit
 		update_serial_nos_after_submit(self, "mtn_details")
-		
 		self.update_production_order()
 		self.make_gl_entries()
 
@@ -368,8 +366,7 @@ class DocType(StockController):
 					
 	def get_item_details(self, arg):
 		arg = json.loads(arg)
-		
-		item = sql("""select stock_uom, description, item_name, 
+		item = webnotes.conn.sql("""select stock_uom, description, item_name, 
 			purchase_account, cost_center from `tabItem` 
 			where name = %s and (ifnull(end_of_life,'')='' or end_of_life ='0000-00-00' 
 			or end_of_life > now())""", (arg.get('item_code')), as_dict = 1)
@@ -397,7 +394,7 @@ class DocType(StockController):
 
 	def get_uom_details(self, arg = ''):
 		arg, ret = eval(arg), {}
-		uom = sql("""select conversion_factor from `tabUOM Conversion Detail` 
+		uom = webnotes.conn.sql("""select conversion_factor from `tabUOM Conversion Detail` 
 			where parent = %s and uom = %s""", (arg['item_code'], arg['uom']), as_dict = 1)
 		if not uom or not flt(uom[0].conversion_factor):
 			msgprint("There is no Conversion Factor for UOM '%s' in Item '%s'" % (arg['uom'],
@@ -454,101 +451,58 @@ class DocType(StockController):
 						item["to_warehouse"] = ""
 
 				# add raw materials to Stock Entry Detail table
-				self.add_to_stock_entry_detail(item_dict)
+				idx = self.add_to_stock_entry_detail(item_dict)
 					
 			# add finished good item to Stock Entry Detail table -- along with bom_no
 			if self.doc.production_order and self.doc.purpose == "Manufacture/Repack":
+				item = webnotes.conn.get_value("Item", pro_obj.doc.production_item, ["item_name", 
+					"description", "stock_uom", "purchase_account", "cost_center"], as_dict=1)
 				self.add_to_stock_entry_detail({
 					cstr(pro_obj.doc.production_item): {
 						"to_warehouse": pro_obj.doc.fg_warehouse,
 						"from_warehouse": "",
 						"qty": self.doc.fg_completed_qty,
-						"description": pro_obj.doc.description,
-						"stock_uom": pro_obj.doc.stock_uom
+						"item_name": item.item_name,
+						"description": item.description,
+						"stock_uom": item.stock_uom,
+						"expense_account": item.purchase_account,
+						"cost_center": item.cost_center,
 					}
-				}, bom_no=pro_obj.doc.bom_no)
+				}, bom_no=pro_obj.doc.bom_no, idx=idx)
 								
 			elif self.doc.purpose in ["Material Receipt", "Manufacture/Repack"]:
 				if self.doc.purpose=="Material Receipt":
 					self.doc.from_warehouse = ""
 					
-				item = webnotes.conn.sql("""select item, description, uom from `tabBOM`
-					where name=%s""", (self.doc.bom_no,), as_dict=1)
+				item = webnotes.conn.sql("""select name, item_name, description, 
+					uom, purchase_account, cost_center from `tabItem` 
+					where name=(select item from tabBOM where name=%s)""", 
+					self.doc.bom_no, as_dict=1)
 				self.add_to_stock_entry_detail({
 					item[0]["item"] : {
 						"qty": self.doc.fg_completed_qty,
+						"item_name": item[0].item_name,
 						"description": item[0]["description"],
 						"stock_uom": item[0]["uom"],
-						"from_warehouse": ""
+						"from_warehouse": "",
+						"expense_account": item[0].purchase_account,
+						"cost_center": item[0].cost_center,
 					}
-				}, bom_no=self.doc.bom_no)
+				}, bom_no=self.doc.bom_no, idx=idx)
 		
 		self.get_stock_and_rate()
-		
 	
 	def get_bom_raw_materials(self, qty):
-		""" 
-			get all items from flat bom except 
-			child items of sub-contracted and sub assembly items 
-			and sub assembly items itself.
-		"""
+		from manufacturing.doctype.bom.bom import get_bom_items_as_dict
+		
 		# item dict = { item_code: {qty, description, stock_uom} }
-		item_dict = {}
+		item_dict = get_bom_items_as_dict(self.doc.bom_no, qty=qty, fetch_exploded = self.doc.use_multi_level_bom)
 		
-		def _make_items_dict(items_list):
-			"""makes dict of unique items with it's qty"""
-			for item in items_list:
-				if item_dict.has_key(item.item_code):
-					item_dict[item.item_code]["qty"] += flt(item.qty)
-				else:
-					item_dict[item.item_code] = {
-						"qty": flt(item.qty), 
-						"description": item.description, 
-						"stock_uom": item.stock_uom,
-						"from_warehouse": item.default_warehouse
-					}
-		
-		if self.doc.use_multi_level_bom:
-			# get all raw materials with sub assembly childs					
-			fl_bom_sa_child_item = sql("""select 
-					fb.item_code, 
-					ifnull(sum(fb.qty_consumed_per_unit),0)*%s as qty, 
-					fb.description, 
-					fb.stock_uom,
-					it.default_warehouse
-				from 
-					`tabBOM Explosion Item` fb,`tabItem` it 
-				where 
-					it.name = fb.item_code 
-					and ifnull(it.is_pro_applicable, 'No') = 'No'
-					and ifnull(it.is_sub_contracted_item, 'No') = 'No' 
-					and fb.docstatus < 2 
-					and fb.parent=%s group by item_code, stock_uom""", 
-				(qty, self.doc.bom_no), as_dict=1)
-			
-			if fl_bom_sa_child_item:
-				_make_items_dict(fl_bom_sa_child_item)
-		else:
-			# get only BOM items
-			fl_bom_sa_items = sql("""select 
-					`tabItem`.item_code,
-					ifnull(sum(`tabBOM Item`.qty_consumed_per_unit), 0) *%s as qty,
-					`tabItem`.description, 
-					`tabItem`.stock_uom,
-					`tabItem`.default_warehouse
-				from 
-					`tabBOM Item`, `tabItem`
-				where 
-					`tabBOM Item`.parent = %s and 
-					`tabBOM Item`.item_code = tabItem.name and
-					`tabBOM Item`.docstatus < 2 
-				group by item_code""", (qty, self.doc.bom_no), as_dict=1)
-			
-			if fl_bom_sa_items:
-				_make_items_dict(fl_bom_sa_items)
+		for item in item_dict.values():
+			item.from_warehouse = item.default_warehouse
 			
 		return item_dict
-	
+			
 	def get_pending_raw_materials(self, pro_obj):
 		"""
 			issue (item quantity) that is pending to issue or desire to transfer,
@@ -588,7 +542,7 @@ class DocType(StockController):
 
 	def get_issued_qty(self):
 		issued_item_qty = {}
-		result = sql("""select t1.item_code, sum(t1.qty)
+		result = webnotes.conn.sql("""select t1.item_code, sum(t1.qty)
 			from `tabStock Entry Detail` t1, `tabStock Entry` t2
 			where t1.parent = t2.name and t2.production_order = %s and t2.docstatus = 1
 			and t2.purpose = 'Material Transfer'
@@ -598,17 +552,25 @@ class DocType(StockController):
 		
 		return issued_item_qty
 
-	def add_to_stock_entry_detail(self, item_dict, bom_no=None):
+	def add_to_stock_entry_detail(self, item_dict, bom_no=None, idx=None):
+		if not idx:	idx = 1
+		expense_account, cost_center = webnotes.conn.get_values("Company", self.doc.company, \
+			["default_expense_account", "cost_center"])[0]
+
 		for d in item_dict:
 			se_child = addchild(self.doc, 'mtn_details', 'Stock Entry Detail', 
 				self.doclist)
+			se_child.idx = idx
 			se_child.s_warehouse = item_dict[d].get("from_warehouse", self.doc.from_warehouse)
 			se_child.t_warehouse = item_dict[d].get("to_warehouse", self.doc.to_warehouse)
 			se_child.item_code = cstr(d)
+			se_child.item_name = item_dict[d]["item_name"]
 			se_child.description = item_dict[d]["description"]
 			se_child.uom = item_dict[d]["stock_uom"]
 			se_child.stock_uom = item_dict[d]["stock_uom"]
 			se_child.qty = flt(item_dict[d]["qty"])
+			se_child.expense_account = item_dict[d]["expense_account"] or expense_account
+			se_child.cost_center = item_dict[d]["cost_center"] or cost_center
 			
 			# in stock uom
 			se_child.transfer_qty = flt(item_dict[d]["qty"])
@@ -616,6 +578,10 @@ class DocType(StockController):
 			
 			# to be assigned for finished item
 			se_child.bom_no = bom_no
+
+			# increment idx by 1
+			idx += 1
+		return idx
 
 	def get_cust_values(self):
 		"""fetches customer details"""
@@ -634,7 +600,7 @@ class DocType(StockController):
 		
 	def get_cust_addr(self):
 		from utilities.transaction_base import get_default_address, get_address_display
-		res = sql("select customer_name from `tabCustomer` where name = '%s'"%self.doc.customer)
+		res = webnotes.conn.sql("select customer_name from `tabCustomer` where name = '%s'"%self.doc.customer)
 		address_display = None
 		customer_address = get_default_address("customer", self.doc.customer)
 		if customer_address:
@@ -655,7 +621,7 @@ class DocType(StockController):
 		
 	def get_supp_addr(self):
 		from utilities.transaction_base import get_default_address, get_address_display
-		res = sql("""select supplier_name from `tabSupplier`
+		res = webnotes.conn.sql("""select supplier_name from `tabSupplier`
 			where name=%s""", self.doc.supplier)
 		address_display = None
 		supplier_address = get_default_address("customer", self.doc.customer)
@@ -682,8 +648,8 @@ class DocType(StockController):
 @webnotes.whitelist()
 def get_production_order_details(production_order):
 	result = webnotes.conn.sql("""select bom_no, 
-		ifnull(qty, 0) - ifnull(produced_qty, 0) as fg_completed_qty, use_multi_level_bom
-		from `tabProduction Order` where name = %s""", production_order, as_dict=1)
+		ifnull(qty, 0) - ifnull(produced_qty, 0) as fg_completed_qty, use_multi_level_bom, 
+		wip_warehouse from `tabProduction Order` where name = %s""", production_order, as_dict=1)
 	return result and result[0] or {}
 	
 def query_sales_return_doc(doctype, txt, searchfield, start, page_len, filters):
@@ -894,8 +860,7 @@ def make_return_jv_from_delivery_note(se, ref):
 		ref.doclist[0].name)
 	
 	if not invoices_against_delivery:
-		sales_orders_against_delivery = [d.prevdoc_docname for d in 
-			ref.doclist.get({"prevdoc_doctype": "Sales Order"}) if d.prevdoc_docname]
+		sales_orders_against_delivery = [d.against_sales_order for d in ref.doclist if d.against_sales_order]
 		
 		if sales_orders_against_delivery:
 			invoices_against_delivery = get_invoice_list("Sales Invoice Item", "sales_order",

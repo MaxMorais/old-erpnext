@@ -98,12 +98,12 @@ wn.module_page["Accounts"] = [
 			{
 				"label": wn._("Period Closing Voucher"),
 				"doctype": "Period Closing Voucher",
-				description: "Close Balance Sheet and book Profit or Loss."
+				description: wn._("Close Balance Sheet and book Profit or Loss.")
 			},
 			{
 				"page":"voucher-import-tool",
 				"label": wn._("Voucher Import Tool"),
-				"description": "Import accounting entries from CSV."
+				"description": wn._("Import accounting entries from CSV.")
 			},		
 		]
 	},
@@ -115,7 +115,7 @@ wn.module_page["Accounts"] = [
 				"label": wn._("Accounts Settings"),
 				"route": "Form/Accounts Settings",
 				"doctype":"Accounts Settings",
-				"description": "Settings for Accounts"
+				"description": wn._("Settings for Accounts")
 			},
 			{
 				"label": wn._("Sales Taxes and Charges Master"),
@@ -140,7 +140,7 @@ wn.module_page["Accounts"] = [
 			{
 				"label": wn._("Point-of-Sale Setting"),
 				"doctype":"POS Setting",
-				"description": "User settings for Point-of-sale (POS)"
+				"description": wn._("User settings for Point-of-sale (POS)")
 			},
 			{
 				"doctype":"Budget Distribution",
@@ -160,7 +160,7 @@ wn.module_page["Accounts"] = [
 			{
 				"doctype":"C-Form",
 				"label": wn._("C-Form"),
-				description: "C-Form records",
+				description: wn._("C-Form records"),
 				country: "India"
 			}
 		]

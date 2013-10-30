@@ -79,7 +79,7 @@ wn.module_page["Selling"] = [
 				"label": wn._("Selling Settings"),
 				"route": "Form/Selling Settings",
 				"doctype":"Selling Settings",
-				"description": "Settings for Selling Module"
+				"description": wn._("Settings for Selling Module")
 			},
 			{
 				"route":"Form/Shopping Cart Settings",
@@ -176,6 +176,10 @@ wn.module_page["Selling"] = [
 				"label":wn._("Sales Analytics"),
 				page: "sales-analytics"
 			},
+			{
+				"label":wn._("Sales Funnel"),
+				page: "sales-funnel"
+			},
 		]
 	},
 	{
@@ -183,6 +187,11 @@ wn.module_page["Selling"] = [
 		right: true,
 		icon: "icon-list",
 		items: [
+			{
+				"label":wn._("Lead Details"),
+				route: "query-report/Lead Details",
+				doctype: "Lead"
+			},
 			{
 				"label":wn._("Customer Addresses And Contacts"),
 				route: "query-report/Customer Addresses And Contacts",
