@@ -416,17 +416,6 @@ cur_frm.cscript.get_revision_details = function(){
 	}
 }
 
-cur_frm.cscript.is_scheduled_delivery = function(doc, cdt, cdn){
-	cur_frm.toggle_reqd('delivery_date', doc.is_scheduled_delivery)
-	if (doc.is_scheduled_delivery) {
-		doc.tc_name = 'TERMO DE VENDA PROGRAMADA'	
-	} else {
-		doc.tc_name = 'TERMO DE VENDA IMEDIATA'
-	}
-	this.get_terms();
-	cur_frm.refresh_fields();
-}
-
 cur_frm.cscript.delivery_date = function(doc, cdt, cdn){
 	if ((doc.delivery_date) && 
 		(doc.delivery_date<
@@ -486,16 +475,22 @@ cur_frm.cscript.custom_validate = function(doc, cdt, cdn){
 		doc.project_files = DBChooser.cache[doc.name] ? DBChooser.cache[doc.name].selected_files.join(';') : '';
 		doc.project_files_name = DBChooser.cache[doc.name] ? DBChooser.cache[doc.name].selected_names.join(';') : '';
 		refresh_field('project_files');
+
 	}
 
 	if (doc.status=='Draft'){
 
-		if (!wn.model.get_children('Sales Order Payment', doc.name, 'sales_order_payments')){
+		if (!locals.hasOwnProperty('Sales Order Payment')){
 			validated = false;
 			msg = msg + "Informe a forma de pagamento do pedido!<br>";
 		} else {
 			doc.payment_amount_net = 0;
-			$.map(wn.model.get_children('Sales Order Payment', doc.name, 'sales_order_payments'), function(d){ doc.payment_amount_net += d.net_payment_amount; payment_total += d.gross_payment_amount;});
+			$.map(locals['Sales Order Payment'], function(d){ 
+				if (d.parent===doc.name){
+					doc.payment_amount_net += d.net_payment_amount; 
+					payment_total += d.gross_payment_amount;
+				}
+			});
 			if (payment_total.toFixed(2)!==doc.grand_total_export.toFixed(2)){
 				validated = false;
 				msg = msg + "A soma de pagamentos difere do total do pedido!<br>"
@@ -503,6 +498,16 @@ cur_frm.cscript.custom_validate = function(doc, cdt, cdn){
 					+ "<b>Total do Pedido: </b>" + format_currency(doc.net_total_export, user_defaults.currency);
 			}
 		}
+		
+		if (doc.is_scheduled_delivery) {
+			doc.tc_name = 'TERMO DE VENDA PROGRAMADA'	
+		} else {
+			doc.tc_name = 'TERMO DE VENDA IMEDIATA'
+		}
+		this.get_terms();
+		cur_frm.refresh_fields();
+		
+
 
 		// A data de uma nova ordem de vendas nao pode ser diferente da data atual.
 		if (wn.datetime.get_day_diff(new Date(), wn.datetime.str_to_obj(doc.transaction_date)) > 0) {
@@ -518,6 +523,8 @@ cur_frm.cscript.custom_validate = function(doc, cdt, cdn){
 		if (doc.is_scheduled_delivery && wn.datetime.get_day(wn.datetime.str_to_obj(doc.delivery_date)<wn.datetime.add_months(doc.transaction_date, 3))){
 			validated = false;
 			msg = msg + 'A Data Prevista de Entrega deve ser superior a 90 dias a contar da data do pedido';
+		} else {
+			doc.delivery_date = date.add_months(doc.transaction_date, 2);
 		}
 		// Dispara a mensagem de validacao caso o doc nao seja validado e haja uma mensagem
 		if ((validated === false) && (msg !== '')) {
