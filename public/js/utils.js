@@ -28,10 +28,10 @@ $.extend(erpnext, {
 		}
 	},
 	
-	add_for_territory: function() {
+	add_applicable_territory: function() {
 		if(cur_frm.doc.__islocal && 
 			wn.model.get_doclist(cur_frm.doc.doctype, cur_frm.doc.name).length === 1) {
-				var territory = wn.model.add_child(cur_frm.doc, "For Territory", 
+				var territory = wn.model.add_child(cur_frm.doc, "Applicable Territory", 
 					"valid_for_territories");
 				territory.territory = wn.defaults.get_default("territory");
 		}
@@ -43,7 +43,7 @@ $.extend(erpnext, {
 		
 		var $btn = $('<button class="btn btn-sm btn-default">'+wn._("Add Serial No")+'</button>')
 			.appendTo($("<div>")
-				.css({"margin-bottom": "10px", "margin-top": "-10px"})
+				.css({"margin-bottom": "10px", "margin-left": "15px"})
 				.appendTo(grid_row.fields_dict.serial_no.$wrapper));
 				
 		$btn.on("click", function() {
