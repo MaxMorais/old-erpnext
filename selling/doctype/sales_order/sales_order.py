@@ -438,11 +438,20 @@ def make_journal_voucher(source_name, target_doclist=None):
 def get_project_costs(filenames, customer_code):
 	from ParsePromob import PromobReader  # The file parse
 
+	data = None
+
 	for project_files in filenames.split(';'):
 		reader = PromobReader(project_files, customer_code)              # Init the parse
 		project = reader.getProject()                     # Get the xml root element 
-	
-	return project.toDict()
+		if data is None: 
+			data = project.toDict()
+		else:
+			for k,v in project.toDict().iteritems():
+				if not k == 'items':
+					data[k] += v
+				else:
+					data[k].extend(v)
+	return data or {}
 
 @webnotes.whitelist()
 def has_revision(sales_name):
