@@ -1,3 +1,5 @@
 [
- "Employee"
+ "Employee", 
+ "Make Salary Structure", 
+ "An active Salary Structure already exists. \\\n\t\t\t\t\t\tIf you want to create new one, please ensure that no active \\\n\t\t\t\t\t\tSalary Structure exists for this Employee. \\\n\t\t\t\t\t\tGo to the active Salary Structure and set \\"
 ]

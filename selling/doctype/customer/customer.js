@@ -34,7 +34,6 @@ cur_frm.cscript.refresh = function(doc,dt,dn) {
 			parent: cur_frm.fields_dict.communication_html.wrapper,
 			doc: doc,
 		});
-        cur_frm.toggle_enable(doc.customer_type === 'Individual' ? 'documentos_cpf': 'documentos_cnpj', false);
 	}
 }
 
@@ -43,7 +42,7 @@ cur_frm.cscript.setup_dashboard = function(doc) {
 	if(doc.__islocal) 
 		return;
 	if (in_list(user_roles, "Accounts User") || in_list(user_roles, "Accounts Manager"))
-	cur_frm.dashboard.set_headline('<span class="text-muted">'+ wn._('Loading...')+ '</span>')
+	    cur_frm.dashboard.set_headline('<span class="text-muted">'+ wn._('Loading...')+ '</span>')
 	
 	cur_frm.dashboard.add_doctype_badge("Opportunity", "customer");
 	cur_frm.dashboard.add_doctype_badge("Quotation", "customer");
@@ -59,7 +58,7 @@ cur_frm.cscript.setup_dashboard = function(doc) {
 		},
 		callback: function(r) {
 			if (in_list(user_roles, "Accounts User") || in_list(user_roles, "Accounts Manager")) {
-			cur_frm.dashboard.set_headline(
+			    cur_frm.dashboard.set_headline(
 				wn._("Total Billing This Year: ") + "<b>" 
 				+ format_currency(r.message.total_billing, cur_frm.doc.default_currency)
 				+ '</b> / <span class="text-muted">' + wn._("Unpaid") + ": <b>" 
@@ -253,4 +252,5 @@ cur_frm.cscript.custom_validate = function(doc, cdt, cdn){
         msgprint(msg);
     }
 }
+
 

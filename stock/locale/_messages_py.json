@@ -1,10 +1,8 @@
 [
- "is a cancelled Item", 
  "Not allowed entry in Warehouse", 
  "This is an auto generated Material Request.", 
- "reached its end of life on", 
  "Item", 
  "Please check", 
- "is not a Stock Item", 
+ "Warehouse does not belong to company.", 
  "It was raised because the (actual + ordered + indented - reserved) \n\t\t\t\t\t\tquantity reaches re-order level when the following record was created"
 ]

@@ -435,110 +435,23 @@ def make_journal_voucher(source_name, target_doclist=None):
 	})
 
 @webnotes.whitelist()
-def get_project_costs(filenames):
+def get_project_costs(filenames, customer_code):
 	from ParsePromob import PromobReader  # The file parse
-	from webnotes.model.bean import getlist
-	# The Item, Sales BOM and Price templates
 
-	enviroment_template = [
-		# The Item
-		{
-			'doctype': 'Item',
-			'item_code': '_Item Template_Code',
-			'item_name': '_Item Template_Name',
-			'description': '__Item Template_Description',
-			'brand': 'New',
-			'item_group': 'Itens Projetados',
-			'stock_uom': 'Un',
-			'is_stock_item': 'No',
-			'is_purchase_item': 'No',
-			'is_sales_item': 'Yes',
-			'is_service_item': 'No',
-			'is_sample_item': 'No',
-			'max_discount': 65,
-			'default_income_account': u'Vendas - Grupo Realize Móveis',
-			'default_sales_cost_center': u'Auto Inventory Accounting - Grupo Realize Móveis',	
-		}, 
-		# The Price
-		{
-			'doctype': 'Item Price',
-			'parentfield': 'ref_rate_details',
-			'price_list_name': 'Itens Projetados',
-			'ref_rate': '_Item Template_Price',
-			'ref_currency': 'BRL',
-			'buying_or_selling': 'Selling'
-		}
-	]
-
-	sales_bom_template = [
-		# The Sales BOM
-		{
-			'doctype': 'Sales BOM',
-			'new_item_code': '_Item Sales BOM Template_Code',
-		},
-		# The Sales BOM Item
-		{
-			'doctype': 'Sales BOM Item',
-			'parentfield': 'sales_bom_items',
-			'item_code': '_Item Sales BOM Item Template_SubCode',
-			'qty': '_Item Sales BOM Item Template_Qty',
-			'description': '_Item Sales BOM Item Template_Description',
-			'rate': 0,
-			'uom': '_Item Sales BOM Item Template_UOM'
-		}
-	]
-	item_template = [
-		# The raw item
-		{
-			'doctype': 'Item',
-			'item_code': '_Item Template_Code',
-			'item_name': '_Item Template_Name',
-			'description': '__Item Template_Description',
-			'brand': 'New',
-			'item_group': 'Itens Projetados',
-			'stock_uom': '__Item Template_UOM',
-			'is_stock_item': 'No',
-			'is_purchase_item': 'Yes',
-			'is_sales_item': 'Yes',
-			'manufacturer_part_no': '_Item Template_Code'
-		}
-	]
-
-
-	cost, increase = 0, 0
-	items = []
+	data = None
 
 	for project_files in filenames.split(';'):
-		reader = PromobReader(project_files)              # Init the parse
+		reader = PromobReader(project_files, customer_code)              # Init the parse
 		project = reader.getProject()                     # Get the xml root element 
-		data = project.toDict()                           # Get the item and subitems to compose the sales bom
-		cost += data.get('project_cost', 0)               # Get the raw price of the item
-		increase += data.get('project_increase', 0)       # Get the project increase
-
-		for i in data.get('items', []):  				  								# Process each item for CAD File
-			price = i.pop('price')                       								# Pop the price to append this on your doctype
-			subitems = i.pop('subitems')
-			try:
-				item = webnotes.bean('Item', i['item_code'])                            # First can get the doctype from db
-				item.doc.fields.update(i)												# Update the item data based on CAD data
-				pricelist = item.doclist.get({'doctype': 'Item Price'})
-				if pricelist:
-					pricelist[0].ref_rate = price
-				item.save()                                                             # Save the item
-			except Exception, e:
-				webnotes.msgprint(e)
-				item = webnotes.bean(copy=enviroment_template)                          # Make a new item based on template
-				item.doc.fields.update(i)                                               # Update the item data based on CAD data
-				item.doclist[1].fields.update({'ref_rate': price})                      # Update the price
-				item.insert()                                                           # Save the item
-			items.append(i['item_code']) # Append item code to
-
-	return {
-		'project_cost': cost,
-		'project_increase': increase,
-		'project_cost_net': cost-increase,
-		'items': items
-	}
+		if data is None: 
+			data = project.toDict()
+		else:
+			for k,v in project.toDict().iteritems():
+				if not k == 'items':
+					data[k] += v
+				else:
+					data[k].extend(v)
+	return data or {}
 
 @webnotes.whitelist()
 def has_revision(sales_name):

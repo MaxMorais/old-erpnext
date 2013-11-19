@@ -88,5 +88,6 @@
  "Following table will show values if items are sub - contracted. These values will be fetched from the master of \"Bill of Materials\" of sub - contracted items.", 
  "Select the relevant company name if you have multiple companies", 
  "Contact Email", 
- "Taxes and Charges Added (Company Currency)"
+ "Taxes and Charges Added (Company Currency)", 
+ "<div class='columnHeading'>Other Details</div>"
 ]

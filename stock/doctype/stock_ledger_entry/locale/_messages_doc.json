@@ -6,6 +6,7 @@
  "Stock Queue (FIFO)", 
  "Incoming Rate", 
  "Company", 
+ "Stock Value Difference", 
  "Actual Qty After Transaction", 
  "Stock UOM", 
  "Stock Ledger Entry", 

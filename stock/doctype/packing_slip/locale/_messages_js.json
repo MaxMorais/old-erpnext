@@ -1,1 +1,10 @@
-[]
+[
+ "You have entered duplicate items. Please rectify and try again.", 
+ "in the same UOM.", 
+ "Invalid quantity specified for item ", 
+ "Case No. cannot be 0", 
+ "'To Case No.' cannot be less than 'From Case No.'", 
+ "(Total) Net Weight value. Make sure that Net Weight of each item is", 
+ " Quantity should be greater than 0.", 
+ "Different UOM for items will lead to incorrect"
+]

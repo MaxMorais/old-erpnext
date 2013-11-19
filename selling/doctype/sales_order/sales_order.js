@@ -284,11 +284,13 @@ cur_frm.cscript.get_project_costs = function(doc, cdt, cdn){
 		cur_frm.call({
 			method: 'get_project_costs',
 			args: {
-				filenames: DBChooser.cache[doc.name].selected_files.join(';')
+				filenames: DBChooser.cache[doc.name].selected_files.join(';'),
+				customer_code: doc.customer
 			}, 
 			callback: function(r){
 				var i;
 				if (!r.exc){
+					console.log(r.message);
 					for (i = 0; i<r.message.items.length; i++) {
 						if (!DBChooser.cache[doc.name]['items'][r.message.items[i]]){
 							name = wn.model.make_new_doc_and_get_name('Sales Order Item');

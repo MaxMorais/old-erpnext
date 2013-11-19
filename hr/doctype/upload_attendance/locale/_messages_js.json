@@ -1,1 +1,5 @@
-[]
+[
+ "Attendance From Date and Attendance To Date is mandatory", 
+ "Import Failed!", 
+ "Import Successful!"
+]
