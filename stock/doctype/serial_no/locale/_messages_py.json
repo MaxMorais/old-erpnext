@@ -1,8 +1,21 @@
 [
+ "Serial Nos do not match with qty", 
+ " can not be received twice", 
  "Sorry. Serial Nos. cannot be merged", 
+ "Serial No", 
+ "New Serial No cannot have Warehouse. Warehouse must be \\\n\t\t\t\tset by Stock Entry or Purchase Receipt", 
+ "Serial No qty cannot be a fraction", 
+ "Delivered Serial No ", 
  "Item Code cannot be changed for Serial No.", 
- "Cannot delete Serial No in warehouse. First remove from warehouse, then delete.", 
+ "Cannot delete Serial No in warehouse. \\\n\t\t\t\tFirst remove from warehouse, then delete.", 
+ "Same Serial No", 
+ "AMC expiry date and maintenance status mismatched", 
+ " does not belong to Warehouse", 
+ "Serial No status must be 'Available' to Deliver", 
  "Item must have 'Has Serial No' as 'Yes'", 
- "New Serial No cannot have Warehouse. Warehouse must be set by Stock Entry or Purchase Receipt", 
- "Warehouse cannot be changed for Serial No."
+ "Serial No must exist to transfer out.", 
+ "Warehouse cannot be changed for Serial No.", 
+ "Serial No created", 
+ "Serial No does not belong to Item", 
+ "Warranty expiry date and maintenance status mismatched"
 ]

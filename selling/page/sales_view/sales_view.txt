@@ -1,0 +1,41 @@
+[
+ {
+  "creation": "2013-11-13 15:22:58", 
+  "docstatus": 0, 
+  "modified": "2013-11-13 15:22:58", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "doctype": "Page", 
+  "icon": "icon-tag", 
+  "module": "Selling", 
+  "name": "__common__", 
+  "page_name": "sales-view", 
+  "standard": "Yes", 
+  "title": "Sales View"
+ }, 
+ {
+  "doctype": "Page Role", 
+  "name": "__common__", 
+  "parent": "sales-view", 
+  "parentfield": "roles", 
+  "parenttype": "Page"
+ }, 
+ {
+  "doctype": "Page", 
+  "name": "sales-view"
+ }, 
+ {
+  "doctype": "Page Role", 
+  "role": "Sales Manager"
+ }, 
+ {
+  "doctype": "Page Role", 
+  "role": "Sales Manager"
+ }, 
+ {
+  "doctype": "Page Role", 
+  "role": "Sales Master Manager"
+ }
+]

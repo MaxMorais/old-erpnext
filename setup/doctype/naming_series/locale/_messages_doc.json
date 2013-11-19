@@ -1,5 +1,6 @@
 [
  "Current Value", 
+ "Update Series Number", 
  "Change the starting / current sequence number of an existing series.", 
  "Series List for this Transaction", 
  "Setup Series", 
@@ -7,7 +8,7 @@
  "Setup", 
  "Prefix", 
  "Update", 
- "Update Series Number", 
+ "<div class='well'>\\nEdit list of Series in the box below. Rules:\\n<ul>\\n<li>Each Series Prefix on a new line.</li>\\n<li>Allowed special characters are '/' and '-'</li>\\n<li>Optionally, set the number of digits in the series using dot (.) followed by hashes (#). For example, '.####' means that the series will have four digits. Default is five digits.</li>\\n</ul>\\nExamples:<br>\\nINV-<br>\\nINV-10-<br>\\nINVK-<br>\\nINV-.####<br>\\n</div>", 
  "Select Transaction", 
  "Update Series", 
  "User must always select", 

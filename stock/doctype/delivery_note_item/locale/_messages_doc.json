@@ -1,5 +1,5 @@
 [
- "Against Document Date", 
+ "Against Sales Order", 
  "Item Name", 
  "Price List Rate (Company Currency)", 
  "Cost Center", 
@@ -14,13 +14,13 @@
  "Brand Name", 
  "Against Document Detail No", 
  "Barcode", 
- "Against Document No", 
  "Warehouse and Reference", 
  "Installed Qty", 
  "Quantity", 
  "Rate (Company Currency)", 
  "Page Break", 
  "Buying Amount", 
+ "Against Sales Invoice", 
  "Amount (Company Currency)", 
  "Expense Account", 
  "Amount", 
@@ -31,6 +31,5 @@
  "Serial No", 
  "Rate", 
  "Customer's Item Code", 
- "Price List Rate", 
- "Document Type"
+ "Price List Rate"
 ]

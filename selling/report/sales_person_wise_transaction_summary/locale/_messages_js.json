@@ -1,1 +1,12 @@
-[]
+[
+ "Customer", 
+ "Sales Person", 
+ "Sales Person-wise Transaction Summary", 
+ "Company", 
+ "To Date", 
+ "From Date", 
+ "Item Group", 
+ "Territory", 
+ "Document Type", 
+ "Brand"
+]

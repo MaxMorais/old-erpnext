@@ -1,9 +1,9 @@
 [
  " should be 'Yes'. As Item: ", 
+ "Conversion Factor of UOM: %s should be equal to 1. \n\t\t\t\t\t\tAs UOM: %s is Stock UOM of Item: %s.", 
  "Item Code (item_code) is mandatory because Item naming is not sequential.", 
  "Default Unit of Measure can not be changed directly \\\n\t\t\t\t\tbecause you have already made some transaction(s) with another UOM.\\n \\\n\t\t\t\t\tTo change default UOM, use 'UOM Replace Utility' tool under Stock module.", 
  " is present in one or many Active BOMs", 
- "To set reorder level, item must be Purchase Item", 
  "Default Warehouse is mandatory for Stock Item.", 
  "As there are existing stock transactions for this \\\n\t\t\t\t\t\t\titem, you can not change the values of 'Has Serial No', \\\n\t\t\t\t\t\t\t'Is Stock Item' and 'Valuation Method'", 
  "Please enter Default Unit of Measure"

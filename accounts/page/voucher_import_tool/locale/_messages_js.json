@@ -1,1 +1,10 @@
-[]
+[
+ "Upload file in CSV format with UTF-8 encoding", 
+ "Import multiple vouchers with multiple accounts", 
+ "Voucher Import Tool", 
+ "Import multiple accounting entries via CSV (spreadsheet) file:", 
+ "Upload", 
+ "Download", 
+ "Import multiple vouchers with one debit and one credit entry", 
+ "Download Template"
+]

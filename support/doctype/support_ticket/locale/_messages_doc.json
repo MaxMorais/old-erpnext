@@ -12,7 +12,7 @@
  "Description", 
  "Resolution Details", 
  "Company", 
- "To Reply", 
+ "Resolution Date", 
  "Hold", 
  "First Responded On", 
  "Customer", 
@@ -21,10 +21,9 @@
  "Communications", 
  "Contact", 
  "Customer Name", 
+ "Replied", 
  "Reference", 
- "Resolution Date", 
  "Opening Date", 
- "Waiting for Customer", 
  "Open", 
  "Subject"
 ]

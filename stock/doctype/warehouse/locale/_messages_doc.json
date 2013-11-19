@@ -13,11 +13,13 @@
  "Address Line 1", 
  "Address Line 2", 
  "Merge Warehouses", 
+ "Create Account Under", 
  "Warehouse Name", 
  "Merge", 
  "Mobile No", 
  "For Reference Only.", 
  "If set, data entry is only allowed for specified users. Else, entry is allowed for all users with requisite permissions.", 
+ "Account for the warehouse (Perpetual Inventory) will be created under this Account.", 
  "Merge Into", 
  "Warehouse Users", 
  "Email Id"

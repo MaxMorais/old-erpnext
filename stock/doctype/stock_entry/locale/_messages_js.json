@@ -1,5 +1,10 @@
 [
- "You can not enter both Delivery Note No and Sales Invoice No. \\\n\t\t\t\t\tPlease enter any one.", 
+ "Make Credit Note", 
+ "Please enter Item Code to get batch no", 
+ "Please enter Delivery Note No or Sales Invoice No to proceed", 
+ "Make Debit Note", 
  "Please enter Purchase Receipt No to proceed", 
- "Please enter Delivery Note No or Sales Invoice No to proceed"
+ "Item table can not be blank", 
+ "You can not enter both Delivery Note No and Sales Invoice No. \\\n\t\t\t\t\tPlease enter any one.", 
+ "Make Excise Invoice"
 ]

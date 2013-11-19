@@ -1,11 +1,13 @@
 [
- "Journal Entry for inventory that is received but not yet invoiced", 
- "Payment Entry has been modified after you pulled it. \n\t\t\tPlease pull it again.", 
+ "Account", 
+ "Debit and Credit not equal for this voucher: Diff (Debit) is ", 
  "not within Fiscal Year", 
- "Enabled", 
- "Disabled", 
- "Auto Inventory Accounting", 
+ " after this transaction.", 
+ " budget ", 
+ " will exceed by ", 
+ "Payment Entry has been modified after you pulled it. \n\t\t\tPlease pull it again.", 
+ "' in Company: ", 
  "Please mention default value for '", 
- "Following Journal Vouchers have been created automatically", 
- "' in Company: "
+ " for account ", 
+ " can only be debited/credited through Stock transactions"
 ]

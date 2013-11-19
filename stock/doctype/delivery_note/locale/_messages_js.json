@@ -1,3 +1,7 @@
 [
- "From Sales Order"
+ "From Sales Order", 
+ "Send SMS", 
+ "Make Invoice", 
+ "Make Installation Note", 
+ "Make Packing Slip"
 ]

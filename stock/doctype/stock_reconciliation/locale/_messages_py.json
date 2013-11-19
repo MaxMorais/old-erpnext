@@ -1,13 +1,10 @@
 [
- "Stock Reconciliation file not uploaded", 
  " is less than equals to zero in the system, \\\n\t\t\t\t\t\tvaluation rate is mandatory for this item", 
- "Sorry! We can only allow upto 100 rows for Stock Reconciliation.", 
  "As existing qty for item: ", 
  "Wrong Template: Unable to find head row.", 
- "' can not be managed using Stock Reconciliation.\\\n\t\t\t\t\tYou can add/delete Serial No directly, \\\n\t\t\t\t\tto modify stock of this item.", 
+ "Please enter Cost Center", 
  "Serialized Item: '", 
  " at warehouse: ", 
  "Please enter Expense Account", 
- "Row # ", 
- "Invalid Item or Warehouse Data"
+ "Row # "
 ]
