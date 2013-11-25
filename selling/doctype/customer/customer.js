@@ -34,6 +34,7 @@ cur_frm.cscript.refresh = function(doc,dt,dn) {
 			parent: cur_frm.fields_dict.communication_html.wrapper,
 			doc: doc,
 		});
+        cur_frm.toggle_enable(doc.customer_type === 'Individual' ? 'documentos_cpf': 'documentos_cnpj', false);
 	}
 }
 
@@ -44,11 +45,11 @@ cur_frm.cscript.setup_dashboard = function(doc) {
 	if (in_list(user_roles, "Accounts User") || in_list(user_roles, "Accounts Manager"))
 	    cur_frm.dashboard.set_headline('<span class="text-muted">'+ wn._('Loading...')+ '</span>')
 	
-	cur_frm.dashboard.add_doctype_badge("Opportunity", "customer");
-	cur_frm.dashboard.add_doctype_badge("Quotation", "customer");
-	cur_frm.dashboard.add_doctype_badge("Sales Order", "customer");
-	cur_frm.dashboard.add_doctype_badge("Delivery Note", "customer");
-	cur_frm.dashboard.add_doctype_badge("Sales Invoice", "customer");
+    cur_frm.dashboard.add_doctype_badge(wn._("Opportunity"), "customer");
+    cur_frm.dashboard.add_doctype_badge(wn._("Quotation"), "customer");
+    cur_frm.dashboard.add_doctype_badge(wn._("Sales Order"), "customer");
+    cur_frm.dashboard.add_doctype_badge(wn._("Delivery Note"), "customer");
+    cur_frm.dashboard.add_doctype_badge(wn._("Sales Invoice"), "customer");
 	
 	return wn.call({
 		type: "GET",

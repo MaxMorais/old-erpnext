@@ -483,4 +483,41 @@ def has_revision(sales_name):
 	}
 	return revisions
 
-
+@webnotes.whitelist()
+def geometry_info(item_name):
+	bom_name = webnotes.conn.sql("""SELECT name FROM `tabSales BOM` WHERE new_item_code='%s'"""%item_name, as_dict=True)[0]['name']
+	has_sales_bom = webnotes.conn.sql("""select name from `tabSales BOM` 
+			where new_item_code=%s and docstatus != 2""", item_name)
+	if has_sales_bom:
+		geometry = {
+			'qty': webnotes.conn.sql(
+				"""
+				SELECT count(`tabSales BOM Geometry`.`name`) as `qty` FROM `tabSales BOM Geometry`
+				WHERE `tabSales BOM Geometry`.parent="%s" AND
+				`tabSales BOM Geometry`.docstatus != 2
+				"""%bom_name, as_dict=True)[0]['qty'],
+			'geometries': webnotes.conn.sql("""
+				SELECT 
+					`tabSales BOM Geometry`.name,
+					`tabSales BOM Geometry`.ambient,
+					`tabSales BOM Geometry`.type,
+					`tabSales BOM Geometry`.description,
+					`tabSales BOM Geometry`.in_budget,
+					`tabSales BOM Geometry`.price,
+					`tabSales BOM Geometry`.reference,
+					`tabSales BOM Geometry`.width,
+					`tabSales BOM Geometry`.height,
+					`tabSales BOM Geometry`.depth
+				FROM `tabSales BOM Geometry`
+				WHERE
+					`tabSales BOM Geometry`.parent="%s" AND
+					`tabSales BOM Geometry`.docstatus!=2
+				ORDER BY `tabSales BOM Geometry`.ambient
+			"""%bom_name, as_dict=True)
+		}
+	else:
+		geometry = {
+			'qty': 0,
+			'geometries': []
+		}
+	return geometry

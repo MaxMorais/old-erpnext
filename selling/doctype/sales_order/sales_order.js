@@ -418,6 +418,55 @@ cur_frm.cscript.get_revision_details = function(){
 	}
 }
 
+cur_frm.cscript.custom_refresh = function(doc, cdt, cdn){
+	cur_frm.cscript.get_geometry_details(doc, cdt, cdn);
+}
+
+cur_frm.cscript.get_geometry_details = function(doc, cdt, cdn){
+	if (!doc.__islocal){
+		for (name in locals['Sales Order Item']){
+			item = locals['Sales Order Item'][name]
+			cur_frm.call({
+				method: 'geometry_info',
+				args: {
+					item_name: item.item_code
+				},
+				callback: function(r){
+					if (!r.exc){
+						show = r.message.qty > 0;
+						cur_frm.toggle_display('geometry_sb', show);
+						if (!show){ return; }
+						$wrapper = $(cur_frm.fields_dict['geometry_sb'].wrapper);
+						$wrapper.empty();
+						out = '<table class="table table-bordered table-striped">'
+						+ '<thead><tr>'
+							+ '<th rowspan="2">' + wn._('Sr.') + '</th>'
+							+ '<th>' + wn._('Ambient') + '</th>'
+							+ '<th>' + wn._('Type') + '</th>'
+							+ '<th>' + wn._('Dimension') + '</th>'
+							+ '<th>' + wn._('Price') + '</th>'
+							+ '<th>' + wn._('Is in budget?') + '</tr>'
+							+ '<th>' + wn._('Description') + '</tr>'
+							+ '<tr>' + wn._('Decrease?') + '</tr>'
+						+ '</tr></thead>'
+						+ $.map(r.message.geometries, function(d,i){
+							return '<tr>' 
+								+ '<td>' + d.ambient + '</td>' 
+								+ '<td>' + d.type + '</td>'
+								+ repl('<td>(%04d, %04d, %04d)</tr>', [d.width, d.height, d.depth])
+								+ repl('<td><i class="icon-%s"></i></td>', ((d.in_budget) ? 'remove' : 'ok'))
+								+ '<td>' + d.description + '</td>'
+								+ repl('<td><i class="icon-%s"></i></td>', ((d.decrease) ? 'remove' : 'ok'))
+								+ '</tr>';
+						}).join('\n');
+						$wrapper.html(out);
+					}
+				}
+			});
+		}
+	}
+}
+
 cur_frm.cscript.delivery_date = function(doc, cdt, cdn){
 	if ((doc.delivery_date) && 
 		(doc.delivery_date<
