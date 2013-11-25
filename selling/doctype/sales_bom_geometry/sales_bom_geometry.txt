@@ -1,0 +1,107 @@
+[
+ {
+  "creation": "2013-11-21 11:08:38", 
+  "docstatus": 0, 
+  "modified": "2013-11-21 11:15:50", 
+  "modified_by": "Administrator", 
+  "owner": "Administrator"
+ }, 
+ {
+  "doctype": "DocType", 
+  "document_type": "Master", 
+  "in_create": 1, 
+  "istable": 1, 
+  "module": "Selling", 
+  "name": "__common__"
+ }, 
+ {
+  "doctype": "DocField", 
+  "name": "__common__", 
+  "parent": "Sales BOM Geometry", 
+  "parentfield": "fields", 
+  "parenttype": "DocType", 
+  "permlevel": 0
+ }, 
+ {
+  "doctype": "DocType", 
+  "name": "Sales BOM Geometry"
+ }, 
+ {
+  "allow_on_submit": 0, 
+  "doctype": "DocField", 
+  "fieldname": "ambient", 
+  "fieldtype": "Data", 
+  "in_list_view": 1, 
+  "label": "Ambient", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "type", 
+  "fieldtype": "Data", 
+  "in_list_view": 1, 
+  "label": "Type", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "description", 
+  "fieldtype": "Small Text", 
+  "in_list_view": 1, 
+  "label": "Description", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "price", 
+  "fieldtype": "Currency", 
+  "in_list_view": 1, 
+  "label": "Price", 
+  "read_only": 1, 
+  "reqd": 0
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "in_budget", 
+  "fieldtype": "Check", 
+  "label": "In Budget?", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "width", 
+  "fieldtype": "Float", 
+  "label": "Width", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "height", 
+  "fieldtype": "Float", 
+  "label": "Height", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "depth", 
+  "fieldtype": "Float", 
+  "label": "Depth", 
+  "read_only": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "reference", 
+  "fieldtype": "Link", 
+  "label": "Reference", 
+  "options": "Item", 
+  "read_only": 1
+ }, 
+ {
+  "depends_on": "eval:doc.in_budget&&doc.price>0", 
+  "doctype": "DocField", 
+  "fieldname": "decrease", 
+  "fieldtype": "Check", 
+  "label": "Decrease?"
+ }
+]

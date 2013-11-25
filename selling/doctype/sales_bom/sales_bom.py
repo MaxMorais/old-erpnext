@@ -15,7 +15,7 @@ class DocType:
 	
 	def validate(self):
 		# check for duplicate
-		self.check_duplicate()
+		#self.check_duplicate()
 		self.validate_main_item()
 
 		from utilities.transaction_base import validate_uom_is_integer

@@ -2,7 +2,7 @@
  {
   "creation": "2013-06-20 11:53:21", 
   "docstatus": 0, 
-  "modified": "2013-07-05 14:54:08", 
+  "modified": "2013-11-21 11:56:39", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -73,6 +73,20 @@
   "oldfieldtype": "Table", 
   "options": "Sales BOM Item", 
   "reqd": 1
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "geometry_section", 
+  "fieldtype": "Section Break", 
+  "label": "Geometry Info"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "sales_bom_geometries", 
+  "fieldtype": "Table", 
+  "label": "Sales BOM Geometry", 
+  "options": "Sales BOM Geometry", 
+  "read_only": 1
  }, 
  {
   "cancel": 1, 
