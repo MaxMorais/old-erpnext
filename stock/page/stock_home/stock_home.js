@@ -241,6 +241,11 @@ wn.module_page["Stock"] = [
 				doctype: "Warehouse"
 			},
 			{
+				"label": wn._("Item Prices for Sales"),
+				route: "query-report/Item Prices for Sales",
+				doctype: "Item"
+			},
+			{
 				"label":wn._("Item Prices"),
 				route: "query-report/Item Prices",
 				doctype: "Price List"
