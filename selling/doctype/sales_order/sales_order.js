@@ -419,7 +419,8 @@ cur_frm.cscript.get_revision_details = function(){
 }
 
 cur_frm.cscript.custom_refresh = function(doc, cdt, cdn){
-	cur_frm.cscript.get_geometry_details(doc, cdt, cdn);
+	if ((!(doc.__islocal)) && (doc.workflow_state!=='Rascunho'))
+		cur_frm.cscript.get_geometry_details(doc, cdt, cdn);
 }
 
 cur_frm.cscript.get_geometry_details = function(doc, cdt, cdn){
@@ -436,7 +437,7 @@ cur_frm.cscript.get_geometry_details = function(doc, cdt, cdn){
 						show = r.message.qty > 0;
 						cur_frm.toggle_display('geometry_sb', show);
 						if (!show){ return; }
-						$wrapper = $(cur_frm.fields_dict['geometry_sb'].wrapper);
+						$wrapper = $(cur_frm.fields_dict['geometry_html'].wrapper);
 						$wrapper.empty();
 						out = '<table class="table table-bordered table-striped">'
 						+ '<thead><tr>'
@@ -865,6 +866,10 @@ cur_frm.cscript.payment_value = function(doc, cdt, cdn){
 	if(d.number_of_payments){
 		update_payment_values(d, doc);
 	}   
+}
+
+cur_frm.cscript.is_freebie = function(doc, cdt, cdn){
+	d = locals[cdt][cdn];
 }
 
 // Adiciona um gatilho para atualizacao de valores de projeto.
