@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
@@ -59,7 +59,6 @@ class DocType:
 		return cond
 		
 		
-		
 	def check_mandatory(self):
 		for f in ['company', 'month', 'fiscal_year']:
 			if not self.doc.fields[f]:
@@ -84,8 +83,6 @@ class DocType:
 				'month_days': month_days
 			}
 
-		
-		
 	def create_sal_slip(self):
 		"""
 			Creates salary slip for selected employees if already not created

@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 #!/usr/bin/env python
@@ -28,7 +28,9 @@ requirements = [
 	"six", 
 	"slugify", 
 	"termcolor", 
-	"werkzeug"
+	"werkzeug",
+	"semantic_version",
+	"gitpython==0.3.2.RC1"
 ]
 
 def install(install_path):

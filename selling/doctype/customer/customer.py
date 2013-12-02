@@ -1,10 +1,9 @@
-# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import webnotes
 
-from webnotes.utils import cstr
 from webnotes.model.doc import Document, make_autoname
 from webnotes import msgprint, _
 import webnotes.defaults
@@ -144,20 +143,13 @@ class DocType(TransactionBase):
 		if self.doc.lead_name:
 			webnotes.conn.sql("update `tabLead` set status='Interested' where name=%s",self.doc.lead_name)
 			
-	def on_rename(self, new, old, merge=False):
-		#update customer_name if not naming series
+	def before_rename(self, olddn, newdn, merge=False):
+		from accounts.utils import rename_account_for
+		rename_account_for("Customer", olddn, newdn, merge)
+			
+	def after_rename(self, olddn, newdn, merge=False):
 		if webnotes.defaults.get_global_default('cust_master_name') == 'Customer Name':
-			webnotes.conn.sql("""update `tabCustomer` set customer_name = %s where name = %s""", 
-				(new, old))
-		
-		for account in webnotes.conn.sql("""select name, account_name from 
-			tabAccount where master_name=%s and master_type='Customer'""", old, as_dict=1):
-			if account.account_name != new:
-				webnotes.rename_doc("Account", account.name, new, merge=merge)
-
-		#update master_name in doctype account
-		webnotes.conn.sql("""update `tabAccount` set master_name = %s, 
-			master_type = 'Customer' where master_name = %s""", (new,old))
+			webnotes.conn.set(self.doc, "customer_name", newdn)
 
 @webnotes.whitelist()
 def get_dashboard_info(customer):

@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
@@ -148,29 +148,13 @@ class DocType(TransactionBase):
 		self.delete_supplier_contact()
 		self.delete_supplier_account()
 		
-	def on_rename(self, new, old, merge=False):
-		#update supplier_name if not naming series
+	def before_rename(self, olddn, newdn, merge=False):
+		from accounts.utils import rename_account_for
+		rename_account_for("Supplier", olddn, newdn, merge)
+		
+	def after_rename(self, olddn, newdn, merge=False):
 		if webnotes.defaults.get_global_default('supp_master_name') == 'Supplier Name':
-			update_fields = [
-			('Supplier', 'name'),
-			('Address', 'supplier'),
-			('Contact', 'supplier'),
-			('Purchase Invoice', 'supplier'),
-			('Purchase Order', 'supplier'),
-			('Purchase Receipt', 'supplier'),
-			('Serial No', 'supplier')]
-			for rec in update_fields:
-				webnotes.conn.sql("update `tab%s` set supplier_name = %s where `%s` = %s" % \
-					(rec[0], '%s', rec[1], '%s'), (new, old))
-				
-		for account in webnotes.conn.sql("""select name, account_name from 
-			tabAccount where master_name=%s and master_type='Supplier'""", old, as_dict=1):
-			if account.account_name != new:
-				webnotes.rename_doc("Account", account.name, new, merge=merge)
-
-		#update master_name in doctype account
-		webnotes.conn.sql("""update `tabAccount` set master_name = %s, 
-			master_type = 'Supplier' where master_name = %s""" , (new,old))
+			webnotes.conn.set(self.doc, "supplier_name", newdn)
 
 @webnotes.whitelist()
 def get_dashboard_info(supplier):

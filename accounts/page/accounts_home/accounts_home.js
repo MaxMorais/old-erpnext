@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt"
 
 wn.module_page["Accounts"] = [
@@ -100,11 +100,6 @@ wn.module_page["Accounts"] = [
 				"doctype": "Period Closing Voucher",
 				description: wn._("Close Balance Sheet and book Profit or Loss.")
 			},
-			{
-				"page":"voucher-import-tool",
-				"label": wn._("Voucher Import Tool"),
-				"description": wn._("Import accounting entries from CSV.")
-			},		
 		]
 	},
 	{

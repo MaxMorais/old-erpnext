@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
 
 wn.require("app/js/stock_grid_report.js");
@@ -11,7 +11,7 @@ erpnext.StockAnalytics = erpnext.StockGridReport.extend({
 			parent: $(wrapper).find('.layout-main'),
 			appframe: wrapper.appframe,
 			doctypes: ["Item", "Item Group", "Warehouse", "Stock Ledger Entry", "Brand", 
-				"Fiscal Year"],
+				"Fiscal Year", "Serial No"],
 			tree_grid: {
 				show: true, 
 				parent_field: "parent_item_group", 

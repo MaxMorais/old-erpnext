@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
 
 cur_frm.cscript.tname = "Purchase Receipt Item";
@@ -20,7 +20,7 @@ erpnext.stock.PurchaseReceiptController = erpnext.buying.BuyingController.extend
 				cur_frm.add_custom_button(wn._('Make Purchase Invoice'), 
 					this.make_purchase_invoice);
 			}
-			cur_frm.add_custom_button(wn._('Send SMS'), cur_frm.cscript['Send SMS'], "icon-mobile-phone");
+			cur_frm.add_custom_button('Send SMS', cur_frm.cscript.send_sms);
 			
 			this.show_stock_ledger();
 			this.show_general_ledger();
