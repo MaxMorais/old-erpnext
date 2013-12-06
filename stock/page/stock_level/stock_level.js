@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
 
 wn.pages['stock-level'].onload = function(wrapper) { 
@@ -27,7 +27,7 @@ erpnext.StockLevel = erpnext.StockGridReport.extend({
 			parent: $(wrapper).find('.layout-main'),
 			appframe: wrapper.appframe,
 			doctypes: ["Item", "Warehouse", "Stock Ledger Entry", "Production Order", 
-				"Material Request Item", "Purchase Order Item", "Sales Order Item", "Brand"],
+				"Material Request Item", "Purchase Order Item", "Sales Order Item", "Brand", "Serial No"],
 		});
 		
 		this.wrapper.bind("make", function() {

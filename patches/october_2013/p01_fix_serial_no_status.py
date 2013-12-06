@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
@@ -11,7 +11,6 @@ def execute():
 		try:
 			sr_bean = webnotes.bean("Serial No", sr[0])
 			sr_bean.make_controller().via_stock_ledger = True
-			sr_bean.run_method("validate")
 			sr_bean.save()
 			webnotes.conn.commit()
 		except:

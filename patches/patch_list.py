@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+# Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
@@ -240,12 +240,22 @@ patch_list = [
 	"patches.1311.p01_cleanup",
 	"execute:webnotes.reload_doc('website', 'doctype', 'table_of_contents') #2013-11-13",
 	"execute:webnotes.reload_doc('website', 'doctype', 'web_page') #2013-11-13",
-	"execute:webnotes.bean('Style Settings').save() #2013-11-13",
 	"execute:webnotes.reload_doc('home', 'doctype', 'feed') #2013-11-15",
 	"execute:webnotes.reload_doc('core', 'doctype', 'defaultvalue') #2013-11-15",
 	"execute:webnotes.reload_doc('core', 'doctype', 'comment') #2013-11-15",
 	"patches.1311.p02_index_singles",
 	"patches.1311.p01_make_gl_entries_for_si",
-    "patches.1311.p03_update_reqd_report_fields",
-    "execute:webnotes.get_module('website.doctype.website_sitemap_config.website_sitemap_config').rebuild_website_sitemap_config()",
+	"patches.1311.p03_update_reqd_report_fields",
+	"execute:webnotes.reload_doc('website', 'doctype', 'website_sitemap_config') #2013-11-20",
+	"execute:webnotes.reload_doc('website', 'doctype', 'website_sitemap') #2013-11-20",
+	"execute:webnotes.bean('Style Settings').save() #2013-11-20",
+	"execute:webnotes.get_module('website.doctype.website_sitemap_config.website_sitemap_config').rebuild_website_sitemap_config()",
+	"patches.1311.p04_update_year_end_date_of_fiscal_year",
+	"patches.1311.p04_update_comments",
+	"patches.1311.p05_website_brand_html",
+	"patches.1311.p06_fix_report_columns",
+	"execute:webnotes.delete_doc('DocType', 'Documentation Tool')",
+	"execute:webnotes.delete_doc('Report', 'Stock Ledger') #2013-11-29",
+	"execute:webnotes.delete_doc('Report', 'Payment Collection With Ageing')",
+	"execute:webnotes.delete_doc('Report', 'Payment Made With Ageing')",
 ]

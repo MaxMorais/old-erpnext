@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt"
 
 wn.module_page["Selling"] = [
@@ -179,6 +179,11 @@ wn.module_page["Selling"] = [
 			{
 				"label":wn._("Sales Funnel"),
 				page: "sales-funnel"
+			},
+			{
+				"label":wn._("Customer Acquisition and Loyalty"),
+				route: "query-report/Customer Acquisition and Loyalty",
+				doctype: "Customer"
 			},
 		]
 	},

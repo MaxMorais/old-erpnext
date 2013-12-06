@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt"
 
 wn.module_page["Stock"] = [
@@ -148,7 +148,8 @@ wn.module_page["Stock"] = [
 		items: [
 			{
 				"label":wn._("Stock Ledger"),
-				page: "stock-ledger"
+				doctype: "Delivery Note",
+				route: "query-report/Stock Ledger"
 			},
 			{
 				"label":wn._("Stock Balance"),
@@ -180,11 +181,6 @@ wn.module_page["Stock"] = [
 		right: true,
 		icon: "icon-list",
 		items: [
-			{
-				"label":wn._("Stock Ledger"),
-				route: "Report/Stock Ledger Entry/Stock Ledger",
-				doctype: "Stock Ledger Entry"
-			},
 			{
 				"label":wn._("Ordered Items To Be Delivered"),
 				route: "query-report/Ordered Items To Be Delivered",

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
 
 cur_frm.cscript.tname = "Sales Invoice Item";
@@ -38,7 +38,7 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 		// if document is POS then change default print format to "POS Invoice"
 		if(cur_frm.doc.is_pos && cur_frm.doc.docstatus===1) {
 			locals.DocType[cur_frm.doctype].default_print_format = "POS Invoice";
-			cur_frm.setup_print();
+			cur_frm.setup_print_layout();
 		}
 	},
 	

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd.
+// Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
 
 wn.pages['stock-ledger'].onload = function(wrapper) { 
@@ -21,7 +21,7 @@ erpnext.StockLedger = erpnext.StockGridReport.extend({
 			page: wrapper,
 			parent: $(wrapper).find('.layout-main'),
 			appframe: wrapper.appframe,
-			doctypes: ["Item", "Item Group", "Warehouse", "Stock Ledger Entry", "Brand"],
+			doctypes: ["Item", "Item Group", "Warehouse", "Stock Ledger Entry", "Brand", "Serial No"],
 		})
 	},
 
