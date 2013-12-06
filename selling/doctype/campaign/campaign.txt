@@ -2,7 +2,7 @@
  {
   "creation": "2013-01-10 16:34:18", 
   "docstatus": 0, 
-  "modified": "2013-07-05 14:29:57", 
+  "modified": "2013-12-06 10:54:02", 
   "modified_by": "Administrator", 
   "owner": "Administrator"
  }, 
@@ -72,6 +72,19 @@
   "oldfieldname": "description", 
   "oldfieldtype": "Text", 
   "width": "300px"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "subscribers", 
+  "fieldtype": "Section Break", 
+  "label": "Subscribers"
+ }, 
+ {
+  "doctype": "DocField", 
+  "fieldname": "subscribers_list", 
+  "fieldtype": "Table", 
+  "label": "Subscribers List", 
+  "options": "Campaign Subscriber"
  }, 
  {
   "cancel": 0, 
