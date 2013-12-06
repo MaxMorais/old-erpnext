@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 # Copyright (c) 2013, Web Notes Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
@@ -484,10 +485,10 @@ def has_revision(sales_name):
 
 @webnotes.whitelist()
 def geometry_info(item_name):
-	bom_name = webnotes.conn.sql("""SELECT name FROM `tabSales BOM` WHERE new_item_code='%s'"""%item_name, as_dict=True)[0]['name']
 	has_sales_bom = webnotes.conn.sql("""select name from `tabSales BOM` 
 			where new_item_code=%s and docstatus != 2""", item_name)
 	if has_sales_bom:
+		bom_name = webnotes.conn.sql("""SELECT name FROM `tabSales BOM` WHERE new_item_code='%s'"""%item_name, as_dict=True)[0]['name']
 		geometry = {
 			'qty': webnotes.conn.sql(
 				"""
